@@ -7,6 +7,7 @@ import {
   MapPin,
   Truck,
   CreditCard,
+  Banknote,
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
@@ -28,6 +29,7 @@ export default function CheckoutPage() {
 
   const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
   const [selectedZoneId, setSelectedZoneId] = useState<string>('');
+  const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'COD'>('ONLINE');
   const [address, setAddress] = useState({
     line1: '',
     line2: '',
@@ -71,7 +73,8 @@ export default function CheckoutPage() {
 
   const selectedZone = deliveryZones.find((z) => z.id === selectedZoneId);
   const deliveryFee = selectedZone ? selectedZone.fee : 0;
-  const grandTotal = cart.subtotal + deliveryFee;
+  const codFee = paymentMethod === 'COD' ? 15000 : 0; // ₹150 nominal COD processing fee
+  const grandTotal = cart.subtotal + deliveryFee + codFee;
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +97,7 @@ export default function CheckoutPage() {
         deliveryAddress: address,
         deliveryZoneId: selectedZoneId || undefined,
         notes,
+        paymentMethod,
       });
 
       if (orderRes?.order) {
@@ -303,6 +307,69 @@ export default function CheckoutPage() {
               ))}
             </div>
 
+            {/* Payment Method Selector */}
+            <div className="space-y-3 pt-1">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block">
+                Select Payment Mode:
+              </label>
+
+              {/* Option 1: Online Payment */}
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('ONLINE')}
+                className={`w-full p-3.5 rounded-2xl text-left border transition-all flex items-start gap-3 cursor-pointer ${
+                  paymentMethod === 'ONLINE'
+                    ? 'border-amber-500 bg-amber-500/10 shadow-md ring-1 ring-amber-500/50'
+                    : 'border-slate-800 bg-slate-900/70 hover:border-slate-700'
+                }`}
+              >
+                <CreditCard
+                  className={`w-5 h-5 shrink-0 mt-0.5 ${
+                    paymentMethod === 'ONLINE' ? 'text-amber-400' : 'text-slate-400'
+                  }`}
+                />
+                <div className="flex-1 text-xs">
+                  <div className="flex items-center justify-between">
+                    <p className="font-bold text-white">Online Payment (UPI / Cards)</p>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      FREE / NO FEE
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    GPay, PhonePe, Paytm, Debit/Credit Card, Netbanking
+                  </p>
+                </div>
+              </button>
+
+              {/* Option 2: Cash on Delivery */}
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('COD')}
+                className={`w-full p-3.5 rounded-2xl text-left border transition-all flex items-start gap-3 cursor-pointer ${
+                  paymentMethod === 'COD'
+                    ? 'border-amber-500 bg-amber-500/10 shadow-md ring-1 ring-amber-500/50'
+                    : 'border-slate-800 bg-slate-900/70 hover:border-slate-700'
+                }`}
+              >
+                <Banknote
+                  className={`w-5 h-5 shrink-0 mt-0.5 ${
+                    paymentMethod === 'COD' ? 'text-amber-400' : 'text-slate-400'
+                  }`}
+                />
+                <div className="flex-1 text-xs">
+                  <div className="flex items-center justify-between">
+                    <p className="font-bold text-white">Cash on Delivery (COD)</p>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      +₹150 Fee
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Pay cash at construction site upon precast material inspection & crane unloading.
+                  </p>
+                </div>
+              </button>
+            </div>
+
             {/* Pricing math */}
             <div className="space-y-2 text-xs border-t border-slate-800 pt-4">
               <div className="flex justify-between text-slate-400">
@@ -315,36 +382,43 @@ export default function CheckoutPage() {
                   {deliveryFee === 0 ? 'FREE' : formatPrice(deliveryFee)}
                 </span>
               </div>
+              {paymentMethod === 'COD' && (
+                <div className="flex justify-between text-amber-300 font-medium">
+                  <span>COD Processing Fee (Site Verification)</span>
+                  <span className="font-mono font-bold">+₹150.00</span>
+                </div>
+              )}
               <div className="border-t border-slate-800 pt-3 flex justify-between items-baseline text-sm">
                 <span className="font-bold text-white">Total Amount</span>
-                <span className="text-xl font-extrabold text-amber-400">
+                <span className="text-xl font-extrabold text-amber-400 font-mono">
                   {formatPrice(grandTotal)}
                 </span>
-              </div>
-            </div>
-
-            {/* Payment Method Option */}
-            <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-amber-400 shrink-0" />
-              <div className="text-xs">
-                <p className="font-bold text-white">Razorpay Secure Checkout</p>
-                <p className="text-[11px] text-slate-400">UPI (GPay / PhonePe), Cards, Netbanking</p>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 transition-all disabled:opacity-50 cursor-pointer"
             >
               <Lock className="w-4 h-4" />
-              <span>{isSubmitting ? 'Confirming Order...' : `Pay & Confirm ${formatPrice(grandTotal)}`}</span>
+              <span>
+                {isSubmitting
+                  ? 'Confirming Order...'
+                  : paymentMethod === 'COD'
+                  ? `Confirm Cash on Delivery (${formatPrice(grandTotal)})`
+                  : `Pay Online & Confirm (${formatPrice(grandTotal)})`}
+              </span>
             </button>
 
             <div className="text-[11px] text-slate-400 text-center space-y-1">
               <p className="flex items-center justify-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 inline" />
-                <span>Zero-risk precast guarantee. Invoice provided at delivery.</span>
+                <span>
+                  {paymentMethod === 'COD'
+                    ? 'Official Tax Invoice printed & provided at site upon unloading.'
+                    : 'Instant RBI-compliant gateway. Digital Tax Invoice generated.'}
+                </span>
               </p>
             </div>
           </div>

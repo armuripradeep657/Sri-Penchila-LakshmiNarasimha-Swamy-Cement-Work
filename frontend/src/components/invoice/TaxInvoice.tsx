@@ -42,6 +42,8 @@ export interface TaxInvoiceProps {
   deliveryFee: number;
   grandTotal: number;
   paymentStatus: string;
+  paymentMethod?: string;
+  codFee?: number;
   paymentId?: string;
   isModal?: boolean;
   onClose?: () => void;
@@ -81,6 +83,8 @@ export default function TaxInvoice({
   deliveryFee,
   grandTotal,
   paymentStatus,
+  paymentMethod = 'ONLINE',
+  codFee,
   paymentId,
   isModal = false,
   onClose,
@@ -91,21 +95,50 @@ export default function TaxInvoice({
     window.print();
   };
 
+  const isCOD = paymentMethod === 'COD';
+
   const content = (
     <div
       ref={invoiceRef}
       id="tax-invoice"
-      className="bg-white text-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-300 max-w-3xl mx-auto font-sans leading-relaxed select-text"
+      className="relative overflow-hidden bg-white text-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-300 max-w-3xl mx-auto font-sans leading-relaxed select-text"
     >
+      {/* ─── Center Watermark Logo for Screen & Print ─── */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-[0.07] print:opacity-[0.10] flex flex-col items-center justify-center text-center w-full"
+      >
+        <div className="relative w-72 h-72 sm:w-96 sm:h-96">
+          <Image
+            src="/images/logo.png"
+            alt="Sri Penchila LakshmiNarasimha Swamy Cement Work Logo"
+            fill
+            sizes="(max-width: 768px) 288px, 384px"
+            className="object-contain filter grayscale contrast-125"
+          />
+        </div>
+        <p className="font-mono font-black tracking-widest text-slate-900 text-xs sm:text-sm mt-3 uppercase">
+          SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK
+          <br />
+          ★ PRASAD CEMENT WORK ★
+        </p>
+      </div>
+
       {/* ─── Top Control Bar (Hidden on print) ─── */}
-      <div className="no-print flex items-center justify-between pb-6 mb-6 border-b border-slate-200">
+      <div className="relative z-10 no-print flex items-center justify-between pb-6 mb-6 border-b border-slate-200">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+          <span
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${
+              isCOD
+                ? 'bg-amber-100 text-amber-800 border-amber-300'
+                : 'bg-emerald-100 text-emerald-800 border-emerald-300'
+            }`}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
             <span>OFFICIAL TAX INVOICE</span>
           </span>
-          <span className="text-xs text-slate-500 font-mono">
-            {paymentStatus === 'PAID' ? 'PAID IN FULL' : 'PAYMENT RECORDED'}
+          <span className="text-xs text-slate-500 font-mono font-bold">
+            {isCOD ? 'CASH ON DELIVERY (COD)' : paymentStatus === 'PAID' ? 'PAID IN FULL' : 'PAYMENT RECORDED'}
           </span>
         </div>
 
@@ -311,6 +344,15 @@ export default function TaxInvoice({
             </span>
           </div>
 
+          {(codFee || isCOD) && (
+            <div className="flex justify-between text-amber-800 font-semibold">
+              <span>COD Processing Fee (Site Verification):</span>
+              <span className="font-mono font-bold text-amber-700">
+                {formatPrice(codFee || 15000)}
+              </span>
+            </div>
+          )}
+
           <div className="pt-2 border-t-2 border-slate-800 flex justify-between items-baseline text-sm font-extrabold text-slate-950">
             <span>Grand Total:</span>
             <span className="text-xl font-black text-amber-600 font-mono">
@@ -319,8 +361,21 @@ export default function TaxInvoice({
           </div>
 
           <div className="pt-2">
-            <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 uppercase tracking-widest">
-              ● {paymentStatus === 'PAID' ? 'PAID VIA ONLINE GATEWAY' : 'OFFICIAL BOOKING CONFIRMED'}
+            <span
+              className={`inline-block px-3 py-1 rounded-full text-[10px] font-extrabold border uppercase tracking-widest ${
+                isCOD
+                  ? 'bg-amber-100 text-amber-800 border-amber-300'
+                  : paymentStatus === 'PAID'
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                  : 'bg-blue-100 text-blue-800 border-blue-300'
+              }`}
+            >
+              ●{' '}
+              {isCOD
+                ? 'CASH ON DELIVERY (COLLECT AT SITE UNLOADING)'
+                : paymentStatus === 'PAID'
+                ? 'PAID VIA ONLINE GATEWAY'
+                : 'OFFICIAL BOOKING CONFIRMED'}
             </span>
           </div>
         </div>
@@ -346,6 +401,8 @@ export default function TaxInvoice({
           <p className="text-xs font-bold text-slate-800">Authorised Signatory</p>
           <p className="text-[10px] text-slate-500">Prasad Cement Work (Velagatoor Yard)</p>
         </div>
+      </div>
+
       {/* ─── Bottom Action Bar (Hidden on print) ─── */}
       <div className="no-print mt-8 pt-6 border-t-2 border-slate-200 flex flex-wrap items-center justify-between gap-3">
         <a

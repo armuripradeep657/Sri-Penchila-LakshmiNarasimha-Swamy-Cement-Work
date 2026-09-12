@@ -143,6 +143,12 @@ export default function OrderDetailPage() {
         : undefined,
   }));
 
+  const isCOD = Boolean(
+    order.notes?.includes('[CASH ON DELIVERY') ||
+    order.notes?.includes('COD')
+  );
+  const codFee = isCOD ? 15000 : 0;
+
   const invoiceNumber = `INV-${order.orderNumber.replace('ORD-', '')}`;
 
   return (
@@ -161,6 +167,8 @@ export default function OrderDetailPage() {
           deliveryFee={order.deliveryFee}
           grandTotal={order.grandTotal}
           paymentStatus={order.paymentStatus}
+          paymentMethod={isCOD ? 'COD' : 'ONLINE'}
+          codFee={codFee}
           paymentId={mockPaymentId || `TXN_${order.id.slice(0, 8).toUpperCase()}`}
         />
       </div>
@@ -228,10 +236,16 @@ export default function OrderDetailPage() {
                 className={`px-3 py-1 rounded-full text-xs font-bold border ${
                   order.paymentStatus === 'PAID'
                     ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                    : 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                    : isCOD
+                    ? 'bg-amber-500/15 text-amber-300 border-amber-500/40'
+                    : 'bg-blue-500/15 text-blue-400 border-blue-500/30'
                 }`}
               >
-                Payment: {order.paymentStatus}
+                {order.paymentStatus === 'PAID'
+                  ? 'Payment: PAID'
+                  : isCOD
+                  ? 'Payment: Cash on Delivery (COD)'
+                  : 'Payment: PENDING'}
               </span>
 
               {/* Quick Invoice Download Action */}
@@ -354,9 +368,15 @@ export default function OrderDetailPage() {
               <div className="flex justify-between text-slate-400">
                 <span>Truck Dispatch Fee ({order.deliveryZone?.name || 'Zone'})</span>
                 <span className="text-white font-medium">
-                  {order.deliveryFee === 0 ? 'FREE' : formatPrice(order.deliveryFee)}
+                  {order.deliveryFee === 0 ? 'FREE' : formatPrice(order.deliveryFee - codFee)}
                 </span>
               </div>
+              {isCOD && (
+                <div className="flex justify-between text-amber-300 font-medium">
+                  <span>COD Processing Fee (Site Verification)</span>
+                  <span className="font-mono font-bold">+₹150.00</span>
+                </div>
+              )}
               <div className="border-t border-slate-800 pt-2 flex justify-between text-sm font-bold">
                 <span className="text-white">Grand Total</span>
                 <span className="text-lg font-extrabold text-amber-400">
@@ -468,6 +488,8 @@ export default function OrderDetailPage() {
             deliveryFee={order.deliveryFee}
             grandTotal={order.grandTotal}
             paymentStatus={order.paymentStatus}
+            paymentMethod={isCOD ? 'COD' : 'ONLINE'}
+            codFee={codFee}
             paymentId={mockPaymentId || `TXN_${order.id.slice(0, 8).toUpperCase()}`}
           />
         </div>
@@ -504,6 +526,8 @@ export default function OrderDetailPage() {
           deliveryFee={order.deliveryFee}
           grandTotal={order.grandTotal}
           paymentStatus={order.paymentStatus}
+          paymentMethod={isCOD ? 'COD' : 'ONLINE'}
+          codFee={codFee}
           paymentId={mockPaymentId || `TXN_${order.id.slice(0, 8).toUpperCase()}`}
         />
       )}

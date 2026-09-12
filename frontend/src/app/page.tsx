@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowRight,
   Shield,
@@ -146,6 +147,62 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ─── Middle of Page: Grand Brand Logo Emblem Presentation ─── */}
+      <section className="relative overflow-hidden py-8 my-2">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="rounded-3xl glass-panel border-2 border-amber-500/30 p-8 sm:p-12 relative overflow-hidden text-center shadow-2xl bg-gradient-to-b from-slate-900/90 via-slate-950/95 to-slate-900/90">
+            {/* Center Radial Ambient Aura */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Orbiting Ring */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[440px] sm:h-[440px] rounded-full border border-amber-500/15 animate-[spin_60s_linear_infinite] pointer-events-none" />
+
+            {/* Emblem Image in Exact Middle */}
+            <div className="relative z-10 flex flex-col items-center justify-center space-y-4">
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-3xl overflow-hidden border-2 border-amber-500/60 shadow-2xl shadow-amber-500/25 bg-slate-950 p-1">
+                <Image
+                  src="/images/logo.png"
+                  alt="PRASAD CEMENT WORK Center Logo"
+                  fill
+                  className="object-cover rounded-2xl"
+                />
+              </div>
+
+              <div className="space-y-1 max-w-xl">
+                <span className="text-[11px] font-extrabold uppercase tracking-widest text-amber-400">
+                  ★ OFFICIAL PRECAST EMBLEM ★
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-black text-white">
+                  Sri Penchila LakshmiNarasimha Swamy Cement Work
+                </h2>
+                <p className="text-sm font-bold text-amber-300/90 tracking-wide uppercase">
+                  PRASAD CEMENT WORK • PRECAST CONCRETE SOLUTIONS
+                </p>
+                <p className="text-xs text-slate-400 pt-1">
+                  Opp. Sudha Hospital, Jagtial - Velgatoor Road, Velagatoor, Dist. Jagtial, Telangana - 505526
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <Link
+                  href="/products"
+                  className="px-5 py-2.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md transition-all"
+                >
+                  Browse 16+ Precast Products
+                </Link>
+                <a
+                  href="https://wa.me/918919526315"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2.5 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all"
+                >
+                  Direct WhatsApp: 8919526315
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ─── Dual Ordering Workflow Section ──────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

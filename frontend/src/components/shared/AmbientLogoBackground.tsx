@@ -49,15 +49,15 @@ export default function AmbientLogoBackground() {
         {/* Counter-rotating Geometric Octagon Accent Ring */}
         <div className="absolute w-[380px] h-[380px] sm:w-[540px] sm:h-[540px] rounded-[60px] border border-amber-400/5 animate-[spin_45s_linear_infinite_reverse]" />
 
-        {/* Floating, Breathing Real-Time Logo Watermark */}
-        <div className="relative w-64 h-64 sm:w-96 sm:h-96 md:w-[440px] md:h-[440px] opacity-[0.09] animate-float-pulse">
+        {/* Floating, Breathing Real-Time Center Logo Watermark */}
+        <div className="relative w-72 h-72 sm:w-[420px] sm:h-[420px] md:w-[520px] md:h-[520px] opacity-[0.14] sm:opacity-[0.17] animate-float-pulse">
           <Image
             src="/images/logo.png"
             alt="Sri Penchila LakshmiNarasimha Swamy Cement Work Watermark"
             fill
             priority
-            sizes="(max-width: 768px) 256px, 440px"
-            className="object-contain filter grayscale contrast-125 hover:grayscale-0 transition-all duration-1000"
+            sizes="(max-width: 768px) 288px, 520px"
+            className="object-contain filter contrast-125 transition-all duration-1000"
           />
         </div>
       </div>

@@ -71,6 +71,7 @@ const placeOrderSchema = z.object({
     .optional(),
   deliveryZoneId: z.string().optional(),
   notes: z.string().optional(),
+  paymentMethod: z.string().optional(),
 });
 
 router.post(
@@ -80,7 +81,7 @@ router.post(
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.userId;
-      const { addressId, deliveryAddress, deliveryZoneId, notes } = req.body;
+      const { addressId, deliveryAddress, deliveryZoneId, notes, paymentMethod } = req.body;
 
       const cart = await prisma.cart.findUnique({
         where: { userId },
@@ -123,7 +124,9 @@ router.post(
         }
       }
 
-      const grandTotal = totalAmount + deliveryFee;
+      const isCOD = paymentMethod === 'COD';
+      const codProcessingFee = isCOD ? 15000 : 0; // ₹150 nominal COD site inspection & crane verification charge
+      const grandTotal = totalAmount + deliveryFee + codProcessingFee;
 
       let effectiveAddressId: string | null = null;
       if (addressId && typeof addressId === 'string' && addressId.trim() !== '') {
@@ -151,6 +154,10 @@ router.post(
 
       const orderNumber = generateOrderNumber();
 
+      const orderNotes = isCOD
+        ? `[CASH ON DELIVERY (COD) - Processing Fee: ₹150] ${notes || ''}`.trim()
+        : notes || null;
+
       const order = await prisma.$transaction(async (tx) => {
         const newOrder = await tx.order.create({
           data: {
@@ -158,11 +165,11 @@ router.post(
             userId,
             status: OrderStatus.CONFIRMED,
             totalAmount,
-            deliveryFee,
+            deliveryFee: deliveryFee + codProcessingFee,
             grandTotal,
             deliveryAddressId: effectiveAddressId,
             deliveryZoneId: validDeliveryZoneId,
-            notes: notes || null,
+            notes: orderNotes,
             items: {
               create: cart.items.map((item) => ({
                 variant: { connect: { id: item.variantId } },
