@@ -94,9 +94,11 @@ router.post(
   }
 );
 
-// ─── Login (Mobile + Password) ───────────────────────────────────────────────
+// ─── Login (Email or Mobile + Password) ──────────────────────────────────────
 const loginSchema = z.object({
-  phone: z.string().min(10, 'Valid 10-digit mobile number required'),
+  identifier: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().optional(),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -105,21 +107,35 @@ router.post(
   validateBody(loginSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { phone, password } = req.body;
-      const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+      const { identifier, phone, email, password } = req.body;
+      const rawInput = (identifier || phone || email || '').trim();
 
-      if (cleanPhone.length !== 10) {
-        throw new BadRequestError('Please enter a valid 10-digit mobile number');
+      if (!rawInput) {
+        throw new BadRequestError('Please enter your mobile number or email address');
       }
 
-      // Find user
-      const user = await prisma.user.findUnique({
-        where: { phone: cleanPhone },
-        include: { addresses: true },
-      });
+      let user = null;
+
+      if (rawInput.includes('@')) {
+        // Email login
+        user = await prisma.user.findUnique({
+          where: { email: rawInput.toLowerCase() },
+          include: { addresses: true },
+        });
+      } else {
+        // Phone login
+        const cleanPhone = rawInput.replace(/\D/g, '').slice(-10);
+        if (cleanPhone.length !== 10) {
+          throw new BadRequestError('Please enter a valid 10-digit mobile number or email address');
+        }
+        user = await prisma.user.findUnique({
+          where: { phone: cleanPhone },
+          include: { addresses: true },
+        });
+      }
 
       if (!user) {
-        throw new UnauthorizedError('No account found with this mobile number. Please register first.');
+        throw new UnauthorizedError('No account found with this credential. Please register first.');
       }
 
       if (!user.isActive) {
@@ -127,7 +143,7 @@ router.post(
       }
 
       if (!user.password) {
-        throw new UnauthorizedError('Please set a password by registering again, or contact admin.');
+        throw new UnauthorizedError('Please set a password by registering or using Forgot Password.');
       }
 
       // Verify password
@@ -155,6 +171,133 @@ router.post(
           addresses: user.addresses,
         },
         ...tokens,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// ─── Forgot Password (Request OTP) ───────────────────────────────────────────
+const forgotPasswordSchema = z.object({
+  identifier: z.string().min(1, 'Please enter your registered mobile number or email'),
+});
+
+router.post(
+  '/forgot-password',
+  validateBody(forgotPasswordSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { identifier } = req.body;
+      const rawInput = identifier.trim();
+
+      let user = null;
+      if (rawInput.includes('@')) {
+        user = await prisma.user.findUnique({
+          where: { email: rawInput.toLowerCase() },
+        });
+      } else {
+        const cleanPhone = rawInput.replace(/\D/g, '').slice(-10);
+        user = await prisma.user.findUnique({
+          where: { phone: cleanPhone },
+        });
+      }
+
+      if (!user) {
+        throw new BadRequestError('No account found with this mobile number or email.');
+      }
+
+      // Generate 6-digit OTP
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+
+      // Clean old OTPs for this phone
+      await prisma.otpToken.deleteMany({
+        where: { phone: user.phone },
+      });
+
+      await prisma.otpToken.create({
+        data: {
+          phone: user.phone,
+          code: otpCode,
+          expiresAt,
+        },
+      });
+
+      res.json({
+        success: true,
+        message: `Password reset OTP generated. In demo mode, your OTP is: ${otpCode}`,
+        phone: user.phone,
+        email: user.email,
+        demoOtp: otpCode,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// ─── Reset Password ─────────────────────────────────────────────────────────
+const resetPasswordSchema = z.object({
+  identifier: z.string().min(1, 'Please enter your registered mobile number or email'),
+  code: z.string().min(4, 'Please enter the OTP code'),
+  newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+router.post(
+  '/reset-password',
+  validateBody(resetPasswordSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { identifier, code, newPassword } = req.body;
+      const rawInput = identifier.trim();
+
+      let user = null;
+      if (rawInput.includes('@')) {
+        user = await prisma.user.findUnique({
+          where: { email: rawInput.toLowerCase() },
+        });
+      } else {
+        const cleanPhone = rawInput.replace(/\D/g, '').slice(-10);
+        user = await prisma.user.findUnique({
+          where: { phone: cleanPhone },
+        });
+      }
+
+      if (!user) {
+        throw new BadRequestError('No account found with this mobile number or email.');
+      }
+
+      // Verify OTP
+      const otpRecord = await prisma.otpToken.findFirst({
+        where: {
+          phone: user.phone,
+          code: code.trim(),
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      if (!otpRecord) {
+        throw new BadRequestError('Invalid or expired OTP code. Please request a new one.');
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword },
+      });
+
+      // Invalidate OTP
+      await prisma.otpToken.deleteMany({
+        where: { phone: user.phone },
+      });
+
+      res.json({
+        success: true,
+        message: 'Password reset successfully! You can now log in with your new password.',
       });
     } catch (err) {
       next(err);

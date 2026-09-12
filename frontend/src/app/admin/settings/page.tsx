@@ -38,7 +38,7 @@ export default function AdminSettingsPage() {
     setIsLoading(true);
     try {
       const [zonesRes, settingsRes] = await Promise.all([
-        api.getDeliveryZones(),
+        api.getAdminDeliveryZones(),
         api.getStoreSettings(),
       ]);
       if (zonesRes?.zones) setZones(zonesRes.zones);

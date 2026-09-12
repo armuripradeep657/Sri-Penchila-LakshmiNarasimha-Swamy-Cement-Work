@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   Phone,
+  Mail,
   KeyRound,
   ShieldCheck,
   ArrowRight,
@@ -13,6 +14,7 @@ import {
   EyeOff,
   UserPlus,
   LogIn,
+  HelpCircle,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -25,7 +27,7 @@ function LoginContent() {
   const { login } = useAuth();
   const { language, t } = useLanguage();
 
-  const [phone, setPhone] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,10 +37,18 @@ function LoginContent() {
     e.preventDefault();
     setError('');
 
-    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
-    if (cleanPhone.length !== 10) {
-      setError(language === 'te' ? 'దయచేసి సరైన 10-అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి' : 'Please enter a valid 10-digit mobile number');
+    const raw = identifier.trim();
+    if (!raw) {
+      setError(language === 'te' ? 'దయచేసి మొబైల్ నంబర్ లేదా ఇమెయిల్ నమోదు చేయండి' : 'Please enter your mobile number or email address');
       return;
+    }
+
+    if (!raw.includes('@')) {
+      const cleanPhone = raw.replace(/\D/g, '').slice(-10);
+      if (cleanPhone.length !== 10) {
+        setError(language === 'te' ? 'దయచేసి సరైన 10-అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి' : 'Please enter a valid 10-digit mobile number');
+        return;
+      }
     }
 
     if (password.length < 6) {
@@ -48,7 +58,7 @@ function LoginContent() {
 
     setIsLoading(true);
     try {
-      const user = await login(cleanPhone, password);
+      const user = await login(raw, password);
 
       if (user?.role === 'ADMIN' && redirectUrl === '/') {
         router.push('/admin');
@@ -75,8 +85,8 @@ function LoginContent() {
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto">
             {language === 'te'
-              ? 'మీ మొబైల్ నంబర్ మరియు పాస్‌వర్డ్‌తో లాగిన్ అవ్వండి.'
-              : 'Sign in with your mobile number and password to access your account.'}
+              ? 'మీ మొబైల్ నంబర్ లేదా ఇమెయిల్ మరియు పాస్‌వర్డ్‌తో లాగిన్ అవ్వండి.'
+              : 'Sign in with your mobile number or email and password.'}
           </p>
         </div>
 
@@ -89,34 +99,39 @@ function LoginContent() {
         {/* Login Form */}
         <div className="rounded-3xl glass-panel border border-slate-800 p-6 sm:p-8 bg-slate-900/70 shadow-2xl">
           <form onSubmit={handleLogin} className="space-y-4">
-            {/* Mobile Number */}
+            {/* Mobile Number or Email */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-amber-400" />
-                <span>{language === 'te' ? 'మొబైల్ నంబర్' : 'Mobile Number'}</span>
+                <Mail className="w-3.5 h-3.5 text-amber-400" />
+                <span>{language === 'te' ? 'మొబైల్ నంబర్ లేదా ఇమెయిల్' : 'Mobile Number or Email'}</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 font-mono">
-                  +91
-                </span>
                 <input
-                  type="tel"
+                  type="text"
                   required
-                  maxLength={10}
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                  placeholder="9912179771"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-amber-500 tracking-wider"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="9912179771 or prasad@prasadcement.com"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500 tracking-wide"
                 />
               </div>
             </div>
 
-            {/* Password */}
+            {/* Password with Forgot Password link */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                <KeyRound className="w-3.5 h-3.5 text-amber-400" />
-                <span>{language === 'te' ? 'పాస్‌వర్డ్' : 'Password'}</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                  <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{language === 'te' ? 'పాస్‌వర్డ్' : 'Password'}</span>
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
+                >
+                  <HelpCircle className="w-3 h-3" />
+                  <span>{language === 'te' ? 'పాస్‌వర్డ్ మర్చిపోయారా?' : 'Forgot Password?'}</span>
+                </Link>
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -176,7 +191,7 @@ function LoginContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <button
               type="button"
-              onClick={() => { setPhone('9912179771'); setPassword('prasad@123'); setError(''); }}
+              onClick={() => { setIdentifier('9912179771'); setPassword('prasad@123'); setError(''); }}
               className="p-3 rounded-xl bg-slate-950 border border-amber-500/40 hover:border-amber-500 text-left transition-all hover:scale-[1.02] shadow-sm"
             >
               <div className="flex items-center justify-between">
@@ -186,12 +201,13 @@ function LoginContent() {
                 </span>
               </div>
               <span className="text-[11px] text-slate-300 font-mono block mt-1">9912179771</span>
-              <span className="text-[10px] text-slate-500">Password: prasad@123</span>
+              <span className="text-[10px] text-slate-400 block truncate">prasad@prasadcement.com</span>
+              <span className="text-[10px] text-slate-500 mt-0.5 block">Pass: prasad@123</span>
             </button>
 
             <button
               type="button"
-              onClick={() => { setPhone('8888888888'); setPassword('rajesh@123'); setError(''); }}
+              onClick={() => { setIdentifier('8888888888'); setPassword('rajesh@123'); setError(''); }}
               className="p-3 rounded-xl bg-slate-950 border border-blue-500/40 hover:border-blue-500 text-left transition-all hover:scale-[1.02] shadow-sm"
             >
               <div className="flex items-center justify-between">
@@ -201,7 +217,8 @@ function LoginContent() {
                 </span>
               </div>
               <span className="text-[11px] text-slate-300 font-mono block mt-1">8888888888</span>
-              <span className="text-[10px] text-slate-500">Password: rajesh@123</span>
+              <span className="text-[10px] text-slate-400 block truncate">rajesh@gmail.com</span>
+              <span className="text-[10px] text-slate-500 mt-0.5 block">Pass: rajesh@123</span>
             </button>
           </div>
         </div>

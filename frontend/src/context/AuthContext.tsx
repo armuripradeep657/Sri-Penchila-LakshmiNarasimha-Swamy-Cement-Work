@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (phone: string, password: string) => Promise<User>;
+  login: (identifier: string, password: string) => Promise<User>;
   register: (data: { phone: string; password: string; name: string; email?: string; firmName?: string }) => Promise<User>;
   logout: () => void;
   isAdmin: boolean;
@@ -52,8 +52,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, []);
 
-  const login = async (phone: string, password: string): Promise<User> => {
-    const res = await api.loginWithPassword(phone, password);
+  const login = async (identifier: string, password: string): Promise<User> => {
+    const res = await api.loginWithPassword(identifier, password);
     if (res.accessToken && res.user) {
       localStorage.setItem('pcp_token', res.accessToken);
       localStorage.setItem('pcp_user', JSON.stringify(res.user));

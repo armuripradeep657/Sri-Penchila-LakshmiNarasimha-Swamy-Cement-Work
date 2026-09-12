@@ -41,10 +41,24 @@ class ApiClient {
     });
   }
 
-  async loginWithPassword(phone: string, password: string) {
+  async loginWithPassword(identifier: string, password: string) {
     return this.request<any>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ phone, password }),
+      body: JSON.stringify({ identifier, password }),
+    });
+  }
+
+  async forgotPassword(identifier: string) {
+    return this.request<any>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ identifier }),
+    });
+  }
+
+  async resetPassword(identifier: string, code: string, newPassword: string) {
+    return this.request<any>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ identifier, code, newPassword }),
     });
   }
 
@@ -254,7 +268,7 @@ class ApiClient {
     });
   }
 
-  async getDeliveryZones() {
+  async getAdminDeliveryZones() {
     return this.request<any>('/admin/delivery-zones');
   }
 
