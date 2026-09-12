@@ -61,27 +61,6 @@ export default function AmbientLogoBackground() {
           />
         </div>
       </div>
-
-      {/* ─── Corner Ambient Subtle Watermarks ─────────────────────────────────── */}
-      <div className="absolute -top-16 -right-16 w-80 h-80 opacity-[0.04] animate-pulse">
-        <Image
-          src="/images/logo.png"
-          alt="Ambient Background Mark"
-          fill
-          sizes="320px"
-          className="object-contain"
-        />
-      </div>
-
-      <div className="absolute -bottom-20 -left-20 w-96 h-96 opacity-[0.03] animate-pulse">
-        <Image
-          src="/images/logo.png"
-          alt="Ambient Background Mark"
-          fill
-          sizes="384px"
-          className="object-contain"
-        />
-      </div>
     </div>
   );
 }

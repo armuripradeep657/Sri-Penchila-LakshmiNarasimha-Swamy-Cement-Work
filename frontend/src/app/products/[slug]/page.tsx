@@ -30,6 +30,8 @@ import {
   ChevronRight,
   Clock,
   X,
+  Download,
+  Printer,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Product, ProductVariant } from '@/types';
@@ -37,6 +39,8 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
+import TaxInvoice from '@/components/invoice/TaxInvoice';
+import RealtimePaymentModal from '@/components/payment/RealtimePaymentModal';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -56,6 +60,8 @@ export default function ProductDetailPage() {
   // Customer booking state & animations
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [bookingTicketNumber, setBookingTicketNumber] = useState('');
 
   // Admin In-Page Editing state
@@ -155,9 +161,8 @@ export default function ProductDetailPage() {
     const ticket = `PCP-${Math.floor(100000 + Math.random() * 900000)}`;
     setBookingTicketNumber(ticket);
 
-    // Fire festive booking celebratory animation
-    triggerConfettiAnimation();
-    setShowBookingModal(true);
+    // Trigger Real-Time Payment / Allotment Animation Modal
+    setShowPaymentModal(true);
   };
 
   // ─── Admin In-Page Actions ──────────────────────────────────────────────────
@@ -972,6 +977,15 @@ export default function ProductDetailPage() {
 
             {/* Next Steps Buttons */}
             <div className="space-y-2.5">
+              {/* Download Tax Invoice Button */}
+              <button
+                onClick={() => setShowInvoiceModal(true)}
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 transition-all shadow-md cursor-pointer"
+              >
+                <Download className="w-4 h-4 text-amber-400" />
+                <span>Download Official Tax Invoice (PDF)</span>
+              </button>
+
               <button
                 onClick={() => {
                   setShowBookingModal(false);
@@ -984,14 +998,14 @@ export default function ProductDetailPage() {
 
               <a
                 href={`https://wa.me/918919526315?text=${encodeURIComponent(
-                  `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work! I just booked ${quantity} units of "${product.name}" (${selectedVariant?.name}). Ref: ${bookingTicketNumber}. Please confirm dispatch schedule to Velagatoor / Jagtial.`
+                  `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work (PRASAD CEMENT WORK)! I just booked ${quantity} units of "${product.name}" (${selectedVariant?.name}). Ref: ${bookingTicketNumber}. Please confirm dispatch schedule to Velagatoor / Jagtial.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Confirm on WhatsApp with Sri Penchila LakshmiNarasimha Swamy Cement Work</span>
+                <span>Confirm on WhatsApp (8919526315)</span>
               </a>
 
               <button
@@ -1003,6 +1017,54 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ─── Real-Time Payment / Booking Animation Modal ─── */}
+      <RealtimePaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setShowBookingModal(true);
+        }}
+        orderNumber={bookingTicketNumber || 'PCP-BOOKING'}
+        amount={(selectedVariant?.price || 0) * quantity}
+        productName={locProduct?.name || product.name}
+        variantName={locSelectedVariant?.name || selectedVariant?.name}
+        quantity={quantity}
+        onViewInvoice={() => {
+          setShowPaymentModal(false);
+          setShowInvoiceModal(true);
+        }}
+      />
+
+      {/* ─── Full Tax Invoice Modal ─── */}
+      {showInvoiceModal && (
+        <TaxInvoice
+          isModal
+          onClose={() => setShowInvoiceModal(false)}
+          invoiceNumber={`INV-${bookingTicketNumber || Date.now().toString().slice(-6)}`}
+          orderNumber={bookingTicketNumber || 'PCP-RESERVE'}
+          date={new Date()}
+          customerName={user?.name || 'Valued Builder / Contractor'}
+          customerPhone={user?.phone || '+91 89195 26315'}
+          items={[
+            {
+              name: locProduct?.name || product.name,
+              variantName: locSelectedVariant?.name || selectedVariant?.name,
+              quantity: quantity,
+              unitPrice: selectedVariant?.price || 0,
+              totalPrice: (selectedVariant?.price || 0) * quantity,
+              dimensions:
+                selectedVariant?.width && selectedVariant?.height
+                  ? `${selectedVariant.width}×${selectedVariant.height} ${selectedVariant.dimensionUnit || ''}`
+                  : undefined,
+            },
+          ]}
+          subtotal={(selectedVariant?.price || 0) * quantity}
+          deliveryFee={0}
+          grandTotal={(selectedVariant?.price || 0) * quantity}
+          paymentStatus="PAID"
+        />
       )}
     </div>
   );

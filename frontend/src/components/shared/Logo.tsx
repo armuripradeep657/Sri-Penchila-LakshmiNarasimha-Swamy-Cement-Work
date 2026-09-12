@@ -73,13 +73,13 @@ export default function Logo({
             <span
               className={`${sizeClasses.sub} text-amber-400 font-extrabold tracking-wider uppercase leading-none`}
             >
-              {language === 'te' ? 'సిమెంట్ వర్క్స్' : 'CEMENT WORK'}
+              {language === 'te' ? 'ప్రసాద్ సిమెంట్ వర్క్' : 'PRASAD CEMENT WORK'}
             </span>
             <span className="text-slate-600 text-[9px] leading-none">•</span>
             <span
               className={`${sizeClasses.sub} text-slate-400 font-semibold tracking-wider uppercase leading-none`}
             >
-              {language === 'te' ? 'ప్రీకాస్ట్ ప్రొడక్ట్స్' : 'Precast Concrete'}
+              {language === 'te' ? 'ప్రీకాస్ట్ సొల్యూషన్స్' : 'Precast Concrete'}
             </span>
           </div>
         </div>
