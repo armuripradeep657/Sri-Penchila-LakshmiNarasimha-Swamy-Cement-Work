@@ -34,17 +34,17 @@ class ApiClient {
   }
 
   // ─── Auth ──────────────────────────────────────────────────────────────────
-  async sendOtp(phone: string, email?: string) {
-    return this.request<{ success: boolean; message: string; devOtp?: string }>('/auth/send-otp', {
+  async register(data: { phone: string; password: string; name: string; email?: string; firmName?: string }) {
+    return this.request<any>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ phone, email }),
+      body: JSON.stringify(data),
     });
   }
 
-  async verifyOtp(phone: string, code: string, name?: string, email?: string, firmName?: string) {
-    return this.request<any>('/auth/verify-otp', {
+  async loginWithPassword(phone: string, password: string) {
+    return this.request<any>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ phone, code, name, email, firmName }),
+      body: JSON.stringify({ phone, password }),
     });
   }
 

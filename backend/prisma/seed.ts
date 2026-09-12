@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 import { ProductCategory, UnitOfSale, AvailabilityStatus, UserRole } from '../src/types';
 
 const prisma = new PrismaClient();
@@ -24,10 +25,15 @@ async function main() {
   // ─── Users ─────────────────────────────────────────────────────────────────
   console.log('  → Creating users...');
 
+  // Hash passwords
+  const adminPassword = await bcrypt.hash('prasad@123', 12);
+  const customerPassword = await bcrypt.hash('rajesh@123', 12);
+
   const admin = await prisma.user.create({
     data: {
-      phone: '9999999999',
-      name: 'Prasad (Admin)',
+      phone: '9912179771',
+      password: adminPassword,
+      name: 'PRASAD',
       role: UserRole.ADMIN,
     },
   });
@@ -35,6 +41,7 @@ async function main() {
   const customer = await prisma.user.create({
     data: {
       phone: '8888888888',
+      password: customerPassword,
       name: 'Rajesh Kumar',
       role: UserRole.CUSTOMER,
       addresses: {
@@ -96,231 +103,143 @@ async function main() {
 
   // ─── PRODUCTS ──────────────────────────────────────────────────────────────
 
-  const img = (cat: string, name: string, i: number) =>
-    `/images/products/${cat}/${name.toLowerCase().replace(/\s+/g, '-')}-${i}.jpg`;
-
-  // 1. CEMENT WINDOWS
-  console.log('  → Creating cement windows...');
+  // 1. KODADA KETIKELU (Hand-made Cement Windows with Grills)
+  console.log('  → Creating Kodada Ketikelu (Hand-made Windows)...');
 
   await prisma.product.create({
     data: {
-      name: 'Standard Cement Window Frame',
-      slug: 'standard-cement-window',
+      name: 'Kodada Ketikelu (Hand-made Cement Window)',
+      slug: 'kodada-ketikelu',
       description:
-        'Durable precast cement window frames designed for residential and commercial buildings. Available with or without decorative grill patterns. Weather-resistant and maintenance-free construction that lasts for decades.',
+        'Traditional hand-crafted precast cement window frames with decorative iron grills. Each window is meticulously made by skilled artisans ensuring superior strength and beautiful designs. Termite-proof, weather-resistant, and built to last for decades. Ideal for residential homes and commercial buildings.',
       category: ProductCategory.WINDOW,
-      subType: 'Standard',
+      subType: 'Kodada (Hand-made)',
       unitOfSale: UnitOfSale.PIECE,
       minOrderQuantity: 1,
       isFeatured: true,
       sortOrder: 1,
       images: {
         create: [
-          { url: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=800&q=80', altText: 'Standard cement window front view', sortOrder: 0 },
-          { url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80', altText: 'Standard cement window with grill', sortOrder: 1 },
+          { url: '/images/products/kodada-ketikelu.jpg', altText: 'Kodada Ketikelu hand-made cement windows with grills', sortOrder: 0 },
         ],
       },
       variants: {
         create: [
           {
-            name: '2ft × 2ft (No Grill)',
-            sku: 'WIN-STD-2x2-NG',
+            name: '2ft × 2ft',
+            sku: 'KOD-WIN-2x2',
             width: 2, height: 2, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ grill: false }),
-            price: 85000,
-            stock: 25,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 0,
-          },
-          {
-            name: '2ft × 2ft (With Grill)',
-            sku: 'WIN-STD-2x2-G',
-            width: 2, height: 2, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ grill: true }),
-            price: 110000,
-            stock: 20,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 1,
-          },
-          {
-            name: '3ft × 3ft (No Grill)',
-            sku: 'WIN-STD-3x3-NG',
-            width: 3, height: 3, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ grill: false }),
-            price: 145000,
-            stock: 15,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 2,
-          },
-          {
-            name: '3ft × 3ft (With Grill)',
-            sku: 'WIN-STD-3x3-G',
-            width: 3, height: 3, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ grill: true }),
-            price: 175000,
-            stock: 12,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 3,
-          },
-          {
-            name: '3ft × 4ft (No Grill)',
-            sku: 'WIN-STD-3x4-NG',
-            width: 3, height: 4, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ grill: false }),
-            price: 195000,
-            stock: 10,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 4,
-          },
-          {
-            name: '3ft × 4ft (With Grill)',
-            sku: 'WIN-STD-3x4-G',
-            width: 3, height: 4, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ grill: true }),
-            price: 230000,
-            stock: 8,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 5,
-          },
-          {
-            name: 'Custom Size Window',
-            sku: 'WIN-STD-CUSTOM',
-            width: null, height: null, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ custom: true }),
-            price: null,
-            stock: 0,
-            availability: AvailabilityStatus.MADE_TO_ORDER,
-            sortOrder: 6,
-          },
-        ],
-      },
-    },
-  });
-
-  await prisma.product.create({
-    data: {
-      name: 'Ventilation Cement Window',
-      slug: 'ventilation-cement-window',
-      description:
-        'Specially designed precast cement ventilation windows with built-in airflow patterns. Perfect for bathrooms, kitchens, and utility rooms. Features decorative jali (lattice) patterns that allow air circulation while maintaining privacy.',
-      category: ProductCategory.WINDOW,
-      subType: 'Ventilation',
-      unitOfSale: UnitOfSale.PIECE,
-      minOrderQuantity: 1,
-      isFeatured: false,
-      sortOrder: 2,
-      images: {
-        create: [
-          { url: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80', altText: 'Ventilation window lattice pattern', sortOrder: 0 },
-        ],
-      },
-      variants: {
-        create: [
-          {
-            name: '1.5ft × 1.5ft Diamond Jali',
-            sku: 'WIN-VENT-1.5x1.5',
-            width: 1.5, height: 1.5, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ pattern: 'diamond' }),
-            price: 55000,
+            attributes: JSON.stringify({ type: 'kodada', grill: true }),
+            price: 80000, // ₹800
             stock: 30,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 0,
           },
           {
-            name: '2ft × 2ft Diamond Jali',
-            sku: 'WIN-VENT-2x2',
-            width: 2, height: 2, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ pattern: 'diamond' }),
-            price: 75000,
+            name: '3ft × 3ft',
+            sku: 'KOD-WIN-3x3',
+            width: 3, height: 3, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'kodada', grill: true }),
+            price: 120000, // ₹1,200
             stock: 25,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 1,
           },
           {
-            name: '2ft × 3ft Floral Jali',
-            sku: 'WIN-VENT-2x3',
-            width: 2, height: 3, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ pattern: 'floral' }),
-            price: 95000,
-            stock: 18,
+            name: '4ft × 3ft',
+            sku: 'KOD-WIN-4x3',
+            width: 4, height: 3, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'kodada', grill: true }),
+            price: 140000, // ₹1,400
+            stock: 20,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 2,
+          },
+          {
+            name: '4ft × 4ft',
+            sku: 'KOD-WIN-4x4',
+            width: 4, height: 4, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'kodada', grill: true }),
+            price: 160000, // ₹1,600
+            stock: 15,
+            availability: AvailabilityStatus.IN_STOCK,
+            sortOrder: 3,
           },
         ],
       },
     },
   });
 
-  // 2. CEMENT DOORS (DARWAJAS)
-  console.log('  → Creating cement doors...');
+  // 2. MACHINE KETIKELU (Machine-made Cement Windows)
+  console.log('  → Creating Machine Ketikelu (Machine-made Windows)...');
 
   await prisma.product.create({
     data: {
-      name: 'Single Cement Door Frame (Darwaja)',
-      slug: 'single-cement-door-frame',
+      name: 'Machine Ketikelu (Machine-made Cement Window)',
+      slug: 'machine-ketikelu',
       description:
-        'Heavy-duty precast cement single door frame with superior strength and durability. Termite-proof, borer-proof, and completely weather-resistant. Available with or without the cement frame. Ideal for residential main doors and room entrances.',
-      category: ProductCategory.DOOR,
-      subType: 'Single',
-      unitOfSale: UnitOfSale.SET,
+        'Precision machine-manufactured precast cement window frames with ornamental iron grills. Uniform finish, exact dimensions, and cost-effective pricing. Perfect for large construction projects requiring consistent quality across all window units.',
+      category: ProductCategory.WINDOW,
+      subType: 'Machine-made',
+      unitOfSale: UnitOfSale.PIECE,
       minOrderQuantity: 1,
       isFeatured: true,
-      sortOrder: 3,
+      sortOrder: 2,
       images: {
         create: [
-          { url: 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&w=800&q=80', altText: 'Single cement door frame', sortOrder: 0 },
+          { url: '/images/products/machine-ketikelu.jpg', altText: 'Machine Ketikelu machine-made cement windows with grills', sortOrder: 0 },
         ],
       },
       variants: {
         create: [
           {
-            name: '3ft × 7ft (Frame Only)',
-            sku: 'DOOR-SGL-3x7-FO',
-            width: 3, height: 7, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ doorType: 'single', frameIncluded: true, doorLeafIncluded: false }),
-            price: 250000,
-            stock: 10,
+            name: '2ft × 2ft',
+            sku: 'MCH-WIN-2x2',
+            width: 2, height: 2, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'machine', grill: true }),
+            price: 45000, // ₹450
+            stock: 40,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 0,
           },
           {
-            name: '3ft × 7ft (Frame + Precast Panel)',
-            sku: 'DOOR-SGL-3x7-WD',
-            width: 3, height: 7, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ doorType: 'single', frameIncluded: true, doorLeafIncluded: true }),
-            price: 450000,
-            stock: 8,
+            name: '3ft × 2½ft',
+            sku: 'MCH-WIN-3x2.5',
+            width: 3, height: 2.5, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'machine', grill: true }),
+            price: 55000, // ₹550
+            stock: 35,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 1,
           },
           {
-            name: '3.5ft × 7ft (Frame Only)',
-            sku: 'DOOR-SGL-3.5x7-FO',
-            width: 3.5, height: 7, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ doorType: 'single', frameIncluded: true, doorLeafIncluded: false }),
-            price: 280000,
-            stock: 8,
+            name: '3ft × 3ft',
+            sku: 'MCH-WIN-3x3',
+            width: 3, height: 3, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'machine', grill: true }),
+            price: 60000, // ₹600
+            stock: 30,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 2,
           },
           {
-            name: '3.5ft × 7ft (Frame + Precast Panel)',
-            sku: 'DOOR-SGL-3.5x7-WD',
-            width: 3.5, height: 7, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ doorType: 'single', frameIncluded: true, doorLeafIncluded: true }),
-            price: 520000,
-            stock: 5,
+            name: '4ft × 3ft',
+            sku: 'MCH-WIN-4x3',
+            width: 4, height: 3, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'machine', grill: true }),
+            price: 80000, // ₹800
+            stock: 20,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 3,
           },
           {
-            name: 'Custom Size Door Frame',
-            sku: 'DOOR-SGL-CUSTOM',
-            width: null, height: null, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ custom: true }),
-            price: null,
-            stock: 0,
-            availability: AvailabilityStatus.MADE_TO_ORDER,
+            name: '4ft × 4ft',
+            sku: 'MCH-WIN-4x4',
+            width: 4, height: 4, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'machine', grill: true }),
+            price: 120000, // ₹1,200
+            stock: 15,
+            availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 4,
           },
         ],
@@ -328,53 +247,103 @@ async function main() {
     },
   });
 
+  // 3. VENTILATORS (Cement Jali / Lattice Blocks)
+  console.log('  → Creating Ventilators (Cement Jali)...');
+
   await prisma.product.create({
     data: {
-      name: 'Double Cement Door Frame (Darwaja)',
-      slug: 'double-cement-door-frame',
+      name: 'Ventilators (Cement Jali Blocks)',
+      slug: 'cement-ventilators',
       description:
-        'Premium precast cement double door frame for main entrances, puja rooms, and grand entry gates. Superior structural integrity with architectural moldings that elevate building curb appeal.',
-      category: ProductCategory.DOOR,
-      subType: 'Double',
-      unitOfSale: UnitOfSale.SET,
+        'Beautiful decorative precast cement ventilation blocks with traditional jali (lattice) patterns. Available in diamond, floral, and geometric designs. Perfect for bathroom windows, compound walls, staircase ventilation, and decorative partitions. Provides airflow while maintaining privacy.',
+      category: ProductCategory.WINDOW,
+      subType: 'Ventilator Jali',
+      unitOfSale: UnitOfSale.PIECE,
       minOrderQuantity: 1,
-      isFeatured: false,
-      sortOrder: 4,
+      isFeatured: true,
+      sortOrder: 3,
       images: {
         create: [
-          { url: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=800&q=80', altText: 'Double cement door frame', sortOrder: 0 },
+          { url: '/images/products/ventilators.jpg', altText: 'Cement ventilator jali blocks with decorative patterns', sortOrder: 0 },
         ],
       },
       variants: {
         create: [
           {
-            name: '5ft × 7ft (Frame Only)',
-            sku: 'DOOR-DBL-5x7-FO',
-            width: 5, height: 7, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ doorType: 'double', frameIncluded: true, doorLeafIncluded: false }),
-            price: 420000,
-            stock: 5,
+            name: '1ft × 1ft',
+            sku: 'VENT-1x1',
+            width: 1, height: 1, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'ventilator', pattern: 'assorted' }),
+            price: 16000, // ₹160
+            stock: 200,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 0,
           },
           {
-            name: '5ft × 7ft (With Precast Doors)',
-            sku: 'DOOR-DBL-5x7-WD',
-            width: 5, height: 7, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ doorType: 'double', frameIncluded: true, doorLeafIncluded: true }),
-            price: 780000,
-            stock: 3,
+            name: '2ft × 1ft',
+            sku: 'VENT-2x1',
+            width: 2, height: 1, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'ventilator', pattern: 'assorted' }),
+            price: 22000, // ₹220
+            stock: 150,
+            availability: AvailabilityStatus.IN_STOCK,
+            sortOrder: 1,
+          },
+        ],
+      },
+    },
+  });
+
+  // 4. GAGULU (Cement Rings for Wells & Drainage)
+  console.log('  → Creating Gagulu (Cement Rings)...');
+
+  await prisma.product.create({
+    data: {
+      name: 'Gagulu (Cement Rings)',
+      slug: 'cement-gagulu-rings',
+      description:
+        'Heavy-duty precast cement concrete rings (Gagulu) for wells, bore wells, drainage systems, soak pits, and septic tanks. Manufactured with high-grade cement and reinforced for maximum durability. Water-tight joints and long-lasting construction.',
+      category: ProductCategory.POOL,
+      subType: 'Gagulu (Rings)',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 4,
+      images: {
+        create: [
+          { url: '/images/products/gagulu.jpg', altText: 'Cement Gagulu rings for wells and drainage', sortOrder: 0 },
+        ],
+      },
+      variants: {
+        create: [
+          {
+            name: '2ft Diameter Ring',
+            sku: 'GAG-2FT',
+            width: 2, height: 1, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'gagulu', shape: 'round', diameter: '2ft' }),
+            price: 18000, // ₹180
+            stock: 50,
+            availability: AvailabilityStatus.IN_STOCK,
+            sortOrder: 0,
+          },
+          {
+            name: '3ft Diameter Ring',
+            sku: 'GAG-3FT',
+            width: 3, height: 1, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'gagulu', shape: 'round', diameter: '3ft' }),
+            price: 22000, // ₹220
+            stock: 40,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 1,
           },
           {
-            name: '6ft × 7ft (Frame Only)',
-            sku: 'DOOR-DBL-6x7-FO',
-            width: 6, height: 7, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ doorType: 'double', frameIncluded: true, doorLeafIncluded: false }),
-            price: 480000,
-            stock: 4,
-            availability: AvailabilityStatus.MADE_TO_ORDER,
+            name: '4ft Diameter Ring',
+            sku: 'GAG-4FT',
+            width: 4, height: 1, dimensionUnit: 'ft',
+            attributes: JSON.stringify({ type: 'gagulu', shape: 'round', diameter: '4ft' }),
+            price: 36000, // ₹360
+            stock: 30,
+            availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 2,
           },
         ],
@@ -382,15 +351,15 @@ async function main() {
     },
   });
 
-  // 3. CEMENT BRICKS
-  console.log('  → Creating cement bricks...');
+  // 5. CEMENT BRICKS / BLOCKS
+  console.log('  → Creating Cement Bricks...');
 
   await prisma.product.create({
     data: {
-      name: 'High-Strength Solid Cement Brick',
-      slug: 'solid-cement-brick',
+      name: 'Cement Bricks & Blocks',
+      slug: 'cement-bricks',
       description:
-        'High-density solid cement bricks manufactured with 53-grade OPC cement and graded aggregates. Engineered for load-bearing walls, foundations, and heavy structural masonry. Ultra-consistent dimensions reduce mortar requirements by up to 25%.',
+        'High-quality solid cement bricks and concrete blocks for all types of construction. Manufactured with 53-grade OPC cement for superior compressive strength. Uniform dimensions ensure reduced mortar usage and faster wall construction. Available in bulk for large projects.',
       category: ProductCategory.BRICK,
       subType: 'Solid',
       unitOfSale: UnitOfSale.PIECE,
@@ -399,268 +368,49 @@ async function main() {
       sortOrder: 5,
       images: {
         create: [
-          { url: 'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=800&q=80', altText: 'Solid cement bricks stack', sortOrder: 0 },
+          { url: '/images/products/bricks.jpg', altText: 'Cement bricks and blocks stacked in yard', sortOrder: 0 },
         ],
       },
       variants: {
         create: [
           {
-            name: 'Standard (9×4×3 in) — Per Unit',
-            sku: 'BRK-SLD-9x4x3-PC',
-            width: 9, height: 4, depth: 3, dimensionUnit: 'in',
+            name: '8×6 inches — Per Piece',
+            sku: 'BRK-8x6-PC',
+            width: 8, height: 6, dimensionUnit: 'in',
             attributes: JSON.stringify({ brickType: 'solid', bulkUnit: false }),
-            price: 800,
-            stock: 50000,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 0,
-          },
-          {
-            name: 'Standard (9×4×3 in) — Lot of 1000',
-            sku: 'BRK-SLD-9x4x3-1K',
-            width: 9, height: 4, depth: 3, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'solid', bulkUnit: true, unitsPerLot: 1000 }),
-            price: 700000,
-            stock: 50,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 1,
-          },
-          {
-            name: 'Heavy (12×6×4 in) — Per Unit',
-            sku: 'BRK-SLD-12x6x4-PC',
-            width: 12, height: 6, depth: 4, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'solid', bulkUnit: false }),
-            price: 1500,
-            stock: 20000,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 2,
-          },
-          {
-            name: 'Heavy (12×6×4 in) — Lot of 1000',
-            sku: 'BRK-SLD-12x6x4-1K',
-            width: 12, height: 6, depth: 4, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'solid', bulkUnit: true, unitsPerLot: 1000 }),
-            price: 1350000,
-            stock: 20,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 3,
-          },
-        ],
-      },
-    },
-  });
-
-  await prisma.product.create({
-    data: {
-      name: 'Lightweight Hollow Cement Block',
-      slug: 'hollow-cement-brick',
-      description:
-        'Hollow precast concrete blocks ideal for internal partition walls, compound walls, and framed structures. Excellent thermal and acoustic insulation, light dead-load, and accelerated construction speed.',
-      category: ProductCategory.BRICK,
-      subType: 'Hollow',
-      unitOfSale: UnitOfSale.PIECE,
-      minOrderQuantity: 50,
-      isFeatured: false,
-      sortOrder: 6,
-      images: {
-        create: [
-          { url: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?auto=format&fit=crop&w=800&q=80', altText: 'Hollow cement blocks', sortOrder: 0 },
-        ],
-      },
-      variants: {
-        create: [
-          {
-            name: 'Standard (16×8×8 in) — Per Block',
-            sku: 'BRK-HLW-16x8x8-PC',
-            width: 16, height: 8, depth: 8, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'hollow', bulkUnit: false }),
-            price: 4500,
+            price: 1000, // ₹10 per piece
             stock: 10000,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 0,
           },
           {
-            name: 'Standard (16×8×8 in) — Lot of 100',
-            sku: 'BRK-HLW-16x8x8-100',
-            width: 16, height: 8, depth: 8, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'hollow', bulkUnit: true, unitsPerLot: 100 }),
-            price: 400000,
-            stock: 100,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 1,
-          },
-        ],
-      },
-    },
-  });
-
-  await prisma.product.create({
-    data: {
-      name: 'Eco-Friendly Fly Ash Cement Brick',
-      slug: 'fly-ash-cement-brick',
-      description:
-        'Modern fly ash bricks combining thermal power fly ash with Portland cement and gypsum. Low water absorption, high compressive strength, sharp uniform edges, and lower carbon footprint.',
-      category: ProductCategory.BRICK,
-      subType: 'Fly Ash',
-      unitOfSale: UnitOfSale.PIECE,
-      minOrderQuantity: 500,
-      isFeatured: false,
-      sortOrder: 7,
-      images: {
-        create: [
-          { url: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=800&q=80', altText: 'Fly ash bricks pallet', sortOrder: 0 },
-        ],
-      },
-      variants: {
-        create: [
-          {
-            name: 'Standard (9×4×3 in) — Per Unit',
-            sku: 'BRK-FLY-9x4x3-PC',
-            width: 9, height: 4, depth: 3, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'fly-ash', bulkUnit: false }),
-            price: 600,
-            stock: 100000,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 0,
-          },
-          {
-            name: 'Standard (9×4×3 in) — Lot of 1000',
-            sku: 'BRK-FLY-9x4x3-1K',
-            width: 9, height: 4, depth: 3, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'fly-ash', bulkUnit: true, unitsPerLot: 1000 }),
-            price: 520000,
-            stock: 100,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 1,
-          },
-        ],
-      },
-    },
-  });
-
-  // 4. CEMENT POOLS
-  console.log('  → Creating cement pools...');
-
-  await prisma.product.create({
-    data: {
-      name: 'Precast Cement Garden Pool',
-      slug: 'precast-garden-pool',
-      description:
-        'Ready-to-place monolithic precast cement garden pool basin for landscaping, Koi fish ponds, decorative fountains, and terrace gardens. Cured under controlled conditions with waterproof polymer sealants.',
-      category: ProductCategory.POOL,
-      subType: 'Garden',
-      unitOfSale: UnitOfSale.PIECE,
-      minOrderQuantity: 1,
-      isFeatured: true,
-      sortOrder: 8,
-      images: {
-        create: [
-          { url: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80', altText: 'Precast garden pool', sortOrder: 0 },
-        ],
-      },
-      variants: {
-        create: [
-          {
-            name: 'Small (4ft × 3ft × 2ft depth)',
-            sku: 'POOL-GDN-4x3x2',
-            width: 4, height: 3, depth: 2, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ poolType: 'garden', shape: 'rectangular' }),
-            price: 850000,
-            stock: 5,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 0,
-          },
-          {
-            name: 'Medium (6ft × 4ft × 2.5ft depth)',
-            sku: 'POOL-GDN-6x4x2.5',
-            width: 6, height: 4, depth: 2.5, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ poolType: 'garden', shape: 'rectangular' }),
-            price: 1450000,
-            stock: 3,
+            name: '9×4 inches — Per Piece',
+            sku: 'BRK-9x4-PC',
+            width: 9, height: 4, dimensionUnit: 'in',
+            attributes: JSON.stringify({ brickType: 'solid', bulkUnit: false }),
+            price: 800, // ₹8 per piece
+            stock: 10000,
             availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 1,
           },
           {
-            name: 'Large (8ft × 5ft × 3ft depth)',
-            sku: 'POOL-GDN-8x5x3',
-            width: 8, height: 5, depth: 3, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ poolType: 'garden', shape: 'rectangular' }),
-            price: 2200000,
-            stock: 2,
-            availability: AvailabilityStatus.MADE_TO_ORDER,
+            name: '8×6 inches — Lot of 1000',
+            sku: 'BRK-8x6-1K',
+            width: 8, height: 6, dimensionUnit: 'in',
+            attributes: JSON.stringify({ brickType: 'solid', bulkUnit: true, unitsPerLot: 1000 }),
+            price: 900000, // ₹9,000 per 1000
+            stock: 10,
+            availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 2,
           },
           {
-            name: 'Custom Landscape Dimensions',
-            sku: 'POOL-GDN-CUSTOM',
-            width: null, height: null, depth: null, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ custom: true }),
-            price: null,
-            stock: 0,
-            availability: AvailabilityStatus.MADE_TO_ORDER,
-            sortOrder: 3,
-          },
-        ],
-      },
-    },
-  });
-
-  await prisma.product.create({
-    data: {
-      name: 'Modular Precast Swimming Pool',
-      slug: 'modular-swimming-pool',
-      description:
-        'Industrial-grade modular precast concrete swimming pools assembled from high-tensile interlocking panels. Designed for farmhouses, villas, resorts, and sports clubs. Quick on-site assembly with included reinforcement and sealants.',
-      category: ProductCategory.POOL,
-      subType: 'Swimming',
-      unitOfSale: UnitOfSale.SET,
-      minOrderQuantity: 1,
-      isFeatured: false,
-      sortOrder: 9,
-      images: {
-        create: [
-          { url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80', altText: 'Modular swimming pool', sortOrder: 0 },
-        ],
-      },
-      variants: {
-        create: [
-          {
-            name: 'Compact Villa (12ft × 8ft × 4ft depth)',
-            sku: 'POOL-SWM-12x8x4',
-            width: 12, height: 8, depth: 4, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ poolType: 'swimming', installationIncluded: true }),
-            price: null,
-            stock: 0,
-            availability: AvailabilityStatus.MADE_TO_ORDER,
-            sortOrder: 0,
-          },
-          {
-            name: 'Farmhouse Medium (20ft × 10ft × 5ft depth)',
-            sku: 'POOL-SWM-20x10x5',
-            width: 20, height: 10, depth: 5, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ poolType: 'swimming', installationIncluded: true }),
-            price: null,
-            stock: 0,
-            availability: AvailabilityStatus.MADE_TO_ORDER,
-            sortOrder: 1,
-          },
-          {
-            name: 'Full Resort (30ft × 15ft × 6ft depth)',
-            sku: 'POOL-SWM-30x15x6',
-            width: 30, height: 15, depth: 6, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ poolType: 'swimming', installationIncluded: true }),
-            price: null,
-            stock: 0,
-            availability: AvailabilityStatus.MADE_TO_ORDER,
-            sortOrder: 2,
-          },
-          {
-            name: 'Custom Architecture Blueprint',
-            sku: 'POOL-SWM-CUSTOM',
-            width: null, height: null, depth: null, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ custom: true, installationIncluded: true }),
-            price: null,
-            stock: 0,
-            availability: AvailabilityStatus.MADE_TO_ORDER,
+            name: '9×4 inches — Lot of 1000',
+            sku: 'BRK-9x4-1K',
+            width: 9, height: 4, dimensionUnit: 'in',
+            attributes: JSON.stringify({ brickType: 'solid', bulkUnit: true, unitsPerLot: 1000 }),
+            price: 700000, // ₹7,000 per 1000
+            stock: 10,
+            availability: AvailabilityStatus.IN_STOCK,
             sortOrder: 3,
           },
         ],
@@ -675,8 +425,8 @@ async function main() {
   console.log(`✅ Prasad Cement Products database seeded successfully!`);
   console.log(`📦 ${productCount} Products across Windows, Doors, Bricks, Pools`);
   console.log(`📐 ${variantCount} Variants with size & option pricing`);
-  console.log(`👤 Admin: 9999999999 (OTP: 123456)`);
-  console.log(`👤 Customer: 8888888888 (OTP: 123456)`);
+  console.log(`👤 Admin: 9912179771 (Password: prasad@123)`);
+  console.log(`👤 Customer: 8888888888 (Password: rajesh@123)`);
   console.log(`=================================================\n`);
 }
 

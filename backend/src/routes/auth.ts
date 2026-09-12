@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
 import { prisma } from '../services/db';
-import { sendOtp, verifyOtp } from '../services/otp';
 import { generateTokens, verifyRefreshToken } from '../utils/jwt';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
@@ -10,98 +10,73 @@ import { UserRole } from '../types';
 
 const router = Router();
 
-// Send OTP
-const sendOtpSchema = z.object({
+// ─── Register (New Customer) ──────────────────────────────────────────────────
+const registerSchema = z.object({
   phone: z.string().min(10, 'Valid 10-digit mobile number required'),
-  email: z.string().email().optional().or(z.literal('')),
-});
-
-router.post(
-  '/send-otp',
-  validateBody(sendOtpSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { phone } = req.body;
-      const result = await sendOtp(phone);
-      res.json({
-        message: 'OTP sent successfully',
-        ...result,
-      });
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
-// Verify OTP & Login
-const verifyOtpSchema = z.object({
-  phone: z.string().min(10),
-  code: z.string().length(6, 'OTP must be 6 digits'),
-  name: z.string().optional(),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email().optional().or(z.literal('')),
   firmName: z.string().optional(),
 });
 
 router.post(
-  '/verify-otp',
-  validateBody(verifyOtpSchema),
+  '/register',
+  validateBody(registerSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { phone, code, name, email, firmName } = req.body;
+      const { phone, password, name, email, firmName } = req.body;
       const cleanPhone = phone.replace(/\D/g, '').slice(-10);
 
-      await verifyOtp(cleanPhone, code);
+      if (cleanPhone.length !== 10) {
+        throw new BadRequestError('Please enter a valid 10-digit mobile number');
+      }
 
-      // Find or create user
-      let user = await prisma.user.findUnique({
+      // Check if user already exists
+      const existingUser = await prisma.user.findUnique({
         where: { phone: cleanPhone },
-        include: { addresses: true },
       });
 
+      if (existingUser) {
+        throw new BadRequestError('An account with this mobile number already exists. Please login instead.');
+      }
+
+      // Check email uniqueness if provided
       const effectiveEmail = email ? email.toLowerCase().trim() : undefined;
-
-      if (!user) {
-        const isAdminPhone = cleanPhone === '9912179771' || cleanPhone === '9999999999';
-        const role = isAdminPhone ? UserRole.ADMIN : UserRole.CUSTOMER;
-        const defaultName = isAdminPhone ? 'Prasad (Owner)' : 'Customer';
-        const defaultEmail = isAdminPhone ? 'prasad.owner@cementproducts.com' : effectiveEmail;
-        const defaultFirm = isAdminPhone ? 'Prasad Cement Products Industries' : firmName;
-
-        user = await prisma.user.create({
-          data: {
-            phone: cleanPhone,
-            name: name || defaultName,
-            email: defaultEmail,
-            firmName: defaultFirm,
-            role,
-          },
-          include: { addresses: true },
+      if (effectiveEmail) {
+        const emailExists = await prisma.user.findUnique({
+          where: { email: effectiveEmail },
         });
-      } else {
-        // Update user fields if provided
-        const updateData: any = {};
-        if (name && !user.name) updateData.name = name;
-        if (effectiveEmail && !user.email) updateData.email = effectiveEmail;
-        if (firmName && !user.firmName) updateData.firmName = firmName;
-
-        if (Object.keys(updateData).length > 0) {
-          user = await prisma.user.update({
-            where: { id: user.id },
-            data: updateData,
-            include: { addresses: true },
-          });
+        if (emailExists) {
+          throw new BadRequestError('An account with this email already exists.');
         }
       }
 
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      // Create user (always CUSTOMER role via registration)
+      const user = await prisma.user.create({
+        data: {
+          phone: cleanPhone,
+          password: hashedPassword,
+          name,
+          email: effectiveEmail,
+          firmName: firmName || undefined,
+          role: UserRole.CUSTOMER,
+        },
+        include: { addresses: true },
+      });
+
+      // Generate tokens and auto-login
       const tokens = generateTokens({
         userId: user.id,
         phone: user.phone,
         role: user.role,
       });
 
-      res.json({
+      res.status(201).json({
         success: true,
-        message: 'Authentication successful',
+        message: 'Registration successful! Welcome to Prasad Cement Products.',
         user: {
           id: user.id,
           phone: user.phone,
@@ -119,7 +94,75 @@ router.post(
   }
 );
 
-// Refresh Access Token
+// ─── Login (Mobile + Password) ───────────────────────────────────────────────
+const loginSchema = z.object({
+  phone: z.string().min(10, 'Valid 10-digit mobile number required'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+router.post(
+  '/login',
+  validateBody(loginSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { phone, password } = req.body;
+      const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+
+      if (cleanPhone.length !== 10) {
+        throw new BadRequestError('Please enter a valid 10-digit mobile number');
+      }
+
+      // Find user
+      const user = await prisma.user.findUnique({
+        where: { phone: cleanPhone },
+        include: { addresses: true },
+      });
+
+      if (!user) {
+        throw new UnauthorizedError('No account found with this mobile number. Please register first.');
+      }
+
+      if (!user.isActive) {
+        throw new UnauthorizedError('Your account has been deactivated. Please contact admin.');
+      }
+
+      if (!user.password) {
+        throw new UnauthorizedError('Please set a password by registering again, or contact admin.');
+      }
+
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw new UnauthorizedError('Incorrect password. Please try again.');
+      }
+
+      const tokens = generateTokens({
+        userId: user.id,
+        phone: user.phone,
+        role: user.role,
+      });
+
+      res.json({
+        success: true,
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          phone: user.phone,
+          name: user.name,
+          email: user.email,
+          firmName: user.firmName,
+          role: user.role,
+          addresses: user.addresses,
+        },
+        ...tokens,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// ─── Refresh Access Token ────────────────────────────────────────────────────
 const refreshSchema = z.object({
   refreshToken: z.string(),
 });
@@ -156,7 +199,7 @@ router.post(
   }
 );
 
-// Get Current User Profile
+// ─── Get Current User Profile ────────────────────────────────────────────────
 router.get(
   '/me',
   authenticate,
@@ -189,7 +232,7 @@ router.get(
   }
 );
 
-// Update Profile
+// ─── Update Profile ──────────────────────────────────────────────────────────
 const updateProfileSchema = z.object({
   name: z.string().min(2).optional(),
   email: z.string().email().optional().or(z.literal('')),
@@ -236,7 +279,7 @@ router.put(
   }
 );
 
-// Add delivery address
+// ─── Add delivery address ────────────────────────────────────────────────────
 const addAddressSchema = z.object({
   label: z.string().optional(),
   line1: z.string().min(3),

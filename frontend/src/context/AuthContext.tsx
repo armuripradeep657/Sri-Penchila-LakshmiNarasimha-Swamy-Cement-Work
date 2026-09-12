@@ -8,7 +8,8 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (phone: string, code: string, name?: string, email?: string, firmName?: string) => Promise<User>;
+  login: (phone: string, password: string) => Promise<User>;
+  register: (data: { phone: string; password: string; name: string; email?: string; firmName?: string }) => Promise<User>;
   logout: () => void;
   isAdmin: boolean;
   refreshUser: () => Promise<void>;
@@ -51,14 +52,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, []);
 
-  const login = async (
-    phone: string,
-    code: string,
-    name?: string,
-    email?: string,
-    firmName?: string
-  ): Promise<User> => {
-    const res = await api.verifyOtp(phone, code, name, email, firmName);
+  const login = async (phone: string, password: string): Promise<User> => {
+    const res = await api.loginWithPassword(phone, password);
     if (res.accessToken && res.user) {
       localStorage.setItem('pcp_token', res.accessToken);
       localStorage.setItem('pcp_user', JSON.stringify(res.user));
@@ -67,6 +62,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return res.user;
     }
     throw new Error('Authentication failed');
+  };
+
+  const register = async (data: {
+    phone: string;
+    password: string;
+    name: string;
+    email?: string;
+    firmName?: string;
+  }): Promise<User> => {
+    const res = await api.register(data);
+    if (res.accessToken && res.user) {
+      localStorage.setItem('pcp_token', res.accessToken);
+      localStorage.setItem('pcp_user', JSON.stringify(res.user));
+      setToken(res.accessToken);
+      setUser(res.user);
+      return res.user;
+    }
+    throw new Error('Registration failed');
   };
 
   const updateProfile = async (profileData: {
@@ -101,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         token,
         isLoading,
         login,
+        register,
         logout,
         isAdmin,
         refreshUser,
