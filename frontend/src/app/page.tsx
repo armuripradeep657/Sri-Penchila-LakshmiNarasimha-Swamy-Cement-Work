@@ -365,12 +365,12 @@ export default function HomePage() {
                   <span>Open in Google Maps</span>
                 </a>
                 <a
-                  href="https://wa.me/919912179771?text=Hello%20Prasad%2C%20I%20would%20like%20to%20visit%20the%20yard%20in%20Velagatoor"
+                  href="https://wa.me/918919526315?text=Hello%20Sri%20Penchila%20LakshmiNarasimha%20Swamy%20Cement%20Work%2C%20I%20would%20like%20to%20visit%20the%20yard%20in%20Velagatoor"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-5 py-2.5 rounded-xl font-semibold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 transition-all"
+                  className="px-5 py-2.5 rounded-xl font-semibold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 transition-all shadow-md shadow-emerald-600/20"
                 >
-                  <span>Chat on WhatsApp (+91 99121 79771)</span>
+                  <span>Chat with Sri Penchila LakshmiNarasimha Swamy Cement Work</span>
                 </a>
               </div>
             </div>

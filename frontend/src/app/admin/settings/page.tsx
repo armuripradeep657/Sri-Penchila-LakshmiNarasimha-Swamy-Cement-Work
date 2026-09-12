@@ -20,10 +20,10 @@ import { formatPrice } from '@/lib/utils';
 export default function AdminSettingsPage() {
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({
-    store_name: 'Prasad Cement Products',
-    store_phone: '+919999999999',
-    store_whatsapp: '+919999999999',
-    store_address: 'Plot No. 12, Industrial Area, Hyderabad, Telangana 500032',
+    store_name: 'Sri Penchila LakshmiNarasimha Swamy Cement Work',
+    store_phone: '+919912179771',
+    store_whatsapp: '+918919526315',
+    store_address: 'Jagtial - Velgatoor Road, Opposite to Sudha Hospital, Velagatoor, Velagatoor Mandal, Jagtial District, Telangana - 505526',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingSettings, setIsSavingSettings] = useState(false);

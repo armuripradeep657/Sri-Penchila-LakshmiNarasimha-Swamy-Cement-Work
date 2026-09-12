@@ -7,6 +7,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import Header from '@/components/shared/Header';
 import Footer from '@/components/shared/Footer';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
+import AmbientLogoBackground from '@/components/shared/AmbientLogoBackground';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -43,6 +44,7 @@ export default function RootLayout({
         <LanguageProvider>
           <AuthProvider>
             <CartProvider>
+              <AmbientLogoBackground />
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />

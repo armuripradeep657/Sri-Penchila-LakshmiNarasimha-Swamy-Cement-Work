@@ -1,41 +1,80 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { MessageCircle } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface WhatsAppButtonProps {
   productName?: string;
-  phoneNumber?: string;
 }
 
-export default function WhatsAppButton({
-  productName,
-  phoneNumber = '+919999999999',
-}: WhatsAppButtonProps) {
-  const cleanPhone = phoneNumber.replace(/\D/g, '');
-  const message = productName
-    ? `Hello Prasad Cement Products, I am interested in inquiring about "${productName}". Could you please provide pricing and delivery timeline?`
-    : `Hello Prasad Cement Products, I would like to inquire about your precast cement products.`;
+export default function WhatsAppButton({ productName }: WhatsAppButtonProps) {
+  const { language } = useLanguage();
 
-  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+  // Destination owner phone: 8919526315 (kept strictly in href, never displayed as visible text)
+  const ownerPhone = '918919526315';
+
+  const defaultMessage =
+    language === 'te'
+      ? 'నమస్కారం శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్, నేను మీ ప్రీకాస్ట్ సిమెంట్ ప్రొడక్ట్స్ (కిటికీలు, ఇటుకలు, గగులు) గురించి వివరాలు మరియు ధర తెలుసుకోవాలనుకుంటున్నాను.'
+      : 'Hello Sri Penchila LakshmiNarasimha Swamy Cement Work, I would like to inquire about your precast cement products (windows, bricks, gagulu rings).';
+
+  const message = productName
+    ? language === 'te'
+      ? `నమస్కారం శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్, నేను "${productName}" గురించి ఎంక్వైరీ చేయాలనుకుంటున్నాను. దయచేసి ధర మరియు డెలివరీ వివరాలు పంపగలరు.`
+      : `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work, I am interested in inquiring about "${productName}". Could you please provide pricing and delivery timeline?`
+    : defaultMessage;
+
+  const whatsappUrl = `https://wa.me/${ownerPhone}?text=${encodeURIComponent(message)}`;
 
   return (
-    <a
-      href={whatsappUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-3 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 group border border-emerald-400/30"
-      aria-label="Chat with Prasad on WhatsApp"
+    <aside
+      aria-label="Direct WhatsApp Chat"
+      className="fixed bottom-5 right-5 z-40 flex items-center group"
     >
-      <span className="relative flex h-3 w-3">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-200 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
-      </span>
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white pl-2.5 pr-4 py-2 sm:py-2.5 rounded-full shadow-[0_8px_30px_rgb(16,185,129,0.35)] hover:shadow-[0_10px_35px_rgb(16,185,129,0.55)] transition-all duration-300 hover:scale-105 border border-emerald-300/40 backdrop-blur-md"
+        title={
+          language === 'te'
+            ? 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్ తో వాట్సాప్ చాట్'
+            : 'Chat with Sri Penchila LakshmiNarasimha Swamy Cement Work'
+        }
+      >
+        {/* Brand Logo Avatar with pulsing active ring */}
+        <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/60 shrink-0 bg-slate-950 shadow-inner">
+          <Image
+            src="/images/logo.png"
+            alt="Sri Penchila LakshmiNarasimha Swamy Cement Work"
+            fill
+            sizes="32px"
+            className="object-cover"
+          />
+          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border border-slate-950 rounded-full animate-ping" />
+          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border border-slate-950 rounded-full" />
+        </div>
 
-      <MessageCircle className="w-6 h-6 animate-pulse" />
-      <span className="font-medium text-sm hidden sm:inline-block">
-        Chat with Prasad
-      </span>
-    </a>
+        {/* WhatsApp Icon */}
+        <div className="flex items-center justify-center text-white">
+          <MessageCircle className="w-5 h-5 fill-white/20 animate-pulse" />
+        </div>
+
+        {/* Company Name Badge — Number is 100% hidden, company name displayed */}
+        <div className="flex flex-col text-left">
+          <span className="text-[9px] uppercase tracking-wider font-extrabold text-emerald-100 flex items-center gap-1 leading-none">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+            {language === 'te' ? 'యజమానితో చాట్' : 'Direct Chat with Owner'}
+          </span>
+          <span className="text-xs font-black text-white tracking-tight leading-tight mt-0.5 max-w-[200px] sm:max-w-[280px] truncate">
+            {language === 'te'
+              ? 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్'
+              : 'Sri Penchila LakshmiNarasimha Swamy Cement Work'}
+          </span>
+        </div>
+      </a>
+    </aside>
   );
 }

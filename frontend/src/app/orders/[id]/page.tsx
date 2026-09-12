@@ -326,15 +326,15 @@ export default function OrderDetailPage() {
             )}
 
             <a
-              href={`https://wa.me/919999999999?text=${encodeURIComponent(
-                `Hello Prasad, I am inquiring about Order #${order.orderNumber}. Could you please update me on dispatch status?`
+              href={`https://wa.me/918919526315?text=${encodeURIComponent(
+                `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work, I am inquiring about Order #${order.orderNumber}. Could you please update me on dispatch status?`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp Dispatch Desk</span>
+              <span>Chat with Sri Penchila LakshmiNarasimha Swamy Cement Work</span>
             </a>
           </div>
         </div>

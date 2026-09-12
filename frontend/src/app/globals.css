@@ -150,3 +150,21 @@ body {
   animation: textRevealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
 }
 
+/* Background Real-Time Floating Logo Watermark Animation */
+@keyframes floatAndPulse {
+  0%, 100% {
+    transform: translateY(0px) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-12px) scale(1.03) rotate(1.5deg);
+  }
+  66% {
+    transform: translateY(8px) scale(0.98) rotate(-1.5deg);
+  }
+}
+
+.animate-float-pulse {
+  animation: floatAndPulse 12s ease-in-out infinite;
+}
+
+

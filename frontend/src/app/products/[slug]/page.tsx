@@ -830,15 +830,15 @@ export default function ProductDetailPage() {
 
                 {/* WhatsApp Direct Enquiry */}
                 <a
-                  href={`https://wa.me/919912179771?text=${encodeURIComponent(
-                    `Hello Prasad, I am inquiring about "${product.name}" (${selectedVariant?.name || ''}). Quantity: ${quantity}. Delivery needed in Jagtial / Velgatoor area.`
+                  href={`https://wa.me/918919526315?text=${encodeURIComponent(
+                    `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work, I am inquiring about "${product.name}" (${selectedVariant?.name || ''}). Quantity: ${quantity}. Delivery needed in Jagtial / Velgatoor area.`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all shadow-sm"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Chat with Owner Prasad on WhatsApp (+91 99121 79771)</span>
+                  <span>Chat on WhatsApp with Sri Penchila LakshmiNarasimha Swamy Cement Work</span>
                 </a>
               </div>
             </div>
@@ -983,15 +983,15 @@ export default function ProductDetailPage() {
               </button>
 
               <a
-                href={`https://wa.me/919912179771?text=${encodeURIComponent(
-                  `Hello Prasad! I just booked ${quantity} units of "${product.name}" (${selectedVariant?.name}). Ref: ${bookingTicketNumber}. Please confirm dispatch schedule to Velagatoor / Jagtial.`
+                href={`https://wa.me/918919526315?text=${encodeURIComponent(
+                  `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work! I just booked ${quantity} units of "${product.name}" (${selectedVariant?.name}). Ref: ${bookingTicketNumber}. Please confirm dispatch schedule to Velagatoor / Jagtial.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Confirm Booking with Prasad on WhatsApp (+91 99121 79771)</span>
+                <span>Confirm on WhatsApp with Sri Penchila LakshmiNarasimha Swamy Cement Work</span>
               </a>
 
               <button
