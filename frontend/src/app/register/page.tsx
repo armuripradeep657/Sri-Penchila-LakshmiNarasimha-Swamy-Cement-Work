@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
+import Logo from '@/components/shared/Logo';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -82,8 +83,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/25">
-            <Layers className="w-8 h-8 text-white" />
+          <div className="flex justify-center mb-2">
+            <Logo size="lg" showText={false} />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
             {language === 'te' ? 'కొత్త ఖాతా సృష్టించండి' : 'Create Account'}

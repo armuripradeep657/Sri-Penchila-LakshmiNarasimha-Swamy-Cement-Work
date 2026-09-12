@@ -22,6 +22,8 @@ import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { Globe } from 'lucide-react';
 
+import Logo from '@/components/shared/Logo';
+
 export default function Header() {
   const pathname = usePathname();
   const { user, isAdmin, logout } = useAuth();
@@ -48,23 +50,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform duration-300">
-              <Layers className="w-6 h-6 text-slate-950" />
-            </div>
-            <div>
-              <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white group-hover:text-amber-400 transition-colors">
-                {language === 'te' ? (
-                  <>ప్రసాద్ <span className="text-amber-500">సిమెంట్</span></>
-                ) : (
-                  <>PRASAD <span className="text-amber-500">CEMENT</span></>
-                )}
-              </span>
-              <p className="text-[10px] text-slate-400 -mt-1 tracking-wider uppercase font-semibold">
-                {t('brand_subtitle')}
-              </p>
-            </div>
-          </Link>
+          <Logo size="md" />
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
+import Logo from '@/components/shared/Logo';
 
 function LoginContent() {
   const router = useRouter();
@@ -77,8 +78,8 @@ function LoginContent() {
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center mx-auto shadow-xl shadow-amber-500/25">
-            <Layers className="w-8 h-8 text-slate-950" />
+          <div className="flex justify-center mb-2">
+            <Logo size="lg" showText={false} />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
             {language === 'te' ? 'పోర్టల్ లాగిన్' : 'Sign In'}

@@ -27,6 +27,10 @@ export const metadata: Metadata = {
     'Prasad Cement Products',
     'Jagtial Velgatoor Telangana',
   ],
+  icons: {
+    icon: '/images/logo.png',
+    apple: '/images/logo.png',
+  },
 };
 
 export default function RootLayout({

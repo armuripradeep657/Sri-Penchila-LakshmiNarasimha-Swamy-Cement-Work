@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Layers, MapPin, Phone, Mail, Clock, ShieldCheck, Truck, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import Logo from '@/components/shared/Logo';
 
 export default function Footer() {
   const { language, t } = useLanguage();
@@ -75,18 +76,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {/* Company Info */}
         <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center">
-              <Layers className="w-5 h-5 text-slate-950" />
-            </div>
-            <span className="font-bold text-lg text-white">
-              {language === 'te' ? (
-                <>ప్రసాద్ <span className="text-amber-500">సిమెంట్ ప్రొడక్ట్స్</span></>
-              ) : (
-                <>PRASAD <span className="text-amber-500">CEMENT</span></>
-              )}
-            </span>
-          </div>
+          <Logo size="md" />
           <p className="text-xs leading-relaxed text-slate-400">
             {language === 'te'
               ? 'తెలంగాణలోని జగిత్యాల మరియు పరిసర ప్రాంతాలకు నాణ్యమైన ప్రీకాస్ట్ కాంక్రీట్ కిటికీలు, దర్వాజాలు, సాలిడ్ ఇటుకలు మరియు స్విమ్మింగ్ పూల్స్ తయారీదారులు.'
