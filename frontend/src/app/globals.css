@@ -108,3 +108,45 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Brand Logo Zoom Entrance */
+@keyframes logoZoomIn {
+  0% {
+    transform: scale(0.35) rotate(-6deg);
+    opacity: 0;
+    filter: blur(8px);
+  }
+  45% {
+    transform: scale(1.04) rotate(0deg);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  75% {
+    transform: scale(1.0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+.animate-logo-zoom {
+  animation: logoZoomIn 1.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes textRevealUp {
+  0% {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-reveal-up {
+  animation: textRevealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+}
+

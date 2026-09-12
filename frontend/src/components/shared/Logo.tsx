@@ -23,22 +23,22 @@ export default function Logo({
   const sizeClasses = {
     sm: {
       img: 'w-8 h-8',
-      title: 'text-base sm:text-lg',
+      title: 'text-xs sm:text-sm font-bold',
       sub: 'text-[9px]',
     },
     md: {
-      img: 'w-10 h-10',
-      title: 'text-lg sm:text-xl',
-      sub: 'text-[10px]',
+      img: 'w-10 h-10 sm:w-11 sm:h-11',
+      title: 'text-xs sm:text-sm font-black',
+      sub: 'text-[9px] sm:text-[10px]',
     },
     lg: {
-      img: 'w-14 h-14',
-      title: 'text-2xl',
+      img: 'w-16 h-16',
+      title: 'text-lg sm:text-xl font-black',
       sub: 'text-xs',
     },
     xl: {
-      img: 'w-20 h-20',
-      title: 'text-3xl',
+      img: 'w-24 h-24',
+      title: 'text-2xl sm:text-3xl font-black',
       sub: 'text-sm',
     },
   }[size];
@@ -46,38 +46,42 @@ export default function Logo({
   const content = (
     <div className={`flex items-center gap-3 group select-none ${className}`}>
       <div
-        className={`${sizeClasses.img} relative rounded-xl overflow-hidden border border-amber-500/40 shadow-lg shadow-amber-500/10 bg-slate-900 shrink-0 group-hover:scale-105 group-hover:border-amber-400 transition-all duration-300`}
+        className={`${sizeClasses.img} relative rounded-xl overflow-hidden border border-amber-500/50 shadow-lg shadow-amber-500/20 bg-slate-900 shrink-0 group-hover:scale-105 group-hover:border-amber-400 transition-all duration-300 ring-2 ring-amber-500/20`}
       >
         <Image
           src="/images/logo.png"
-          alt="Prasad Cement Products Logo"
+          alt="Sri Penchila LakshmiNarasimha Swamy Cement Work Logo"
           fill
           priority
-          sizes="(max-width: 768px) 48px, 64px"
+          sizes="(max-width: 768px) 48px, 96px"
           className="object-cover"
         />
       </div>
 
       {showText && (
-        <div className="flex flex-col">
+        <div className="flex flex-col justify-center">
           <span
-            className={`font-black ${sizeClasses.title} tracking-tight text-white group-hover:text-amber-400 transition-colors leading-none`}
+            className={`${sizeClasses.title} tracking-tight text-white group-hover:text-amber-400 transition-colors leading-tight line-clamp-1`}
           >
             {language === 'te' ? (
-              <>
-                ప్రసాద్ <span className="text-amber-500">సిమెంట్</span>
-              </>
+              <>శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి</>
             ) : (
-              <>
-                PRASAD <span className="text-amber-500">CEMENT</span>
-              </>
+              <>Sri Penchila LakshmiNarasimha Swamy</>
             )}
           </span>
-          <span
-            className={`${sizeClasses.sub} text-slate-400 font-semibold tracking-wider uppercase mt-1 leading-none`}
-          >
-            {language === 'te' ? 'ప్రీకాస్ట్ ప్రొడక్ట్స్' : 'Precast Concrete Works'}
-          </span>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span
+              className={`${sizeClasses.sub} text-amber-400 font-extrabold tracking-wider uppercase leading-none`}
+            >
+              {language === 'te' ? 'సిమెంట్ వర్క్స్' : 'CEMENT WORK'}
+            </span>
+            <span className="text-slate-600 text-[9px] leading-none">•</span>
+            <span
+              className={`${sizeClasses.sub} text-slate-400 font-semibold tracking-wider uppercase leading-none`}
+            >
+              {language === 'te' ? 'ప్రీకాస్ట్ ప్రొడక్ట్స్' : 'Precast Concrete'}
+            </span>
+          </div>
         </div>
       )}
     </div>

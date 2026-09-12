@@ -11,20 +11,19 @@ import WhatsAppButton from '@/components/shared/WhatsAppButton';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Prasad Cement Products | Quality Precast Concrete Windows, Doors, Bricks & Pools',
+  title: 'Sri Penchila LakshmiNarasimha Swamy Cement Work | Quality Precast Concrete Windows, Bricks & Gagulu',
   description:
-    'Manufacturer and supplier of high-strength precast cement windows, single/double door frames (darwajas), solid/hollow/fly-ash bricks, and precast concrete pools in Jagtial, Telangana. Direct factory pricing and wholesale dispatch.',
+    'Manufacturer and supplier of high-strength precast cement windows, machine & hand-made ketikelu, gagulu cement well rings, solid bricks, and ventilator jalis. Direct factory pricing and wholesale yard dispatch.',
   keywords: [
+    'Sri Penchila LakshmiNarasimha Swamy Cement Work',
+    'Prasad Cement Products',
     'cement windows',
-    'cement door frames',
-    'cement darwaja',
+    'kodada ketikelu',
+    'machine ketikelu',
+    'gagulu cement rings',
     'precast concrete',
     'solid cement bricks',
-    'hollow concrete blocks',
-    'fly ash bricks',
-    'precast swimming pool',
-    'garden pool',
-    'Prasad Cement Products',
+    'ventilator jali blocks',
     'Jagtial Velgatoor Telangana',
   ],
   icons: {

@@ -9,10 +9,11 @@ export type Language = 'en' | 'te';
 const translations: Record<Language, Record<string, string>> = {
   en: {
     // Brand
-    brand_name: 'PRASAD CEMENT',
-    brand_subtitle: 'Precast Products',
-    brand_tagline: 'Quality Precast Concrete Windows, Doors, Bricks & Pools',
-    direct_factory_solutions: 'DIRECT FACTORY PRECAST CONCRETE SOLUTIONS',
+    brand_name: 'Sri Penchila LakshmiNarasimha Swamy Cement Work',
+    brand_short: 'SPLN Swamy Cement Works',
+    brand_subtitle: 'Precast Concrete & Cement Works',
+    brand_tagline: 'Sri Penchila LakshmiNarasimha Swamy Cement Work | Quality Precast Concrete Windows, Bricks & Gagulu',
+    direct_factory_solutions: 'SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK',
 
     // Navigation
     nav_home: 'Home',
@@ -139,10 +140,11 @@ const translations: Record<Language, Record<string, string>> = {
 
   te: {
     // Brand
-    brand_name: 'ప్రసాద్ సిమెంట్',
-    brand_subtitle: 'ప్రీకాస్ట్ ఉత్పత్తులు',
-    brand_tagline: 'నాణ్యమైన ప్రీకాస్ట్ కాంక్రీట్ కిటికీలు, దర్వాజాలు, ఇటుకలు & పూల్స్',
-    direct_factory_solutions: 'డైరెక్ట్ ఫ్యాక్టరీ ప్రీకాస్ట్ కాంక్రీట్ సొల్యూషన్స్',
+    brand_name: 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్',
+    brand_short: 'శ్రీ పెంచల స్వామి సిమెంట్',
+    brand_subtitle: 'ప్రీకాస్ట్ కాంక్రీట్ ఉత్పత్తులు',
+    brand_tagline: 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్ | నాణ్యమైన ప్రీకాస్ట్ కిటికీలు, ఇటుకలు & గగులు',
+    direct_factory_solutions: 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్',
 
     // Navigation
     nav_home: 'హోమ్',
