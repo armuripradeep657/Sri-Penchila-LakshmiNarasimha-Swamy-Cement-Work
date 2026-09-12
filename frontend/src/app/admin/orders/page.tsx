@@ -12,6 +12,9 @@ import {
   Phone,
   CheckCircle2,
   Calendar,
+  MessageCircle,
+  XCircle,
+  Check,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Order, OrderStatus } from '@/types';
@@ -45,11 +48,54 @@ export default function AdminOrdersPage() {
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setUpdatingId(orderId);
     try {
-      await api.updateOrderStatus(orderId, newStatus);
+      const res = await api.updateOrderStatus(orderId, newStatus);
       await loadOrders();
-      alert(`Order status updated to ${newStatus.replace(/_/g, ' ')}. Notification sent to customer!`);
+      if (res?.whatsappUrl) {
+        const sendWA = confirm(`Order status updated to ${newStatus.replace(/_/g, ' ')}. Would you like to open WhatsApp to send this update to customer now?`);
+        if (sendWA) {
+          window.open(res.whatsappUrl, '_blank');
+        }
+      }
     } catch (err: any) {
       alert(err.message || 'Failed to update order status');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleConfirmAndWhatsApp = async (order: Order) => {
+    setUpdatingId(order.id);
+    try {
+      const res = await api.updateOrderStatus(order.id, 'CONFIRMED');
+      await loadOrders();
+      if (res?.whatsappUrl) {
+        window.open(res.whatsappUrl, '_blank');
+      } else if (order.user?.phone) {
+        const msg = `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK (PRASAD CEMENT WORK)*\nDear ${order.user.name || 'Customer'},\n✅ Your Precast Concrete Order #${order.orderNumber} for ${formatPrice(order.grandTotal)} has been CONFIRMED!\nMaterials prepped for dispatch from Velagatoor yard. Contact: 8919526315.`;
+        window.open(`https://wa.me/91${order.user.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to confirm order');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleCancelAndWhatsApp = async (order: Order) => {
+    const reason = prompt(`Enter cancellation reason for Order #${order.orderNumber}:`, 'Site delivery inaccessible or customer requested cancellation.');
+    if (reason === null) return; // user clicked cancel
+    setUpdatingId(order.id);
+    try {
+      const res = await api.updateOrderStatus(order.id, 'CANCELLED', reason);
+      await loadOrders();
+      if (res?.whatsappUrl) {
+        window.open(res.whatsappUrl, '_blank');
+      } else if (order.user?.phone) {
+        const msg = `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK (PRASAD CEMENT WORK)*\nDear ${order.user.name || 'Customer'},\n⚠️ Order #${order.orderNumber} has been CANCELLED.\nReason: ${reason}\nContact owner Prasad directly at 8919526315 for assistance.`;
+        window.open(`https://wa.me/91${order.user.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to cancel order');
     } finally {
       setUpdatingId(null);
     }
@@ -160,32 +206,63 @@ export default function AdminOrdersPage() {
                   </p>
                 </div>
 
-                {/* Status Dropdown Updater */}
-                <div className="flex items-center gap-3 self-start lg:self-auto">
-                  <span className="text-xs text-slate-400 whitespace-nowrap">Change Status:</span>
-                  <select
-                    value={order.status}
-                    disabled={updatingId === order.id}
-                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                    className="bg-slate-900 border border-amber-500/40 rounded-xl px-3 py-1.5 text-xs text-amber-400 font-bold focus:outline-none focus:border-amber-500"
-                  >
-                    <option value="CONFIRMED">Confirmed</option>
-                    <option value="IN_PRODUCTION">In Production (Curing)</option>
-                    <option value="OUT_FOR_DELIVERY">Out For Delivery (Truck)</option>
-                    <option value="DELIVERED">Delivered</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </select>
+                {/* 1-Click WhatsApp Quick Actions */}
+                <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
+                  {/* Status Dropdown */}
+                  <div className="flex items-center gap-2 bg-slate-900/90 p-1.5 rounded-xl border border-slate-700">
+                    <span className="text-[11px] text-slate-400 pl-1.5">Status:</span>
+                    <select
+                      value={order.status}
+                      disabled={updatingId === order.id}
+                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      className="bg-slate-950 border border-amber-500/40 rounded-lg px-2.5 py-1 text-xs text-amber-300 font-bold focus:outline-none focus:border-amber-400 cursor-pointer"
+                    >
+                      <option value="CONFIRMED">Confirmed</option>
+                      <option value="IN_PRODUCTION">In Production (Curing)</option>
+                      <option value="OUT_FOR_DELIVERY">Out For Delivery (Truck)</option>
+                      <option value="DELIVERED">Delivered</option>
+                      <option value="CANCELLED">Cancelled</option>
+                    </select>
+                  </div>
 
+                  {/* 🟢 Quick Confirm & WhatsApp Button */}
+                  {order.status !== 'CONFIRMED' && (
+                    <button
+                      onClick={() => handleConfirmAndWhatsApp(order)}
+                      disabled={updatingId === order.id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all cursor-pointer"
+                      title="Confirm Order and open customer WhatsApp confirmation message"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Confirm & WhatsApp</span>
+                    </button>
+                  )}
+
+                  {/* 🔴 Quick Cancel & WhatsApp Button */}
+                  {order.status !== 'CANCELLED' && (
+                    <button
+                      onClick={() => handleCancelAndWhatsApp(order)}
+                      disabled={updatingId === order.id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 transition-all cursor-pointer"
+                      title="Cancel Order and open customer WhatsApp cancellation notice"
+                    >
+                      <XCircle className="w-3.5 h-3.5" />
+                      <span>Cancel & WhatsApp</span>
+                    </button>
+                  )}
+
+                  {/* Direct WhatsApp Chat with Customer */}
                   <a
                     href={`https://wa.me/91${order.user?.phone}?text=${encodeURIComponent(
-                      `Hello ${order.user?.name || 'Sir'}, this is Prasad regarding your Order ${order.orderNumber}. We have updated status to ${order.status.replace(/_/g, ' ')}.`
+                      `Hello ${order.user?.name || 'Customer'}, this is Prasad from PRASAD CEMENT WORK regarding your Precast Order #${order.orderNumber}.`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30"
-                    title="Send WhatsApp update to customer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all"
+                    title="Direct WhatsApp Chat with Customer"
                   >
-                    <Phone className="w-4 h-4" />
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>Chat ({order.user?.phone || 'Customer'})</span>
                   </a>
                 </div>
               </div>

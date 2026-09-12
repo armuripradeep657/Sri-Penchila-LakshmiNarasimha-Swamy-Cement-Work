@@ -102,6 +102,16 @@ export default function CheckoutPage() {
 
       if (orderRes?.order) {
         // Order placed successfully!
+        if (orderRes.customerWhatsAppUrl) {
+          try {
+            sessionStorage.setItem(`wa_customer_${orderRes.order.id}`, orderRes.customerWhatsAppUrl);
+          } catch {}
+        }
+        if (orderRes.ownerWhatsAppUrl) {
+          try {
+            sessionStorage.setItem(`wa_owner_${orderRes.order.id}`, orderRes.ownerWhatsAppUrl);
+          } catch {}
+        }
         await refreshCart();
         router.push(`/orders/${orderRes.order.id}?success=true`);
       }

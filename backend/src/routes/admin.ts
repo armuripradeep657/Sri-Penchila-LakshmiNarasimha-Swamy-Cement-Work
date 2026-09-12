@@ -4,7 +4,12 @@ import { prisma } from '../services/db';
 import { authenticate, requireAdmin, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { NotFoundError, BadRequestError } from '../utils/errors';
-import { sendCustomerNotification } from '../services/notification';
+import {
+  sendCustomerNotification,
+  buildOrderConfirmedWhatsAppMessage,
+  buildOrderCancelledWhatsAppMessage,
+  createWhatsAppShareUrl,
+} from '../services/notification';
 import { OrderStatus, QuoteStatus, ProductCategory, UnitOfSale, AvailabilityStatus } from '../types';
 
 const router = Router();
@@ -384,7 +389,15 @@ router.patch(
 
       const order = await prisma.order.findUnique({
         where: { id },
-        include: { user: true },
+        include: {
+          user: true,
+          items: {
+            include: {
+              variant: { include: { product: true } },
+            },
+          },
+          deliveryAddress: true,
+        },
       });
 
       if (!order) throw new NotFoundError('Order');
@@ -397,12 +410,44 @@ router.patch(
         },
       });
 
+      let whatsappMsg = '';
+      let whatsappUrl = '';
+
       if (order.user.phone) {
+        if (status === 'CONFIRMED') {
+          const itemsFormatted = order.items.map((i) => ({
+            name: i.variant?.product?.name || 'Precast Item',
+            variantName: i.variant?.name || 'Standard',
+            quantity: i.quantity,
+          }));
+          const addressFormatted = order.deliveryAddress
+            ? `${order.deliveryAddress.line1}, ${order.deliveryAddress.city} - ${order.deliveryAddress.pincode}`
+            : 'Factory Yard Pickup (Velagatoor)';
+
+          whatsappMsg = buildOrderConfirmedWhatsAppMessage({
+            orderNumber: order.orderNumber,
+            customerName: order.user.name || 'Valued Customer',
+            grandTotal: order.grandTotal,
+            items: itemsFormatted,
+            address: addressFormatted,
+          });
+        } else if (status === 'CANCELLED') {
+          whatsappMsg = buildOrderCancelledWhatsAppMessage({
+            orderNumber: order.orderNumber,
+            customerName: order.user.name || 'Valued Customer',
+            reason: notes || 'Site delivery inaccessible or customer requested cancellation.',
+          });
+        } else {
+          whatsappMsg = `*PRASAD CEMENT WORK*\nDear ${order.user.name || 'Customer'},\nOrder #${order.orderNumber} status updated to: *${status.replace(/_/g, ' ')}*.\nFactory Yard contact: 8919526315.`;
+        }
+
+        whatsappUrl = createWhatsAppShareUrl(order.user.phone, whatsappMsg);
+
         await sendCustomerNotification({
           toPhone: order.user.phone,
           orderNumber: order.orderNumber,
-          type: 'STATUS_UPDATED',
-          message: `Your order ${order.orderNumber} status has been updated to: ${status.replace(/_/g, ' ')}. Prasad Cement Products.`,
+          type: status === 'CANCELLED' ? 'ORDER_CANCELLED' : 'STATUS_UPDATED',
+          message: whatsappMsg,
         });
       }
 
@@ -410,6 +455,8 @@ router.patch(
         success: true,
         message: `Order status updated to ${status}`,
         order: updated,
+        whatsappUrl,
+        whatsappMsg,
       });
     } catch (err) {
       next(err);

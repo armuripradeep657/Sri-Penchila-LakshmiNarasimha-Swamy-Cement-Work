@@ -151,6 +151,65 @@ export default function OrderDetailPage() {
 
   const invoiceNumber = `INV-${order.orderNumber.replace('ORD-', '')}`;
 
+  // WhatsApp Order Details Slip Formatting
+  const customerPhoneRaw = order.user?.phone || '';
+  const customerCleanDigits = customerPhoneRaw.replace(/\D/g, '');
+  const customerWaNumber = customerCleanDigits.length === 10 ? `91${customerCleanDigits}` : customerCleanDigits;
+
+  const itemsFormattedText = order.items
+    .map(
+      (item) =>
+        `• ${item.variant?.product?.name || 'Precast Item'} (${item.variant?.name || 'Standard'}${
+          item.variant?.width && item.variant?.height
+            ? ` - ${item.variant.width}×${item.variant.height} ${item.variant.dimensionUnit || ''}`
+            : ''
+        }) × ${item.quantity} = ₹${(item.totalPrice / 100).toLocaleString('en-IN')}`
+    )
+    .join('\n');
+
+  const addressText = order.deliveryAddress
+    ? `${order.deliveryAddress.line1}, ${order.deliveryAddress.city} - ${order.deliveryAddress.pincode}`
+    : 'Factory Yard Pickup (Velagatoor)';
+
+  const customerOrderSlipMsg =
+    `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK*\n` +
+    `*(PRASAD CEMENT WORK)*\n` +
+    `Opp. Sudha Hospital, Jagtial - Velagatoor Road, Telangana\n` +
+    `Yard Hotline: 8919526315 / 9912179771\n\n` +
+    `Dear ${order.user?.name || 'Valued Builder'},\n` +
+    `✅ *PRECAST CONCRETE ORDER DETAILS & SLIP*\n\n` +
+    `📋 *Order Ref:* #${order.orderNumber}\n` +
+    `📅 *Date:* ${formatDate(order.createdAt)}\n` +
+    `💰 *Grand Total:* ₹${(order.grandTotal / 100).toLocaleString('en-IN')}\n` +
+    `💳 *Payment Mode:* ${isCOD ? 'Cash on Delivery (COD)' : order.paymentStatus === 'PAID' ? 'PAID Online' : 'Pending Payment'}\n` +
+    `📍 *Site Address:* ${addressText}\n\n` +
+    `📦 *Ordered Items:*\n${itemsFormattedText}\n\n` +
+    `🚚 Steam cured with 53-grade OPC cement. Crane unloading support ready.\n` +
+    `Thank you for trusting PRASAD CEMENT WORK!`;
+
+  // Check if session storage cached URL exists
+  let customerWhatsAppLink = '';
+  if (typeof window !== 'undefined') {
+    try {
+      customerWhatsAppLink = sessionStorage.getItem(`wa_customer_${order.id}`) || '';
+    } catch {}
+  }
+  if (!customerWhatsAppLink) {
+    customerWhatsAppLink = customerWaNumber
+      ? `https://wa.me/${customerWaNumber}?text=${encodeURIComponent(customerOrderSlipMsg)}`
+      : `https://wa.me/?text=${encodeURIComponent(customerOrderSlipMsg)}`;
+  }
+
+  const ownerWhatsAppInquiryMsg =
+    `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK (PRASAD CEMENT WORK)*\n` +
+    `Hello Prasad Garu, I am inquiring regarding Order #${order.orderNumber}.\n` +
+    `Customer: ${order.user?.name || 'Customer'} (${customerPhoneRaw || 'Site Contact'})\n` +
+    `Grand Total: ₹${(order.grandTotal / 100).toLocaleString('en-IN')} (${isCOD ? 'COD' : 'Online'})\n` +
+    `Delivery Site: ${addressText}\n\n` +
+    `Could you please update me on dispatch schedule?`;
+
+  const ownerWhatsAppLink = `https://wa.me/918919526315?text=${encodeURIComponent(ownerWhatsAppInquiryMsg)}`;
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Printable Invoice Container (Only visible when printing) */}
@@ -184,27 +243,51 @@ export default function OrderDetailPage() {
 
         {/* Success Banner if redirected from checkout */}
         {isJustPlaced && (
-          <div className="p-5 rounded-3xl bg-emerald-500/15 border-2 border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-emerald-400 text-xs shadow-xl animate-in fade-in">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-6 h-6 shrink-0 text-emerald-400" />
-              <div>
-                <p className="font-extrabold text-sm text-white">
-                  Order #{order.orderNumber} Booked Successfully!
-                </p>
-                <p className="text-emerald-300 mt-0.5">
-                  Thank you for choosing Sri Penchila LakshmiNarasimha Swamy Cement Work (PRASAD CEMENT WORK).
-                </p>
+          <div className="p-5 sm:p-6 rounded-3xl bg-emerald-950/40 border-2 border-emerald-500/50 flex flex-col gap-4 text-emerald-400 text-xs shadow-2xl animate-in fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                </div>
+                <div>
+                  <p className="font-extrabold text-base text-white">
+                    Order #{order.orderNumber} Booked Successfully!
+                  </p>
+                  <p className="text-emerald-300 mt-0.5 text-xs">
+                    Order slip ready! Send details to your WhatsApp or connect with the yard owner.
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={handlePrintInvoice}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition-all cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download Invoice (PDF)</span>
-              </button>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <a
+                  href={customerWhatsAppLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4 fill-slate-950" />
+                  <span>📲 Send Slip to My WhatsApp</span>
+                </a>
+
+                <a
+                  href={ownerWhatsAppLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 font-bold text-xs shadow-md transition-all cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>💬 Confirm with Owner</span>
+                </a>
+
+                <button
+                  onClick={handlePrintInvoice}
+                  className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer border border-slate-700"
+                >
+                  <Download className="w-4 h-4 text-amber-400" />
+                  <span>Invoice (PDF)</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -436,26 +519,36 @@ export default function OrderDetailPage() {
                 </div>
               )}
 
+              {/* Send Order Slip to Customer WhatsApp */}
+              <a
+                href={customerWhatsAppLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+              >
+                <MessageCircle className="w-4 h-4 fill-white" />
+                <span>📲 Send Order Details to WhatsApp</span>
+              </a>
+
+              {/* Chat with Yard Owner */}
+              <a
+                href={ownerWhatsAppLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-xs bg-slate-900/90 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 transition-all cursor-pointer"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>💬 Chat with Yard Owner (8919526315)</span>
+              </a>
+
               {/* Download Invoice Button */}
               <button
                 onClick={handlePrintInvoice}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-all shadow-sm"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-all shadow-sm cursor-pointer"
               >
                 <Download className="w-4 h-4 text-amber-400" />
                 <span>Download Official Invoice (PDF)</span>
               </button>
-
-              <a
-                href={`https://wa.me/918919526315?text=${encodeURIComponent(
-                  `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work (PRASAD CEMENT WORK), I am inquiring about Order #${order.orderNumber}. Could you please update me on dispatch status?`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Chat on WhatsApp (8919526315)</span>
-              </a>
             </div>
           </div>
         </div>

@@ -4,7 +4,11 @@ import { prisma } from '../services/db';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { createRazorpayOrder, verifyRazorpaySignature } from '../services/payment';
-import { sendCustomerNotification } from '../services/notification';
+import {
+  sendCustomerNotification,
+  buildOrderConfirmedWhatsAppMessage,
+  createWhatsAppShareUrl,
+} from '../services/notification';
 import { BadRequestError, NotFoundError } from '../utils/errors';
 import { generateOrderNumber } from '../utils/errors';
 import { OrderStatus, PaymentStatus } from '../types';
@@ -214,12 +218,48 @@ router.post(
       });
 
       const user = await prisma.user.findUnique({ where: { id: userId } });
-      if (user?.phone) {
+      const fullOrder = await prisma.order.findUnique({
+        where: { id: order.id },
+        include: {
+          items: {
+            include: {
+              variant: { include: { product: true } },
+            },
+          },
+          deliveryAddress: true,
+        },
+      });
+
+      let customerWhatsAppUrl = '';
+      let ownerWhatsAppUrl = '';
+
+      if (user?.phone && fullOrder) {
+        const itemsFormatted = fullOrder.items.map((i) => ({
+          name: i.variant?.product?.name || 'Precast Item',
+          variantName: i.variant?.name || 'Standard',
+          quantity: i.quantity,
+        }));
+        const addressFormatted = fullOrder.deliveryAddress
+          ? `${fullOrder.deliveryAddress.line1}, ${fullOrder.deliveryAddress.city} - ${fullOrder.deliveryAddress.pincode}`
+          : 'Factory Yard Pickup (Velagatoor)';
+
+        const orderMsg = buildOrderConfirmedWhatsAppMessage({
+          orderNumber: fullOrder.orderNumber,
+          customerName: user.name || 'Customer',
+          grandTotal: fullOrder.grandTotal,
+          paymentMethod: isCOD ? 'COD' : 'ONLINE',
+          items: itemsFormatted,
+          address: addressFormatted,
+        });
+
+        customerWhatsAppUrl = createWhatsAppShareUrl(user.phone, orderMsg);
+        ownerWhatsAppUrl = createWhatsAppShareUrl('8919526315', orderMsg);
+
         await sendCustomerNotification({
           toPhone: user.phone,
-          orderNumber: order.orderNumber,
+          orderNumber: fullOrder.orderNumber,
           type: 'ORDER_CONFIRMED',
-          message: `Your order ${order.orderNumber} for ₹${(order.grandTotal / 100).toLocaleString('en-IN')} has been placed successfully. Thank you for choosing Prasad Cement Products!`,
+          message: orderMsg,
         });
       }
 
@@ -227,6 +267,8 @@ router.post(
         success: true,
         message: 'Order placed successfully',
         order,
+        customerWhatsAppUrl,
+        ownerWhatsAppUrl,
       });
     } catch (err) {
       next(err);
@@ -299,6 +341,7 @@ router.get(
           },
           deliveryAddress: true,
           deliveryZone: true,
+          user: { select: { id: true, name: true, email: true, phone: true } },
         },
       });
 
