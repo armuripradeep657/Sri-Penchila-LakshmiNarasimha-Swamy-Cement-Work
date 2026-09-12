@@ -168,9 +168,14 @@ export default function Footer() {
           </div>
           <div className="flex items-center gap-2.5 text-xs">
             <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-            <a href="tel:+919912179771" className="hover:text-white transition-colors">
-              +91 99121 79771 ({language === 'te' ? 'ప్రసాద్' : 'Prasad'})
-            </a>
+            <div className="flex flex-col gap-0.5">
+              <a href="tel:+918919526315" className="hover:text-white transition-colors font-semibold text-amber-400">
+                +91 89195 26315 ({language === 'te' ? 'ప్రసాద్' : 'Prasad'})
+              </a>
+              <a href="tel:+919912179771" className="hover:text-white transition-colors text-slate-400">
+                +91 99121 79771
+              </a>
+            </div>
           </div>
           <div className="flex items-center gap-2.5 text-xs">
             <Mail className="w-4 h-4 text-amber-400 shrink-0" />
@@ -183,12 +188,12 @@ export default function Footer() {
 
           <div className="pt-2">
             <a
-              href="https://maps.google.com/?q=Velagatoor+Jagtial+Telangana"
+              href="https://www.google.com/maps/place/Prasad+Cement+work/@18.8437643,79.1686384,17z/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 underline underline-offset-4"
             >
-              {language === 'te' ? 'గూగుల్ మ్యాప్స్‌లో వెలగటూర్ ఫ్యాక్టరీ తెరవండి →' : 'Open Velagatoor Factory on Google Maps →'}
+              {language === 'te' ? 'గూగుల్ మ్యాప్స్‌లో ప్రసాద్ సిమెంట్ వర్క్ తెరవండి →' : 'Open Prasad Cement work on Google Maps →'}
             </a>
           </div>
         </div>

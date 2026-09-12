@@ -287,70 +287,89 @@ export default function HomePage() {
 
       {/* ─── Factory Location & Contact Section ──────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-8 sm:p-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div className="space-y-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                Factory & Curing Yard
-              </span>
-              <h2 className="text-3xl font-extrabold text-white">
-                Visit Our Manufacturing Facility in Velagatoor, Jagtial
-              </h2>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                Builders, engineers, and individual property owners are always welcome to visit our factory yard, inspect finished product strength, and discuss custom precast specifications with Prasad directly.
-              </p>
+        <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-5 space-y-6">
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Verified Google Maps Location</span>
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-3">
+                  Visit Prasad Cement Work Factory Yard
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mt-2">
+                  Builders, engineers, contractors, and individual homeowners are always welcome to visit our yard, inspect cured precast materials, and discuss custom dimensions directly with owner Prasad.
+                </p>
+              </div>
 
-              <div className="space-y-3 text-xs sm:text-sm">
-                <div className="flex items-start gap-3">
+              <div className="space-y-3.5 text-xs sm:text-sm">
+                <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800">
                   <MapPin className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                  <span className="text-slate-200">
-                    Jagtial - Velgatoor Road, Opposite to Sudha Hospital, Velagatoor, Velagatoor Mandal, Jagtial District, Telangana - 505526
-                  </span>
+                  <div>
+                    <p className="font-bold text-white">Prasad Cement Work (Factory & Yard)</p>
+                    <p className="text-slate-300 text-xs mt-0.5">
+                      Opp. Sudha Hospital, Jagtial - Velgatoor Road, Velagatoor, Dist. Jagtial, Telangana - 505526
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
+
+                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800">
                   <PhoneCall className="w-5 h-5 text-amber-400 shrink-0" />
-                  <a href="tel:+919912179771" className="text-amber-400 font-semibold hover:underline">
-                    +91 99121 79771 (Prasad)
-                  </a>
+                  <div className="text-xs">
+                    <p className="text-slate-400 font-medium">Direct Yard Contacts</p>
+                    <div className="flex flex-wrap gap-3 mt-0.5 font-mono font-bold">
+                      <a href="tel:+918919526315" className="text-amber-400 hover:underline">
+                        +91 89195 26315 (Prasad)
+                      </a>
+                      <span className="text-slate-600">•</span>
+                      <a href="tel:+919912179771" className="text-amber-400 hover:underline">
+                        +91 99121 79771
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-4 pt-2">
+              <div className="flex flex-wrap gap-3 pt-1">
                 <a
-                  href="https://maps.google.com/?q=Velagatoor+Jagtial+Telangana"
+                  href="https://www.google.com/maps/place/Prasad+Cement+work/@18.8437643,79.1686384,17z/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-5 py-2.5 rounded-xl font-semibold text-xs bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 flex items-center gap-2 transition-all"
+                  className="px-5 py-3 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-2 transition-all shadow-md shadow-amber-500/20 cursor-pointer"
                 >
-                  <MapPin className="w-4 h-4 text-amber-400" />
-                  <span>Open in Google Maps</span>
+                  <MapPin className="w-4 h-4" />
+                  <span>Get Driving Directions on Google Maps</span>
                 </a>
                 <a
-                  href="https://wa.me/918919526315?text=Hello%20Sri%20Penchila%20LakshmiNarasimha%20Swamy%20Cement%20Work%2C%20I%20would%20like%20to%20visit%20the%20yard%20in%20Velagatoor"
+                  href="https://wa.me/918919526315?text=Hello%20Prasad%20Garu%2C%20I%20am%20coming%20to%20visit%20Prasad%20Cement%20work%20yard%20in%20Velagatoor"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-5 py-2.5 rounded-xl font-semibold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 transition-all shadow-md shadow-emerald-600/20"
+                  className="px-5 py-3 rounded-xl font-semibold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
                 >
-                  <span>Chat with Sri Penchila LakshmiNarasimha Swamy Cement Work</span>
+                  <span>💬 WhatsApp Yard Location</span>
                 </a>
               </div>
             </div>
 
-            {/* Embedded interactive Google Map placeholder with visual frame */}
-            <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-xl h-80 bg-slate-950">
+            {/* Official Embedded Google Map iframe */}
+            <div className="lg:col-span-7 relative rounded-3xl overflow-hidden border-2 border-slate-700/80 shadow-2xl h-[420px] bg-slate-950">
               <iframe
-                title="Prasad Cement Products Factory Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30347.16!2d79.1!3d18.9!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bccd54972e68041%3A0xb36384a511874ea9!2sVelgatur%2C%20Telangana%20505526!5e0!3m2!1sen!2sin!4v1680000000000!5m2!1sen!2sin"
+                title="Prasad Cement work Official Google Maps Location"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3775.9753396386423!2d79.16863837550547!3d18.84376428231365!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcd39451070cfc1%3A0x90cc0b6511d388bd!2sPrasad%20Cement%20work!5e0!3m2!1sen!2sin!4v1789238412071!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
-                style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)' }}
-                allowFullScreen={false}
+                style={{ border: 0 }}
+                allowFullScreen={true}
                 loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
+                referrerPolicy="strict-origin-when-cross-origin"
+                className="w-full h-full rounded-2xl"
               ></iframe>
-              <div className="absolute top-3 left-3 bg-slate-950/90 border border-slate-800 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white flex items-center gap-2 shadow-lg">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                <span>Velagatoor Manufacturing Yard (Jagtial Dist)</span>
+
+              <div className="absolute top-3 left-3 bg-slate-950/95 border border-amber-500/40 px-3.5 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2.5 shadow-xl backdrop-blur-md">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span className="text-amber-400">Prasad Cement work</span>
+                <span className="text-slate-400 font-normal">| Velagatoor, Telangana</span>
               </div>
             </div>
           </div>
