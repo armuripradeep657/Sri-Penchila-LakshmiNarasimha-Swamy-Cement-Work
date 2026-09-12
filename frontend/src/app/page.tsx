@@ -45,52 +45,6 @@ export default function HomePage() {
     loadData();
   }, []);
 
-  const categoryCards = [
-    {
-      id: 'WINDOW',
-      title: language === 'te' ? 'సిమెంట్ కిటికీలు' : 'Cement Windows',
-      subtitle: language === 'te' ? 'స్టాండర్డ్ & వెంటిలేషన్ జాలీ' : 'Standard & Ventilation Jali',
-      desc: language === 'te'
-        ? 'ఇనుప గ్రిల్స్‌తో లేదా గ్రిల్స్ లేకుండా లభించే నాణ్యమైన ప్రీకాస్ట్ సిమెంట్ కిటికీ ఫ్రేములు. 50+ ఏళ్ల మన్నిక.'
-        : 'Precision precast concrete window frames with optional iron grills. Weatherproof, termite-proof & maintenance-free for 50+ years.',
-      badge: language === 'te' ? '₹550 నుండి' : 'From ₹550',
-      image: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=800&q=80',
-      href: '/products?category=WINDOW',
-    },
-    {
-      id: 'DOOR',
-      title: language === 'te' ? 'సిమెంట్ దర్వాజాలు (తలుపులు)' : 'Cement Doors (Darwajas)',
-      subtitle: language === 'te' ? 'సింగిల్ & డబుల్ దర్వాజా ఫ్రేములు' : 'Single & Double Door Frames',
-      desc: language === 'te'
-        ? 'ప్రధాన ద్వారాలు, గదులు మరియు గేట్ల కొరకు తయారుచేసిన దృఢమైన ప్రీకాస్ట్ సిమెంట్ దర్వాజా ఫ్రేములు.'
-        : 'Heavy-duty precast door frames engineered for main entrance gates, residential rooms, and commercial structures.',
-      badge: language === 'te' ? '₹2,500 నుండి' : 'From ₹2,500',
-      image: 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&w=800&q=80',
-      href: '/products?category=DOOR',
-    },
-    {
-      id: 'BRICK',
-      title: language === 'te' ? 'సిమెంట్ ఇటుకలు' : 'Cement Bricks',
-      subtitle: language === 'te' ? 'సాలిడ్, హాలో & ఫ్లై యాష్' : 'Solid, Hollow & Fly Ash',
-      desc: language === 'te'
-        ? '53-గ్రేడ్ ఓపిసి సిమెంట్‌తో తయారైన అధిక బలం గల ఇటుకలు. ఒక్కో యూనిట్ లేదా 1,000 ఇటుకల లాట్‌గా లభించును.'
-        : 'High compressive strength bricks manufactured with 53-grade OPC cement. Sold per piece or in bulk lots of 1,000.',
-      badge: language === 'te' ? '₹6 / ఒక్కోటి' : 'From ₹6 / unit',
-      image: 'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=800&q=80',
-      href: '/products?category=BRICK',
-    },
-    {
-      id: 'POOL',
-      title: language === 'te' ? 'ప్రీకాస్ట్ సిమెంట్ పూల్స్' : 'Precast Cement Pools',
-      subtitle: language === 'te' ? 'గార్డెన్ పూల్స్ & స్విమ్మింగ్ ట్యాంకులు' : 'Garden Pools & Swimming Units',
-      desc: language === 'te'
-        ? 'ఫామ్‌హౌస్‌లు, విల్లాలు మరియు గార్డెన్స్ కొరకు మోడ్యులర్ ప్రీకాస్ట్ కాంక్రీట్ పూల్ బేసిన్లు.'
-        : 'Modular precast concrete pool basins for residential landscape gardens, koi fish ponds, farmhouses & villas.',
-      badge: language === 'te' ? 'కస్టమ్ సైజులు' : 'Custom Sizes',
-      image: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80',
-      href: '/products?category=POOL',
-    },
-  ];
 
   return (
     <div className="flex flex-col gap-16 pb-20 bg-concrete-grid">
@@ -192,63 +146,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── Product Categories Grid ─────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
-          <div>
-            <span className="text-amber-400 font-semibold text-xs uppercase tracking-wider">
-              Catalog Navigation
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-1">
-              Explore Product Categories
-            </h2>
-          </div>
-          <p className="text-sm text-slate-400 max-w-md mt-2 md:mt-0">
-            Every product category comes in multiple width × height variants, plus custom sizing options upon request.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categoryCards.map((cat) => (
-            <Link
-              key={cat.id}
-              href={cat.href}
-              className="group relative rounded-2xl overflow-hidden glass-panel border border-slate-800 hover:border-amber-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/10 flex flex-col"
-            >
-              <div className="relative h-48 w-full overflow-hidden bg-slate-900">
-                <img
-                  src={cat.image}
-                  alt={cat.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-                <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-950/80 text-amber-400 border border-amber-500/30 backdrop-blur-md">
-                  {cat.badge}
-                </span>
-              </div>
-
-              <div className="p-5 flex-1 flex flex-col justify-between space-y-3 bg-slate-900/60">
-                <div>
-                  <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
-                    {cat.subtitle}
-                  </p>
-                  <h3 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
-                    {cat.title}
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1.5 line-clamp-3 leading-relaxed">
-                    {cat.desc}
-                  </p>
-                </div>
-
-                <div className="pt-2 flex items-center text-xs font-semibold text-amber-400 group-hover:translate-x-1 transition-transform">
-                  <span>Browse Sizes & Options</span>
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
 
       {/* ─── Dual Ordering Workflow Section ──────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
