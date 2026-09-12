@@ -101,330 +101,370 @@ async function main() {
     ],
   });
 
-  // ─── PRODUCTS ──────────────────────────────────────────────────────────────
+  // ─── PRODUCTS (Each size as an individual product) ─────────────────────────
+  console.log('  → Creating 16 individual products by size...');
 
-  // 1. KODADA KETIKELU (Hand-made Cement Windows with Grills)
-  console.log('  → Creating Kodada Ketikelu (Hand-made Windows)...');
-
-  await prisma.product.create({
-    data: {
-      name: 'Kodada Ketikelu (Hand-made Cement Window)',
-      slug: 'kodada-ketikelu',
-      description:
-        'Traditional hand-crafted precast cement window frames with decorative iron grills. Each window is meticulously made by skilled artisans ensuring superior strength and beautiful designs. Termite-proof, weather-resistant, and built to last for decades. Ideal for residential homes and commercial buildings.',
+  const productsData = [
+    // ── KODADA KETIKELU (Hand-made with Blue Grills) ─────────────────────────
+    {
+      name: 'Kodada Ketikelu (Hand-made) – 2ft × 2ft',
+      slug: 'kodada-ketikelu-2x2',
+      description: 'Hand-crafted precast cement window frame with royal blue iron security grill. Size: 2ft × 2ft. Built with high-strength OPC concrete, termite-proof and weather-resistant.',
       category: ProductCategory.WINDOW,
       subType: 'Kodada (Hand-made)',
       unitOfSale: UnitOfSale.PIECE,
       minOrderQuantity: 1,
       isFeatured: true,
       sortOrder: 1,
-      images: {
-        create: [
-          { url: '/images/products/kodada-ketikelu.jpg', altText: 'Kodada Ketikelu hand-made cement windows with grills', sortOrder: 0 },
-        ],
-      },
-      variants: {
-        create: [
-          {
-            name: '2ft × 2ft',
-            sku: 'KOD-WIN-2x2',
-            width: 2, height: 2, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'kodada', grill: true }),
-            price: 80000, // ₹800
-            stock: 30,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 0,
-          },
-          {
-            name: '3ft × 3ft',
-            sku: 'KOD-WIN-3x3',
-            width: 3, height: 3, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'kodada', grill: true }),
-            price: 120000, // ₹1,200
-            stock: 25,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 1,
-          },
-          {
-            name: '4ft × 3ft',
-            sku: 'KOD-WIN-4x3',
-            width: 4, height: 3, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'kodada', grill: true }),
-            price: 140000, // ₹1,400
-            stock: 20,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 2,
-          },
-          {
-            name: '4ft × 4ft',
-            sku: 'KOD-WIN-4x4',
-            width: 4, height: 4, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'kodada', grill: true }),
-            price: 160000, // ₹1,600
-            stock: 15,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 3,
-          },
-        ],
-      },
+      image: '/images/products/kodada-ketikelu.jpg',
+      sku: 'KOD-WIN-2x2',
+      variantName: '2ft × 2ft',
+      width: 2, height: 2, unit: 'ft',
+      price: 80000, // ₹800
+      stock: 50,
     },
-  });
+    {
+      name: 'Kodada Ketikelu (Hand-made) – 3ft × 3ft',
+      slug: 'kodada-ketikelu-3x3',
+      description: 'Hand-crafted precast cement window frame with royal blue iron security grill. Size: 3ft × 3ft. Superior strength, artisan-finished concrete, lifelong durability.',
+      category: ProductCategory.WINDOW,
+      subType: 'Kodada (Hand-made)',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 2,
+      image: '/images/products/kodada-ketikelu.jpg',
+      sku: 'KOD-WIN-3x3',
+      variantName: '3ft × 3ft',
+      width: 3, height: 3, unit: 'ft',
+      price: 120000, // ₹1,200
+      stock: 40,
+    },
+    {
+      name: 'Kodada Ketikelu (Hand-made) – 4ft × 3ft',
+      slug: 'kodada-ketikelu-4x3',
+      description: 'Hand-crafted precast cement window frame with royal blue iron security grill. Size: 4ft × 3ft. Elegant design and heavy-duty reinforced construction.',
+      category: ProductCategory.WINDOW,
+      subType: 'Kodada (Hand-made)',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 3,
+      image: '/images/products/kodada-ketikelu.jpg',
+      sku: 'KOD-WIN-4x3',
+      variantName: '4ft × 3ft',
+      width: 4, height: 3, unit: 'ft',
+      price: 140000, // ₹1,400
+      stock: 35,
+    },
+    {
+      name: 'Kodada Ketikelu (Hand-made) – 4ft × 4ft',
+      slug: 'kodada-ketikelu-4x4',
+      description: 'Large hand-crafted precast cement window frame with royal blue iron security grill. Size: 4ft × 4ft. Ideal for main living rooms, halls, and frontal home elevations.',
+      category: ProductCategory.WINDOW,
+      subType: 'Kodada (Hand-made)',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 4,
+      image: '/images/products/kodada-ketikelu.jpg',
+      sku: 'KOD-WIN-4x4',
+      variantName: '4ft × 4ft',
+      width: 4, height: 4, unit: 'ft',
+      price: 160000, // ₹1,600
+      stock: 25,
+    },
 
-  // 2. MACHINE KETIKELU (Machine-made Cement Windows)
-  console.log('  → Creating Machine Ketikelu (Machine-made Windows)...');
-
-  await prisma.product.create({
-    data: {
-      name: 'Machine Ketikelu (Machine-made Cement Window)',
-      slug: 'machine-ketikelu',
-      description:
-        'Precision machine-manufactured precast cement window frames with ornamental iron grills. Uniform finish, exact dimensions, and cost-effective pricing. Perfect for large construction projects requiring consistent quality across all window units.',
+    // ── MACHINE KETIKELU (Machine-made with Blue Grills) ──────────────────────
+    {
+      name: 'Machine Ketikelu (Machine-made) – 2ft × 2ft',
+      slug: 'machine-ketikelu-2x2',
+      description: 'Precision machine-manufactured precast cement window frame with royal blue iron security grill. Size: 2ft × 2ft. Sharp edges and smooth industrial finish.',
       category: ProductCategory.WINDOW,
       subType: 'Machine-made',
       unitOfSale: UnitOfSale.PIECE,
       minOrderQuantity: 1,
       isFeatured: true,
-      sortOrder: 2,
-      images: {
-        create: [
-          { url: '/images/products/machine-ketikelu.jpg', altText: 'Machine Ketikelu machine-made cement windows with grills', sortOrder: 0 },
-        ],
-      },
-      variants: {
-        create: [
-          {
-            name: '2ft × 2ft',
-            sku: 'MCH-WIN-2x2',
-            width: 2, height: 2, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'machine', grill: true }),
-            price: 45000, // ₹450
-            stock: 40,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 0,
-          },
-          {
-            name: '3ft × 2½ft',
-            sku: 'MCH-WIN-3x2.5',
-            width: 3, height: 2.5, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'machine', grill: true }),
-            price: 55000, // ₹550
-            stock: 35,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 1,
-          },
-          {
-            name: '3ft × 3ft',
-            sku: 'MCH-WIN-3x3',
-            width: 3, height: 3, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'machine', grill: true }),
-            price: 60000, // ₹600
-            stock: 30,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 2,
-          },
-          {
-            name: '4ft × 3ft',
-            sku: 'MCH-WIN-4x3',
-            width: 4, height: 3, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'machine', grill: true }),
-            price: 80000, // ₹800
-            stock: 20,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 3,
-          },
-          {
-            name: '4ft × 4ft',
-            sku: 'MCH-WIN-4x4',
-            width: 4, height: 4, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'machine', grill: true }),
-            price: 120000, // ₹1,200
-            stock: 15,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 4,
-          },
-        ],
-      },
+      sortOrder: 5,
+      image: '/images/products/machine-ketikelu.jpg',
+      sku: 'MCH-WIN-2x2',
+      variantName: '2ft × 2ft',
+      width: 2, height: 2, unit: 'ft',
+      price: 45000, // ₹450
+      stock: 60,
     },
-  });
+    {
+      name: 'Machine Ketikelu (Machine-made) – 3ft × 2½ft',
+      slug: 'machine-ketikelu-3x2-5',
+      description: 'Precision machine-manufactured precast cement window frame with royal blue iron security grill. Size: 3ft × 2.5ft. Standard kitchen and utility room sizing.',
+      category: ProductCategory.WINDOW,
+      subType: 'Machine-made',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 6,
+      image: '/images/products/machine-ketikelu.jpg',
+      sku: 'MCH-WIN-3x2.5',
+      variantName: '3ft × 2½ft',
+      width: 3, height: 2.5, unit: 'ft',
+      price: 55000, // ₹550
+      stock: 50,
+    },
+    {
+      name: 'Machine Ketikelu (Machine-made) – 3ft × 3ft',
+      slug: 'machine-ketikelu-3x3',
+      description: 'Precision machine-manufactured precast cement window frame with royal blue iron security grill. Size: 3ft × 3ft. Best-selling window for modern homes.',
+      category: ProductCategory.WINDOW,
+      subType: 'Machine-made',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 7,
+      image: '/images/products/machine-ketikelu.jpg',
+      sku: 'MCH-WIN-3x3',
+      variantName: '3ft × 3ft',
+      width: 3, height: 3, unit: 'ft',
+      price: 60000, // ₹600
+      stock: 50,
+    },
+    {
+      name: 'Machine Ketikelu (Machine-made) – 4ft × 3ft',
+      slug: 'machine-ketikelu-4x3',
+      description: 'Precision machine-manufactured precast cement window frame with royal blue iron security grill. Size: 4ft × 3ft. Excellent airflow and natural sunlight.',
+      category: ProductCategory.WINDOW,
+      subType: 'Machine-made',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 8,
+      image: '/images/products/machine-ketikelu.jpg',
+      sku: 'MCH-WIN-4x3',
+      variantName: '4ft × 3ft',
+      width: 4, height: 3, unit: 'ft',
+      price: 80000, // ₹800
+      stock: 40,
+    },
+    {
+      name: 'Machine Ketikelu (Machine-made) – 4ft × 4ft',
+      slug: 'machine-ketikelu-4x4',
+      description: 'Large machine-manufactured precast cement window frame with royal blue iron security grill. Size: 4ft × 4ft. Maximum structural strength and ventilation.',
+      category: ProductCategory.WINDOW,
+      subType: 'Machine-made',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 9,
+      image: '/images/products/machine-ketikelu.jpg',
+      sku: 'MCH-WIN-4x4',
+      variantName: '4ft × 4ft',
+      width: 4, height: 4, unit: 'ft',
+      price: 120000, // ₹1,200
+      stock: 30,
+    },
 
-  // 3. VENTILATORS (Cement Jali / Lattice Blocks)
-  console.log('  → Creating Ventilators (Cement Jali)...');
-
-  await prisma.product.create({
-    data: {
-      name: 'Ventilators (Cement Jali Blocks)',
-      slug: 'cement-ventilators',
-      description:
-        'Beautiful decorative precast cement ventilation blocks with traditional jali (lattice) patterns. Available in diamond, floral, and geometric designs. Perfect for bathroom windows, compound walls, staircase ventilation, and decorative partitions. Provides airflow while maintaining privacy.',
+    // ── CEMENT VENTILATORS (Authentic Yard Photo) ───────────────────────────
+    {
+      name: 'Cement Ventilator Jali – 1ft × 1ft',
+      slug: 'cement-ventilator-1x1',
+      description: 'Decorative precast cement ventilation jali block. Size: 1ft × 1ft. Geometric lattice design for bathrooms, storerooms, staircases, and boundary walls.',
       category: ProductCategory.WINDOW,
       subType: 'Ventilator Jali',
       unitOfSale: UnitOfSale.PIECE,
       minOrderQuantity: 1,
       isFeatured: true,
-      sortOrder: 3,
-      images: {
-        create: [
-          { url: '/images/products/ventilators.jpg', altText: 'Cement ventilator jali blocks with decorative patterns', sortOrder: 0 },
-        ],
-      },
-      variants: {
-        create: [
-          {
-            name: '1ft × 1ft',
-            sku: 'VENT-1x1',
-            width: 1, height: 1, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'ventilator', pattern: 'assorted' }),
-            price: 16000, // ₹160
-            stock: 200,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 0,
-          },
-          {
-            name: '2ft × 1ft',
-            sku: 'VENT-2x1',
-            width: 2, height: 1, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'ventilator', pattern: 'assorted' }),
-            price: 22000, // ₹220
-            stock: 150,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 1,
-          },
-        ],
-      },
+      sortOrder: 10,
+      image: '/images/products/ventilators.jpg',
+      sku: 'VENT-1x1',
+      variantName: '1ft × 1ft',
+      width: 1, height: 1, unit: 'ft',
+      price: 16000, // ₹160
+      stock: 300,
     },
-  });
+    {
+      name: 'Cement Ventilator Jali – 2ft × 1ft',
+      slug: 'cement-ventilator-2x1',
+      description: 'Decorative precast cement ventilation jali block. Size: 2ft × 1ft. Diamond / flower lattice pattern providing ample breeze while preserving privacy.',
+      category: ProductCategory.WINDOW,
+      subType: 'Ventilator Jali',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 11,
+      image: '/images/products/ventilators.jpg',
+      sku: 'VENT-2x1',
+      variantName: '2ft × 1ft',
+      width: 2, height: 1, unit: 'ft',
+      price: 22000, // ₹220
+      stock: 250,
+    },
 
-  // 4. GAGULU (Cement Rings for Wells & Drainage)
-  console.log('  → Creating Gagulu (Cement Rings)...');
-
-  await prisma.product.create({
-    data: {
-      name: 'Gagulu (Cement Rings)',
-      slug: 'cement-gagulu-rings',
-      description:
-        'Heavy-duty precast cement concrete rings (Gagulu) for wells, bore wells, drainage systems, soak pits, and septic tanks. Manufactured with high-grade cement and reinforced for maximum durability. Water-tight joints and long-lasting construction.',
+    // ── GAGULU (Cement Well / Drainage Rings - Authentic Photo) ───────────────
+    {
+      name: 'Gagulu Cement Ring – 2ft Diameter',
+      slug: 'gagulu-cement-ring-2ft',
+      description: 'Heavy-duty precast cement concrete well ring (Gagulu). Diameter: 2ft. Built with high-grade reinforced concrete for drainage channels, soak pits, and bore well protections.',
       category: ProductCategory.POOL,
       subType: 'Gagulu (Rings)',
       unitOfSale: UnitOfSale.PIECE,
       minOrderQuantity: 1,
       isFeatured: true,
-      sortOrder: 4,
-      images: {
-        create: [
-          { url: '/images/products/gagulu.jpg', altText: 'Cement Gagulu rings for wells and drainage', sortOrder: 0 },
-        ],
-      },
-      variants: {
-        create: [
-          {
-            name: '2ft Diameter Ring',
-            sku: 'GAG-2FT',
-            width: 2, height: 1, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'gagulu', shape: 'round', diameter: '2ft' }),
-            price: 18000, // ₹180
-            stock: 50,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 0,
-          },
-          {
-            name: '3ft Diameter Ring',
-            sku: 'GAG-3FT',
-            width: 3, height: 1, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'gagulu', shape: 'round', diameter: '3ft' }),
-            price: 22000, // ₹220
-            stock: 40,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 1,
-          },
-          {
-            name: '4ft Diameter Ring',
-            sku: 'GAG-4FT',
-            width: 4, height: 1, dimensionUnit: 'ft',
-            attributes: JSON.stringify({ type: 'gagulu', shape: 'round', diameter: '4ft' }),
-            price: 36000, // ₹360
-            stock: 30,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 2,
-          },
-        ],
-      },
+      sortOrder: 12,
+      image: '/images/products/gagulu.jpg',
+      sku: 'GAG-2FT',
+      variantName: '2ft Diameter',
+      width: 2, height: 1, unit: 'ft',
+      price: 18000, // ₹180
+      stock: 60,
     },
-  });
+    {
+      name: 'Gagulu Cement Ring – 3ft Diameter',
+      slug: 'gagulu-cement-ring-3ft',
+      description: 'Heavy-duty precast cement concrete well ring (Gagulu). Diameter: 3ft. Durable reinforced structure for water wells, septic tanks, and construction sites.',
+      category: ProductCategory.POOL,
+      subType: 'Gagulu (Rings)',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 13,
+      image: '/images/products/gagulu.jpg',
+      sku: 'GAG-3FT',
+      variantName: '3ft Diameter',
+      width: 3, height: 1, unit: 'ft',
+      price: 22000, // ₹220
+      stock: 50,
+    },
+    {
+      name: 'Gagulu Cement Ring – 4ft Diameter',
+      slug: 'gagulu-cement-ring-4ft',
+      description: 'Heavy-duty precast cement concrete well ring (Gagulu). Diameter: 4ft. Heavy reinforced structure engineered for agricultural wells, water storage, and farm percolation.',
+      category: ProductCategory.POOL,
+      subType: 'Gagulu (Rings)',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 1,
+      isFeatured: true,
+      sortOrder: 14,
+      image: '/images/products/gagulu.jpg',
+      sku: 'GAG-4FT',
+      variantName: '4ft Diameter',
+      width: 4, height: 1, unit: 'ft',
+      price: 36000, // ₹360
+      stock: 40,
+    },
 
-  // 5. CEMENT BRICKS / BLOCKS
-  console.log('  → Creating Cement Bricks...');
-
-  await prisma.product.create({
-    data: {
-      name: 'Cement Bricks & Blocks',
-      slug: 'cement-bricks',
-      description:
-        'High-quality solid cement bricks and concrete blocks for all types of construction. Manufactured with 53-grade OPC cement for superior compressive strength. Uniform dimensions ensure reduced mortar usage and faster wall construction. Available in bulk for large projects.',
+    // ── CEMENT BRICKS & BLOCKS (Authentic Yard Photo) ────────────────────────
+    {
+      name: 'Cement Bricks & Blocks – 8×6 inches',
+      slug: 'cement-bricks-8x6',
+      description: 'Solid precast cement concrete construction bricks. Size: 8×6 inches. Made with 53-grade OPC cement for superior compressive load-bearing strength. 10,000+ pieces in stock.',
       category: ProductCategory.BRICK,
-      subType: 'Solid',
+      subType: 'Solid Concrete',
       unitOfSale: UnitOfSale.PIECE,
       minOrderQuantity: 100,
       isFeatured: true,
-      sortOrder: 5,
-      images: {
-        create: [
-          { url: '/images/products/bricks.jpg', altText: 'Cement bricks and blocks stacked in yard', sortOrder: 0 },
-        ],
-      },
-      variants: {
-        create: [
-          {
-            name: '8×6 inches — Per Piece',
-            sku: 'BRK-8x6-PC',
-            width: 8, height: 6, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'solid', bulkUnit: false }),
-            price: 1000, // ₹10 per piece
-            stock: 10000,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 0,
-          },
-          {
-            name: '9×4 inches — Per Piece',
-            sku: 'BRK-9x4-PC',
-            width: 9, height: 4, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'solid', bulkUnit: false }),
-            price: 800, // ₹8 per piece
-            stock: 10000,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 1,
-          },
-          {
-            name: '8×6 inches — Lot of 1000',
-            sku: 'BRK-8x6-1K',
-            width: 8, height: 6, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'solid', bulkUnit: true, unitsPerLot: 1000 }),
-            price: 900000, // ₹9,000 per 1000
-            stock: 10,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 2,
-          },
-          {
-            name: '9×4 inches — Lot of 1000',
-            sku: 'BRK-9x4-1K',
-            width: 9, height: 4, dimensionUnit: 'in',
-            attributes: JSON.stringify({ brickType: 'solid', bulkUnit: true, unitsPerLot: 1000 }),
-            price: 700000, // ₹7,000 per 1000
-            stock: 10,
-            availability: AvailabilityStatus.IN_STOCK,
-            sortOrder: 3,
-          },
-        ],
+      sortOrder: 15,
+      image: '/images/products/bricks.jpg',
+      sku: 'BRK-8x6-PC',
+      variantName: '8×6 inches (Per Piece)',
+      width: 8, height: 6, unit: 'in',
+      price: 1000, // ₹10 per piece
+      stock: 10000,
+      bulkVariant: {
+        name: '8×6 inches – Lot of 1000 Bricks',
+        sku: 'BRK-8x6-1K',
+        width: 8, height: 6, unit: 'in',
+        price: 900000, // ₹9,000 for 1000
+        stock: 10,
       },
     },
-  });
+    {
+      name: 'Cement Bricks & Blocks – 9×4 inches',
+      slug: 'cement-bricks-9x4',
+      description: 'Solid precast cement concrete construction bricks. Size: 9×4 inches. Standard masonry sizing, clean uniform edges, reduced mortar requirements. 10,000+ pieces in stock.',
+      category: ProductCategory.BRICK,
+      subType: 'Solid Concrete',
+      unitOfSale: UnitOfSale.PIECE,
+      minOrderQuantity: 100,
+      isFeatured: true,
+      sortOrder: 16,
+      image: '/images/products/bricks.jpg',
+      sku: 'BRK-9x4-PC',
+      variantName: '9×4 inches (Per Piece)',
+      width: 9, height: 4, unit: 'in',
+      price: 800, // ₹8 per piece
+      stock: 10000,
+      bulkVariant: {
+        name: '9×4 inches – Lot of 1000 Bricks',
+        sku: 'BRK-9x4-1K',
+        width: 9, height: 4, unit: 'in',
+        price: 700000, // ₹7,000 for 1000
+        stock: 10,
+      },
+    },
+  ];
+
+  for (const item of productsData) {
+    const variantsCreate = [
+      {
+        name: item.variantName,
+        sku: item.sku,
+        width: item.width,
+        height: item.height,
+        dimensionUnit: item.unit,
+        price: item.price,
+        stock: item.stock,
+        availability: AvailabilityStatus.IN_STOCK,
+        sortOrder: 0,
+      },
+    ];
+
+    if (item.bulkVariant) {
+      variantsCreate.push({
+        name: item.bulkVariant.name,
+        sku: item.bulkVariant.sku,
+        width: item.bulkVariant.width,
+        height: item.bulkVariant.height,
+        dimensionUnit: item.bulkVariant.unit,
+        price: item.bulkVariant.price,
+        stock: item.bulkVariant.stock,
+        availability: AvailabilityStatus.IN_STOCK,
+        sortOrder: 1,
+      });
+    }
+
+    await prisma.product.create({
+      data: {
+        name: item.name,
+        slug: item.slug,
+        description: item.description,
+        category: item.category,
+        subType: item.subType,
+        unitOfSale: item.unitOfSale,
+        minOrderQuantity: item.minOrderQuantity,
+        isFeatured: item.isFeatured,
+        sortOrder: item.sortOrder,
+        images: {
+          create: [
+            {
+              url: item.image,
+              altText: item.name,
+              sortOrder: 0,
+            },
+          ],
+        },
+        variants: {
+          create: variantsCreate,
+        },
+      },
+    });
+  }
 
   const productCount = await prisma.product.count();
   const variantCount = await prisma.productVariant.count();
 
   console.log(`\n=================================================`);
   console.log(`✅ Prasad Cement Products database seeded successfully!`);
-  console.log(`📦 ${productCount} Products across Windows, Doors, Bricks, Pools`);
-  console.log(`📐 ${variantCount} Variants with size & option pricing`);
+  console.log(`📦 ${productCount} Individual Products by Size`);
+  console.log(`📐 ${variantCount} Variants with exact pricing`);
   console.log(`👤 Admin: 9912179771 (Password: prasad@123)`);
   console.log(`👤 Customer: 8888888888 (Password: rajesh@123)`);
   console.log(`=================================================\n`);
