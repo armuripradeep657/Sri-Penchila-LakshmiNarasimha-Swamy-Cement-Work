@@ -567,16 +567,79 @@ async function handleServerless(req: NextRequest, path: string[]) {
   // 4. ORDERS & CART
   if (route === 'orders' && method === 'POST') {
     const body = await req.json();
+    const isCOD = body.paymentMethod === 'COD';
+    const codFee = isCOD ? 15000 : 0;
+    const totalAmount = body.totalAmount || 80000;
+    const deliveryFee = body.deliveryFee || 0;
+    const grandTotal = totalAmount + deliveryFee + codFee;
+
     const order = {
       id: `ord_${Date.now()}`,
-      orderNumber: `PCP-${Math.floor(100000 + Math.random() * 900000)}`,
+      orderNumber: `PCP-2026-${Math.floor(10000 + Math.random() * 90000)}`,
       status: 'CONFIRMED',
-      totalAmount: body.totalAmount || 0,
+      totalAmount,
+      deliveryFee: deliveryFee + codFee,
+      grandTotal,
+      notes: isCOD
+        ? `[CASH ON DELIVERY (COD) - Processing Fee: ₹150] ${body.notes || ''}`.trim()
+        : body.notes || '',
       createdAt: new Date().toISOString(),
-      items: body.items || [],
+      items: (body.items && body.items.length > 0)
+        ? body.items
+        : [
+            {
+              id: 'item_default',
+              quantity: 100,
+              unitPrice: 800,
+              totalPrice: 80000,
+              variant: {
+                id: 'v_brk_9x4_pc',
+                name: '9×4 inches — Per Piece',
+                width: 9,
+                height: 4,
+                dimensionUnit: 'in',
+                product: { name: 'Cement Bricks & Blocks – 9×4 inches' },
+              },
+            },
+          ],
+      deliveryAddress: body.deliveryAddress || {
+        line1: 'Opp. Sudha Hospital, Jagtial - Velgatoor Road',
+        city: 'Velagatoor',
+        state: 'Telangana',
+        pincode: '505526',
+      },
+      user: {
+        id: 'usr_customer',
+        name: 'Rajesh Kumar',
+        phone: '8888888888',
+        email: 'rajesh@gmail.com',
+      },
     };
-    store.orders.push(order);
+
+    store.orders.unshift(order);
     return NextResponse.json({ success: true, order });
+  }
+
+  if (route.startsWith('orders/') && method === 'GET') {
+    const id = route.split('/')[1];
+    const order = store.orders.find((o) => o.id === id || o.orderNumber === id) || store.orders[0];
+    return NextResponse.json({ success: true, order });
+  }
+
+  if (route.includes('orders') && route.includes('status') && method === 'PATCH') {
+    const body = await req.json();
+    const parts = route.split('/');
+    const id = parts[parts.indexOf('orders') + 1];
+    const order = store.orders.find((o) => o.id === id || o.orderNumber === id) || store.orders[0];
+    if (order) {
+      order.status = body.status || 'CONFIRMED';
+    }
+    const phone = order?.user?.phone || '8888888888';
+    const statusText = body.status === 'CONFIRMED' ? 'CONFIRMED' : 'CANCELLED';
+    const msg = `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK*\n*(PRASAD CEMENT WORK)*\nDear ${order?.user?.name || 'Customer'},\nOrder #${order?.orderNumber} status: *${statusText}* by owner Prasad.\nYard contact: 8919526315.`;
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    const whatsappUrl = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(msg)}`;
+    return NextResponse.json({ success: true, order, whatsappUrl, whatsappMsg: msg });
   }
 
   if (route === 'orders' && method === 'GET') {

@@ -1,0 +1,10 @@
+{
+  "name": "sri-penchila-lakshminarasimha-swamy-cement-work",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sri Penchila LakshmiNarasimha Swamy Cement Work (PRASAD CEMENT WORK) Web Application",
+  "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "start": "npm --prefix frontend start"
+  }
+}
