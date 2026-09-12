@@ -1,0 +1,276 @@
+// Prasad Cement Products — Database Schema
+// SQLite for Zero-Setup Local Development (switch to schema.postgresql.prisma for production Postgres)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── User ────────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String?
+  email     String?  @unique
+  firmName  String?
+  role      String   @default("CUSTOMER") // CUSTOMER | ADMIN
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  addresses     Address[]
+  cart          Cart?
+  orders        Order[]
+  quoteRequests QuoteRequest[]
+
+  @@map("users")
+}
+
+model Address {
+  id        String  @id @default(cuid())
+  userId    String
+  label     String? // "Home", "Site", "Warehouse"
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  pincode   String
+  latitude  Float?
+  longitude Float?
+  isDefault Boolean @default(false)
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("addresses")
+}
+
+// ─── OTP ─────────────────────────────────────────────────────────────────────
+
+model OtpToken {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([phone, code])
+  @@map("otp_tokens")
+}
+
+// ─── Products ────────────────────────────────────────────────────────────────
+
+model Product {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  description      String
+  category         String   // WINDOW | DOOR | BRICK | POOL
+  subType          String?  // e.g., "Ventilation", "Standard", "Fly-Ash"
+  unitOfSale       String   @default("PIECE") // PIECE | SET | PER_1000 | PER_SQ_FT
+  minOrderQuantity Int      @default(1)
+  isActive         Boolean  @default(true)
+  isFeatured       Boolean  @default(false)
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  variants      ProductVariant[]
+  images        ProductImage[]
+  quoteRequests QuoteRequest[]
+
+  @@index([category])
+  @@index([slug])
+  @@map("products")
+}
+
+model ProductVariant {
+  id            String   @id @default(cuid())
+  productId     String
+  name          String   // e.g., "3ft × 4ft", "Standard 9×4×3 in"
+  sku           String?  @unique
+  width         Float?   // in feet or inches depending on product
+  height        Float?
+  depth         Float?   // for pools, brick thickness
+  dimensionUnit String   @default("ft") // "ft" or "in"
+  attributes    String?  // category-specific JSON string: { "grill": true, "doorType": "single", "brickType": "solid" }
+  price         Int?     // Price in paisa (null = Request Quote)
+  comparePrice  Int?     // Strikethrough price for discounts (paisa)
+  stock         Int      @default(0)
+  availability  String   @default("IN_STOCK") // IN_STOCK | MADE_TO_ORDER | OUT_OF_STOCK
+  isActive      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  images        ProductImage[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  quoteRequests QuoteRequest[]
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  altText   String?
+  sortOrder Int     @default(0)
+
+  productId String?
+  variantId String?
+
+  product Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+// ─── Cart ────────────────────────────────────────────────────────────────────
+
+model Cart {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String @id @default(cuid())
+  cartId    String
+  variantId String
+  quantity  Int    @default(1)
+
+  cart    Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, variantId])
+  @@map("cart_items")
+}
+
+// ─── Orders ──────────────────────────────────────────────────────────────────
+
+model Order {
+  id          String   @id @default(cuid())
+  orderNumber String   @unique // PCP-2024-00001 format
+  userId      String
+  status      String   @default("PENDING") // PENDING | CONFIRMED | IN_PRODUCTION | OUT_FOR_DELIVERY | DELIVERED | CANCELLED
+  totalAmount Int      // in paisa
+  deliveryFee Int      @default(0) // in paisa
+  grandTotal  Int      // totalAmount + deliveryFee (paisa)
+
+  // Delivery
+  deliveryAddressId String?
+  deliveryZoneId    String?
+
+  // Payment
+  paymentStatus     String  @default("PENDING") // PENDING | PAID | REFUNDED | FAILED
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user            User          @relation(fields: [userId], references: [id])
+  deliveryAddress Address?      @relation(fields: [deliveryAddressId], references: [id])
+  deliveryZone    DeliveryZone? @relation(fields: [deliveryZoneId], references: [id])
+  items           OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String  @id @default(cuid())
+  orderId         String
+  variantId       String
+  quantity        Int
+  unitPrice       Int     // in paisa, captured at time of order
+  totalPrice      Int     // unitPrice × quantity (paisa)
+  variantSnapshot String? // JSON string: full variant details at time of purchase
+
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("order_items")
+}
+
+// ─── Quote Requests ──────────────────────────────────────────────────────────
+
+model QuoteRequest {
+  id     String @id @default(cuid())
+  userId String
+  status String @default("PENDING") // PENDING | QUOTED | ACCEPTED | REJECTED | EXPIRED
+
+  // Product reference
+  productId String
+  variantId String? // optional — if requesting for existing variant
+
+  // Custom dimensions (for custom sizes)
+  customWidth  Float?
+  customHeight Float?
+  customDepth  Float?
+
+  quantity         Int
+  deliveryLocation String?
+  deliveryPincode  String?
+  phone            String
+  notes            String?
+
+  // Admin response
+  quotedPrice Int?      // in paisa
+  adminNotes  String?
+  validUntil  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User            @relation(fields: [userId], references: [id])
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@map("quote_requests")
+}
+
+// ─── Delivery Zones ──────────────────────────────────────────────────────────
+
+model DeliveryZone {
+  id       String  @id @default(cuid())
+  name     String  // "Local (0-10km)", "City (10-30km)"
+  pincodes String  // JSON array string of pincodes: '["500001","500002"]'
+  fee      Int     // delivery fee in paisa
+  isActive Boolean @default(true)
+
+  orders Order[]
+
+  @@map("delivery_zones")
+}
+
+// ─── Store Settings ──────────────────────────────────────────────────────────
+
+model StoreSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+
+  @@map("store_settings")
+}
