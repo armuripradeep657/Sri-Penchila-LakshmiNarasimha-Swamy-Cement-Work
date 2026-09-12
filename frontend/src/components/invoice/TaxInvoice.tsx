@@ -103,25 +103,29 @@ export default function TaxInvoice({
       id="tax-invoice"
       className="relative overflow-hidden bg-white text-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-300 max-w-3xl mx-auto font-sans leading-relaxed select-text"
     >
-      {/* ─── Center Watermark Logo for Screen & Print ─── */}
+      {/* ─── Circular Center Watermark Stamp & Logo for Screen & Print ─── */}
       <div
         aria-hidden="true"
-        className="pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-[0.07] print:opacity-[0.10] flex flex-col items-center justify-center text-center w-full"
+        className="pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-[0.08] print:opacity-[0.11] flex flex-col items-center justify-center text-center"
       >
-        <div className="relative w-72 h-72 sm:w-96 sm:h-96">
-          <Image
-            src="/images/logo.png"
-            alt="Sri Penchila LakshmiNarasimha Swamy Cement Work Logo"
-            fill
-            sizes="(max-width: 768px) 288px, 384px"
-            className="object-contain filter grayscale contrast-125"
-          />
+        <div className="w-80 h-80 sm:w-[420px] sm:h-[420px] rounded-full border-4 border-dashed border-slate-900/40 p-4 sm:p-6 flex flex-col items-center justify-center text-center">
+          <div className="w-full h-full rounded-full border-2 border-slate-900/50 p-4 flex flex-col items-center justify-center text-center relative overflow-hidden">
+            <div className="relative w-40 h-40 sm:w-56 sm:h-56 rounded-full overflow-hidden mb-2">
+              <Image
+                src="/images/logo.png"
+                alt="PRASAD CEMENT WORK Official Invoice Seal"
+                fill
+                sizes="(max-width: 768px) 160px, 224px"
+                className="object-cover rounded-full filter grayscale contrast-150"
+              />
+            </div>
+            <p className="font-mono font-black tracking-wider text-slate-950 text-[10px] sm:text-xs uppercase leading-tight">
+              ★ SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK ★
+              <br />
+              ★ PRASAD CEMENT WORK • OFFICIAL PRECAST SEAL ★
+            </p>
+          </div>
         </div>
-        <p className="font-mono font-black tracking-widest text-slate-900 text-xs sm:text-sm mt-3 uppercase">
-          SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK
-          <br />
-          ★ PRASAD CEMENT WORK ★
-        </p>
       </div>
 
       {/* ─── Top Control Bar (Hidden on print) ─── */}

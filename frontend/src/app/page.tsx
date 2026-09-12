@@ -55,149 +55,53 @@ export default function HomePage() {
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute top-1/3 -left-32 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Hero Text */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                <Sparkles className="w-4 h-4 animate-spin-slow" />
-                <span>{t('direct_factory_solutions')}</span>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
-                {language === 'te' ? (
-                  <>నాణ్యమైన <span className="gradient-amber">ప్రీకాస్ట్ సిమెంట్</span> శాశ్వత నిర్మాణం కొరకు</>
-                ) : (
-                  <>Heavy-Duty <span className="gradient-amber">Precast Cement</span> For Lifelong Construction</>
-                )}
-              </h1>
-
-              <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
-                {t('hero_desc')}
-              </p>
-
-              {/* Two CTA Paths */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
-                <Link
-                  href="/products"
-                  className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 transition-all transform hover:-translate-y-0.5"
-                >
-                  <span>{t('hero_cta_browse')}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-
-                <Link
-                  href="/quote"
-                  className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold text-sm bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-slate-600 transition-all"
-                >
-                  <FileText className="w-4 h-4 text-amber-400" />
-                  <span>{t('hero_cta_quote')}</span>
-                </Link>
-              </div>
-              {/* Quick Trust Highlights */}
-              <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-800/80 text-xs text-slate-300">
-                <div>
-                  <p className="text-xl sm:text-2xl font-extrabold text-amber-400">50K+</p>
-                  <p className="text-slate-400">{language === 'te' ? 'యూనిట్లు విక్రయించబడ్డాయి' : 'Precast Units Sold'}</p>
-                </div>
-                <div>
-                  <p className="text-xl sm:text-2xl font-extrabold text-amber-400">53 OPC</p>
-                  <p className="text-slate-400">{language === 'te' ? 'ధృవీకరించబడిన గ్రేడ్ బలం' : 'Certified Grade Strength'}</p>
-                </div>
-                <div>
-                  <p className="text-xl sm:text-2xl font-extrabold text-amber-400">{language === 'te' ? 'నేరుగా' : 'Direct'}</p>
-                  <p className="text-slate-400">{language === 'te' ? 'సైట్ ట్రక్ రవాణా' : 'Site Truck Delivery'}</p>
-                </div>
-              </div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center flex flex-col items-center">
+          <div className="space-y-6 flex flex-col items-center">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              <Sparkles className="w-4 h-4 animate-spin-slow" />
+              <span>{t('direct_factory_solutions')}</span>
             </div>
 
-            {/* Right Hero Visual Card */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl p-2 bg-gradient-to-b from-amber-500/20 via-slate-800/40 to-slate-900 border border-slate-700/60 shadow-2xl overflow-hidden group">
-                <div className="relative h-96 w-full rounded-2xl overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=1000&q=80"
-                    alt="Prasad Cement Window Frames"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
+              {language === 'te' ? (
+                <>నాణ్యమైన <span className="gradient-amber">ప్రీకాస్ట్ సిమెంట్</span> శాశ్వత నిర్మాణం కొరకు</>
+              ) : (
+                <>Heavy-Duty <span className="gradient-amber">Precast Cement</span> For Lifelong Construction</>
+              )}
+            </h1>
 
-                  <div className="absolute bottom-6 left-6 right-6 space-y-2">
-                    <span className="inline-block px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-500 text-slate-950 uppercase tracking-wider">
-                      Featured Precast Frame
-                    </span>
-                    <h3 className="text-xl font-bold text-white">Standard Cement Window with Grill</h3>
-                    <p className="text-xs text-slate-300">
-                      Vibrated casting with high durability. Ready for rapid installation in masonry openings.
-                    </p>
-                    <div className="flex items-center justify-between pt-2">
-                      <span className="text-amber-400 font-extrabold text-lg">From ₹850</span>
-                      <Link
-                        href="/products/standard-cement-window"
-                        className="text-xs font-semibold text-white bg-slate-800/90 hover:bg-amber-500 hover:text-slate-950 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors"
-                      >
-                        View Sizes →
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+              {t('hero_desc')}
+            </p>
+
+            {/* Two CTA Paths */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 w-full sm:w-auto">
+              <Link
+                href="/products"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 py-3.5 px-8 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 transition-all transform hover:-translate-y-0.5"
+              >
+                <span>{t('hero_cta_browse')}</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              <Link
+                href="/quote"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 py-3.5 px-8 rounded-xl font-semibold text-sm bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-slate-600 transition-all"
+              >
+                <FileText className="w-4 h-4 text-amber-400" />
+                <span>{t('hero_cta_quote')}</span>
+              </Link>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ─── Middle of Page: Grand Brand Logo Emblem Presentation ─── */}
-      <section className="relative overflow-hidden py-8 my-2">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="rounded-3xl glass-panel border-2 border-amber-500/30 p-8 sm:p-12 relative overflow-hidden text-center shadow-2xl bg-gradient-to-b from-slate-900/90 via-slate-950/95 to-slate-900/90">
-            {/* Center Radial Ambient Aura */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-            {/* Orbiting Ring */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[440px] sm:h-[440px] rounded-full border border-amber-500/15 animate-[spin_60s_linear_infinite] pointer-events-none" />
-
-            {/* Emblem Image in Exact Middle */}
-            <div className="relative z-10 flex flex-col items-center justify-center space-y-4">
-              <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-3xl overflow-hidden border-2 border-amber-500/60 shadow-2xl shadow-amber-500/25 bg-slate-950 p-1">
-                <Image
-                  src="/images/logo.png"
-                  alt="PRASAD CEMENT WORK Center Logo"
-                  fill
-                  className="object-cover rounded-2xl"
-                />
+            {/* Quick Trust Highlights */}
+            <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-800/80 text-xs text-slate-300 max-w-md w-full">
+              <div>
+                <p className="text-2xl sm:text-3xl font-extrabold text-amber-400">50K+</p>
+                <p className="text-slate-400 mt-1">{language === 'te' ? 'యూనిట్లు విక్రయించబడ్డాయి' : 'Precast Units Sold'}</p>
               </div>
-
-              <div className="space-y-1 max-w-xl">
-                <span className="text-[11px] font-extrabold uppercase tracking-widest text-amber-400">
-                  ★ OFFICIAL PRECAST EMBLEM ★
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-white">
-                  Sri Penchila LakshmiNarasimha Swamy Cement Work
-                </h2>
-                <p className="text-sm font-bold text-amber-300/90 tracking-wide uppercase">
-                  PRASAD CEMENT WORK • PRECAST CONCRETE SOLUTIONS
-                </p>
-                <p className="text-xs text-slate-400 pt-1">
-                  Opp. Sudha Hospital, Jagtial - Velgatoor Road, Velagatoor, Dist. Jagtial, Telangana - 505526
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                <Link
-                  href="/products"
-                  className="px-5 py-2.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md transition-all"
-                >
-                  Browse 16+ Precast Products
-                </Link>
-                <a
-                  href="https://wa.me/918919526315"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-5 py-2.5 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all"
-                >
-                  Direct WhatsApp: 8919526315
-                </a>
+              <div>
+                <p className="text-2xl sm:text-3xl font-extrabold text-amber-400">53 OPC</p>
+                <p className="text-slate-400 mt-1">{language === 'te' ? 'ధృవీకరించబడిన గ్రేడ్ బలం' : 'Certified Grade Strength'}</p>
               </div>
             </div>
           </div>

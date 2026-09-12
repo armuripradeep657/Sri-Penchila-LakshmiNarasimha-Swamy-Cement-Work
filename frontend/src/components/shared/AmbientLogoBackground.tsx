@@ -26,39 +26,41 @@ export default function AmbientLogoBackground() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none select-none fixed inset-0 z-0 overflow-hidden"
+      className="pointer-events-none select-none absolute top-[50%] left-0 right-0 -translate-y-1/2 z-0 overflow-hidden flex items-center justify-center min-h-[600px]"
     >
-      {/* ─── Real-Time Ambient Light Rays & Backing Glow ────────────────────────── */}
+      {/* ─── Real-Time Ambient Light Rays & Backing Glow in Middle of Page ────────────────────────── */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] sm:w-[900px] sm:h-[900px] rounded-full bg-gradient-to-tr from-amber-500/10 via-amber-600/5 to-cyan-600/5 blur-3xl opacity-75 transition-transform duration-700 ease-out"
+        className="absolute w-[600px] h-[600px] sm:w-[850px] sm:h-[850px] rounded-full bg-gradient-to-tr from-amber-500/10 via-amber-600/5 to-cyan-600/5 blur-3xl opacity-70 transition-transform duration-700 ease-out"
         style={{
-          transform: `translate(calc(-50% + ${mousePos.x * 0.5}px), calc(-50% + ${mousePos.y * 0.5}px))`,
+          transform: `translate(${mousePos.x * 0.4}px, ${mousePos.y * 0.4}px)`,
         }}
       />
 
-      {/* ─── Center Hero Real-Time Animated Logo Watermark ───────────────────────── */}
+      {/* ─── Center Real-Time Animated Logo in Circular Frame ───────────────────────── */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-transform duration-500 ease-out"
+        className="relative flex items-center justify-center transition-transform duration-500 ease-out"
         style={{
-          transform: `translate(calc(-50% + ${mousePos.x}px), calc(-50% + ${mousePos.y}px))`,
+          transform: `translate(${mousePos.x * 0.8}px, ${mousePos.y * 0.8}px)`,
         }}
       >
-        {/* Outer Orbiting Sacred Ring */}
-        <div className="absolute w-[440px] h-[440px] sm:w-[620px] sm:h-[620px] rounded-full border border-amber-500/10 animate-[spin_60s_linear_infinite]" />
+        {/* Outer Circular Orbit Ring with Dashed Accents */}
+        <div className="absolute w-[360px] h-[360px] sm:w-[500px] sm:h-[500px] rounded-full border-2 border-dashed border-amber-500/20 animate-[spin_60s_linear_infinite]" />
 
-        {/* Counter-rotating Geometric Octagon Accent Ring */}
-        <div className="absolute w-[380px] h-[380px] sm:w-[540px] sm:h-[540px] rounded-[60px] border border-amber-400/5 animate-[spin_45s_linear_infinite_reverse]" />
+        {/* Inner Counter-rotating Circle */}
+        <div className="absolute w-[310px] h-[310px] sm:w-[440px] sm:h-[440px] rounded-full border border-amber-400/15 animate-[spin_40s_linear_infinite_reverse]" />
 
-        {/* Floating, Breathing Real-Time Center Logo Watermark */}
-        <div className="relative w-72 h-72 sm:w-[420px] sm:h-[420px] md:w-[520px] md:h-[520px] opacity-[0.14] sm:opacity-[0.17] animate-float-pulse">
-          <Image
-            src="/images/logo.png"
-            alt="Sri Penchila LakshmiNarasimha Swamy Cement Work Watermark"
-            fill
-            priority
-            sizes="(max-width: 768px) 288px, 520px"
-            className="object-contain filter contrast-125 transition-all duration-1000"
-          />
+        {/* Circular Emblem Frame Container */}
+        <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full border-2 border-amber-500/30 p-4 bg-slate-950/30 backdrop-blur-[2px] shadow-2xl shadow-amber-500/10 opacity-[0.18] sm:opacity-[0.22] animate-float-pulse flex items-center justify-center overflow-hidden">
+          <div className="relative w-full h-full rounded-full overflow-hidden">
+            <Image
+              src="/images/logo.png"
+              alt="PRASAD CEMENT WORK Circular Background Watermark"
+              fill
+              priority
+              sizes="(max-width: 768px) 256px, 384px"
+              className="object-cover rounded-full filter contrast-125 transition-all duration-1000"
+            />
+          </div>
         </div>
       </div>
     </div>

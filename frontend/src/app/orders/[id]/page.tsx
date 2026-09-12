@@ -153,52 +153,10 @@ export default function OrderDetailPage() {
 
   // WhatsApp Order Details Slip Formatting
   const customerPhoneRaw = order.user?.phone || '';
-  const customerCleanDigits = customerPhoneRaw.replace(/\D/g, '');
-  const customerWaNumber = customerCleanDigits.length === 10 ? `91${customerCleanDigits}` : customerCleanDigits;
-
-  const itemsFormattedText = order.items
-    .map(
-      (item) =>
-        `• ${item.variant?.product?.name || 'Precast Item'} (${item.variant?.name || 'Standard'}${
-          item.variant?.width && item.variant?.height
-            ? ` - ${item.variant.width}×${item.variant.height} ${item.variant.dimensionUnit || ''}`
-            : ''
-        }) × ${item.quantity} = ₹${(item.totalPrice / 100).toLocaleString('en-IN')}`
-    )
-    .join('\n');
-
   const addressText = order.deliveryAddress
     ? `${order.deliveryAddress.line1}, ${order.deliveryAddress.city} - ${order.deliveryAddress.pincode}`
     : 'Factory Yard Pickup (Velagatoor)';
 
-  const customerOrderSlipMsg =
-    `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK*\n` +
-    `*(PRASAD CEMENT WORK)*\n` +
-    `Opp. Sudha Hospital, Jagtial - Velagatoor Road, Telangana\n` +
-    `Yard Hotline: 8919526315 / 9912179771\n\n` +
-    `Dear ${order.user?.name || 'Valued Builder'},\n` +
-    `✅ *PRECAST CONCRETE ORDER DETAILS & SLIP*\n\n` +
-    `📋 *Order Ref:* #${order.orderNumber}\n` +
-    `📅 *Date:* ${formatDate(order.createdAt)}\n` +
-    `💰 *Grand Total:* ₹${(order.grandTotal / 100).toLocaleString('en-IN')}\n` +
-    `💳 *Payment Mode:* ${isCOD ? 'Cash on Delivery (COD)' : order.paymentStatus === 'PAID' ? 'PAID Online' : 'Pending Payment'}\n` +
-    `📍 *Site Address:* ${addressText}\n\n` +
-    `📦 *Ordered Items:*\n${itemsFormattedText}\n\n` +
-    `🚚 Steam cured with 53-grade OPC cement. Crane unloading support ready.\n` +
-    `Thank you for trusting PRASAD CEMENT WORK!`;
-
-  // Check if session storage cached URL exists
-  let customerWhatsAppLink = '';
-  if (typeof window !== 'undefined') {
-    try {
-      customerWhatsAppLink = sessionStorage.getItem(`wa_customer_${order.id}`) || '';
-    } catch {}
-  }
-  if (!customerWhatsAppLink) {
-    customerWhatsAppLink = customerWaNumber
-      ? `https://wa.me/${customerWaNumber}?text=${encodeURIComponent(customerOrderSlipMsg)}`
-      : `https://wa.me/?text=${encodeURIComponent(customerOrderSlipMsg)}`;
-  }
 
   const ownerWhatsAppInquiryMsg =
     `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK (PRASAD CEMENT WORK)*\n` +
@@ -254,30 +212,20 @@ export default function OrderDetailPage() {
                     Order #{order.orderNumber} Booked Successfully!
                   </p>
                   <p className="text-emerald-300 mt-0.5 text-xs">
-                    Order slip ready! Send details to your WhatsApp or connect with the yard owner.
+                    Submitted to factory dispatch. Yard owner Prasad (8919526315) will review specifications and send confirmation directly to your WhatsApp.
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2.5">
                 <a
-                  href={customerWhatsAppLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
-                >
-                  <MessageCircle className="w-4 h-4 fill-slate-950" />
-                  <span>📲 Send Slip to My WhatsApp</span>
-                </a>
-
-                <a
                   href={ownerWhatsAppLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 font-bold text-xs shadow-md transition-all cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>💬 Confirm with Owner</span>
+                  <span>💬 Chat with Yard Owner (8919526315)</span>
                 </a>
 
                 <button
@@ -519,23 +467,23 @@ export default function OrderDetailPage() {
                 </div>
               )}
 
-              {/* Send Order Slip to Customer WhatsApp */}
-              <a
-                href={customerWhatsAppLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
-              >
-                <MessageCircle className="w-4 h-4 fill-white" />
-                <span>📲 Send Order Details to WhatsApp</span>
-              </a>
+              {/* Owner WhatsApp Dispatch Status Box */}
+              <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs space-y-1">
+                <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>OWNER WHATSAPP CONFIRMATION</span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-normal">
+                  Order details and dispatch confirmation will be sent directly by yard owner Prasad (8919526315) to your WhatsApp upon review.
+                </p>
+              </div>
 
               {/* Chat with Yard Owner */}
               <a
                 href={ownerWhatsAppLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-xs bg-slate-900/90 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>💬 Chat with Yard Owner (8919526315)</span>
