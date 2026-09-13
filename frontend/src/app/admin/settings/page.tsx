@@ -20,7 +20,7 @@ import { formatPrice } from '@/lib/utils';
 export default function AdminSettingsPage() {
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({
-    store_name: 'Sri Penchila LakshmiNarasimha Swamy Cement Work',
+    store_name: 'Sri Lakshmi Penchila Narasimha Swamy Cement Work',
     store_phone: '+919912179771',
     store_whatsapp: '+918919526315',
     store_address: 'Jagtial - Velgatoor Road, Opposite to Sudha Hospital, Velagatoor, Velagatoor Mandal, Jagtial District, Telangana - 505526',

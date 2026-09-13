@@ -149,14 +149,14 @@ function QuoteFormContent() {
           <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href={`https://wa.me/918919526315?text=${encodeURIComponent(
-                `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work, I just submitted Quote Request #${submittedQuote.id.slice(-8).toUpperCase()} for ${submittedQuote.product?.name}. Can we discuss pricing?`
+                `Hello Sri Lakshmi Penchila Narasimha Swamy Cement Work, I just submitted Quote Request #${submittedQuote.id.slice(-8).toUpperCase()} for ${submittedQuote.product?.name}. Can we discuss pricing?`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg transition-all"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>Follow-up on WhatsApp with Sri Penchila LakshmiNarasimha Swamy Cement Work</span>
+              <span>Follow-up on WhatsApp with Sri Lakshmi Penchila Narasimha Swamy Cement Work</span>
             </a>
 
             <Link

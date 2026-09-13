@@ -159,7 +159,7 @@ export default function OrderDetailPage() {
 
 
   const ownerWhatsAppInquiryMsg =
-    `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK (PRASAD CEMENT WORK)*\n` +
+    `*SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK (PRASAD CEMENT WORK)*\n` +
     `Hello Prasad Garu, I am inquiring regarding Order #${order.orderNumber}.\n` +
     `Customer: ${order.user?.name || 'Customer'} (${customerPhoneRaw || 'Site Contact'})\n` +
     `Grand Total: ₹${(order.grandTotal / 100).toLocaleString('en-IN')} (${isCOD ? 'COD' : 'Online'})\n` +

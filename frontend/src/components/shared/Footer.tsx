@@ -200,7 +200,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-slate-900 py-6 text-center text-xs text-slate-500">
-        <p>© {new Date().getFullYear()} {language === 'te' ? 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్ (ప్రసాద్ సిమెంట్ వర్క్). సర్వ హక్కులు ప్రత్యేకించబడ్డాయి.' : 'Sri Penchila LakshmiNarasimha Swamy Cement Work (PRASAD CEMENT WORK). All Rights Reserved.'}</p>
+        <p>© {new Date().getFullYear()} {language === 'te' ? 'శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్ (ప్రసాద్ సిమెంట్ వర్క్). సర్వ హక్కులు ప్రత్యేకించబడ్డాయి.' : 'Sri Lakshmi Penchila Narasimha Swamy Cement Work (PRASAD CEMENT WORK). All Rights Reserved.'}</p>
       </div>
     </footer>
   );

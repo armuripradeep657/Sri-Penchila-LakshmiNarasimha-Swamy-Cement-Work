@@ -342,7 +342,7 @@ const store = {
     { id: 'z3', name: 'District (30-60 km)', pincodes: ['501001', '501101', '501201', '501301', '502001'], fee: 350000 },
   ],
   settings: [
-    { key: 'store_name', value: 'Sri Penchila LakshmiNarasimha Swamy Cement Work' },
+    { key: 'store_name', value: 'Sri Lakshmi Penchila Narasimha Swamy Cement Work' },
     { key: 'store_phone', value: '+919912179771' },
     { key: 'store_whatsapp', value: '+918919526315' },
     { key: 'store_email', value: 'prasad@prasadcement.com' },
@@ -673,7 +673,7 @@ async function handleServerless(req: NextRequest, path: string[]) {
     }
     const phone = order?.user?.phone || '8888888888';
     const statusText = body.status === 'CONFIRMED' ? 'CONFIRMED' : 'CANCELLED';
-    const msg = `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK*\n*(PRASAD CEMENT WORK)*\nDear ${order?.user?.name || 'Customer'},\nOrder #${order?.orderNumber} status: *${statusText}* by owner Prasad.\nYard contact: 8919526315.`;
+    const msg = `*SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK*\n*(PRASAD CEMENT WORK)*\nDear ${order?.user?.name || 'Customer'},\nOrder #${order?.orderNumber} status: *${statusText}* by owner Prasad.\nYard contact: 8919526315.`;
     const cleanPhone = phone.replace(/\D/g, '').slice(-10);
     const whatsappUrl = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(msg)}`;
     return NextResponse.json({ success: true, order, whatsappUrl, whatsappMsg: msg });

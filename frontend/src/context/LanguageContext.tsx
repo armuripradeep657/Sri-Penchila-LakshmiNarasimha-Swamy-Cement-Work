@@ -9,11 +9,11 @@ export type Language = 'en' | 'te';
 const translations: Record<Language, Record<string, string>> = {
   en: {
     // Brand
-    brand_name: 'Sri Penchila LakshmiNarasimha Swamy Cement Work',
-    brand_short: 'SPLN Swamy Cement Works',
+    brand_name: 'Sri Lakshmi Penchila Narasimha Swamy Cement Work',
+    brand_short: 'SLPN Swamy Cement Works',
     brand_subtitle: 'Precast Concrete & Cement Works',
-    brand_tagline: 'Sri Penchila LakshmiNarasimha Swamy Cement Work | Quality Precast Concrete Windows, Bricks & Gagulu',
-    direct_factory_solutions: 'SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK',
+    brand_tagline: 'Sri Lakshmi Penchila Narasimha Swamy Cement Work | Quality Precast Concrete Windows, Bricks & Gagulu',
+    direct_factory_solutions: 'SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK',
 
     // Navigation
     nav_home: 'Home',
@@ -140,11 +140,11 @@ const translations: Record<Language, Record<string, string>> = {
 
   te: {
     // Brand
-    brand_name: 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్',
-    brand_short: 'శ్రీ పెంచల స్వామి సిమెంట్',
+    brand_name: 'శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్స్',
+    brand_short: 'శ్రీ లక్ష్మీ పెంచల స్వామి సిమెంట్',
     brand_subtitle: 'ప్రీకాస్ట్ కాంక్రీట్ ఉత్పత్తులు',
-    brand_tagline: 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్ | నాణ్యమైన ప్రీకాస్ట్ కిటికీలు, ఇటుకలు & గగులు',
-    direct_factory_solutions: 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్',
+    brand_tagline: 'శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్స్ | నాణ్యమైన ప్రీకాస్ట్ కిటికీలు, ఇటుకలు & గగులు',
+    direct_factory_solutions: 'శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్స్',
 
     // Navigation
     nav_home: 'హోమ్',

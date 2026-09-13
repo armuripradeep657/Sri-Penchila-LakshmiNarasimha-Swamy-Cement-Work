@@ -71,7 +71,7 @@ export default function AdminOrdersPage() {
       if (res?.whatsappUrl) {
         window.open(res.whatsappUrl, '_blank');
       } else if (order.user?.phone) {
-        const msg = `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK (PRASAD CEMENT WORK)*\nDear ${order.user.name || 'Customer'},\n✅ Your Precast Concrete Order #${order.orderNumber} for ${formatPrice(order.grandTotal)} has been CONFIRMED!\nMaterials prepped for dispatch from Velagatoor yard. Contact: 8919526315.`;
+        const msg = `*SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK (PRASAD CEMENT WORK)*\nDear ${order.user.name || 'Customer'},\n✅ Your Precast Concrete Order #${order.orderNumber} for ${formatPrice(order.grandTotal)} has been CONFIRMED!\nMaterials prepped for dispatch from Velagatoor yard. Contact: 8919526315.`;
         window.open(`https://wa.me/91${order.user.phone}?text=${encodeURIComponent(msg)}`, '_blank');
       }
     } catch (err: any) {
@@ -91,7 +91,7 @@ export default function AdminOrdersPage() {
       if (res?.whatsappUrl) {
         window.open(res.whatsappUrl, '_blank');
       } else if (order.user?.phone) {
-        const msg = `*SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK (PRASAD CEMENT WORK)*\nDear ${order.user.name || 'Customer'},\n⚠️ Order #${order.orderNumber} has been CANCELLED.\nReason: ${reason}\nContact owner Prasad directly at 8919526315 for assistance.`;
+        const msg = `*SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK (PRASAD CEMENT WORK)*\nDear ${order.user.name || 'Customer'},\n⚠️ Order #${order.orderNumber} has been CANCELLED.\nReason: ${reason}\nContact owner Prasad directly at 8919526315 for assistance.`;
         window.open(`https://wa.me/91${order.user.phone}?text=${encodeURIComponent(msg)}`, '_blank');
       }
     } catch (err: any) {

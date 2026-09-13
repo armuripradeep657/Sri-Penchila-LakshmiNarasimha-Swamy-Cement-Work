@@ -50,7 +50,7 @@ export default function Logo({
       >
         <Image
           src="/images/logo.png"
-          alt="Sri Penchila LakshmiNarasimha Swamy Cement Work Logo"
+          alt="Sri Lakshmi Penchila Narasimha Swamy Cement Work Logo"
           fill
           priority
           sizes="(max-width: 768px) 48px, 96px"
@@ -64,9 +64,9 @@ export default function Logo({
             className={`${sizeClasses.title} tracking-tight text-white group-hover:text-amber-400 transition-colors leading-tight line-clamp-1`}
           >
             {language === 'te' ? (
-              <>శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి</>
+              <>శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి</>
             ) : (
-              <>Sri Penchila LakshmiNarasimha Swamy</>
+              <>Sri Lakshmi Penchila Narasimha Swamy</>
             )}
           </span>
           <div className="flex items-center gap-1.5 mt-0.5">

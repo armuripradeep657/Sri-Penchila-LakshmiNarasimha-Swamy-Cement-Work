@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -24,6 +24,30 @@ function LoginContent() {
 
   const { login, loginWithGoogle } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+
+  // ─── Cinematic Logo Zoom Intro State ─────────────────────────────────────────
+  const [introPhase, setIntroPhase] = useState<'zooming' | 'exit' | 'done'>('zooming');
+
+  useEffect(() => {
+    // Phase 1: trigger smooth exit zoom after 2.1s
+    const timer1 = setTimeout(() => {
+      setIntroPhase('exit');
+    }, 2100);
+
+    // Phase 2: complete splash transition & reveal login details
+    const timer2 = setTimeout(() => {
+      setIntroPhase('done');
+    }, 2700);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, []);
+
+  const handleSkipIntro = () => {
+    setIntroPhase('done');
+  };
 
   // ─── Form State ─────────────────────────────────────────────────────────────
   const [identifier, setIdentifier] = useState('');
@@ -152,6 +176,106 @@ function LoginContent() {
 
   return (
     <div className="relative min-h-[92vh] flex items-center justify-center px-4 py-10 bg-[#0a0d14] overflow-hidden">
+      {/* ─── FULLSCREEN LOGO ZOOM INTRO ANIMATION ─────────────────────────────── */}
+      {introPhase !== 'done' && (
+        <div
+          onClick={handleSkipIntro}
+          className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#070b14] cursor-pointer transition-all duration-700 ease-out select-none ${
+            introPhase === 'exit'
+              ? 'opacity-0 scale-125 pointer-events-none'
+              : 'opacity-100 scale-100'
+          }`}
+        >
+          {/* Ambient Lighting Background */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-amber-500/25 via-amber-600/10 to-blue-600/15 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(7,11,20,0.85)_100%)]"></div>
+
+          {/* Glowing Animated Outer Pulse Rings */}
+          <div className="relative z-10 flex flex-col items-center text-center px-6">
+            <div className="relative flex items-center justify-center mb-8">
+              {/* Outer Decorative Glow Rings */}
+              <div
+                className={`absolute rounded-3xl border border-amber-500/30 transition-all duration-1000 ease-out ${
+                  introPhase === 'zooming'
+                    ? 'w-44 h-44 sm:w-56 sm:h-56 opacity-100 scale-110'
+                    : 'w-24 h-24 opacity-0 scale-75'
+                }`}
+              ></div>
+              <div
+                className={`absolute rounded-3xl border border-amber-400/20 transition-all duration-1000 delay-150 ease-out ${
+                  introPhase === 'zooming'
+                    ? 'w-52 h-52 sm:w-64 sm:h-64 opacity-80 scale-110'
+                    : 'w-20 h-20 opacity-0 scale-50'
+                }`}
+              ></div>
+
+              {/* The Zooming Logo Badge */}
+              <div
+                className={`relative rounded-3xl p-1.5 bg-gradient-to-br from-amber-300 via-amber-500 to-amber-700 shadow-[0_0_80px_rgba(245,158,11,0.5)] ${
+                  introPhase === 'zooming'
+                    ? 'animate-logo-zoom'
+                    : 'scale-150 opacity-0 transition-all duration-700'
+                }`}
+              >
+                <div className="relative w-32 h-32 sm:w-44 sm:h-44 rounded-[22px] overflow-hidden bg-slate-950 border-2 border-amber-300">
+                  <Image
+                    src="/images/logo.png"
+                    alt="Sri Lakshmi Penchila Narasimha Swamy Cement Work"
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 128px, 176px"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* App Name & Typography Entrance */}
+            <div
+              className={`space-y-3 ${
+                introPhase === 'zooming' ? 'animate-reveal-up' : 'opacity-0'
+              }`}
+            >
+              {/* Sacred Telugu Badge */}
+              <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs sm:text-sm font-bold tracking-wider shadow-lg shadow-amber-500/10">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin-slow" />
+                <span>శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్స్</span>
+              </div>
+
+              {/* Official English App Name */}
+              <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight max-w-xl drop-shadow-md">
+                Sri Lakshmi Penchila Narasimha Swamy{' '}
+                <span className="block bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent font-black mt-1">
+                  Cement Work
+                </span>
+              </h1>
+
+              <p className="text-xs sm:text-sm text-slate-300 font-medium tracking-wide">
+                Quality Precast Concrete Windows, Bricks, Gagulu & Modular Pools
+              </p>
+            </div>
+
+            {/* Animated Loading Bar */}
+            <div
+              className={`w-48 sm:w-64 h-1.5 bg-slate-800 rounded-full mt-8 overflow-hidden transition-all duration-700 delay-300 ${
+                introPhase === 'zooming' ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <div className="h-full bg-gradient-to-r from-amber-500 to-amber-300 animate-pulse rounded-full w-full"></div>
+            </div>
+
+            {/* Skip hint */}
+            <button
+              type="button"
+              onClick={handleSkipIntro}
+              className="mt-6 text-[11px] font-semibold text-slate-500 hover:text-amber-400 tracking-wider uppercase transition-colors"
+            >
+              {language === 'te' ? 'నేరుగా లాగిన్‌కి వెళ్లండి →' : 'Click anywhere to open login →'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ─── APP LOGO WATERMARK BACKGROUND (Visible Behind Card) ─────────────── */}
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
         {/* Ambient color flares */}
@@ -163,7 +287,7 @@ function LoginContent() {
         <div className="relative w-[340px] h-[340px] sm:w-[500px] sm:h-[500px] md:w-[650px] md:h-[650px] opacity-[0.14] transition-all duration-1000 scale-105 select-none">
           <Image
             src="/images/logo.png"
-            alt="Sri Penchila LakshmiNarasimha Swamy Cement Work Logo Watermark"
+            alt="Sri Lakshmi Penchila Narasimha Swamy Cement Work Logo Watermark"
             fill
             priority
             sizes="650px"
@@ -182,8 +306,14 @@ function LoginContent() {
         ></div>
       </div>
 
-      {/* ─── MAIN LOGIN CONTAINER ────────────────────────────────────────────── */}
-      <div className="relative z-10 w-full max-w-[420px] space-y-5">
+      {/* ─── MAIN LOGIN CONTAINER (Revealed Smoothly After Zoom) ─────────────── */}
+      <div
+        className={`relative z-10 w-full max-w-[420px] space-y-5 transition-all duration-700 ease-out ${
+          introPhase === 'done' || introPhase === 'exit'
+            ? 'opacity-100 translate-y-0 scale-100'
+            : 'opacity-0 translate-y-6 scale-95'
+        }`}
+      >
         {/* Top Logo Badge with Matrix Dots (Matching Reference Image) */}
         <div className="flex items-center justify-center gap-4 select-none">
           {/* Left Matrix Dots */}
@@ -201,7 +331,7 @@ function LoginContent() {
               <div className="relative w-full h-full rounded-xl overflow-hidden">
                 <Image
                   src="/images/logo.png"
-                  alt="Sri Penchila LakshmiNarasimha Swamy Logo"
+                  alt="Sri Lakshmi Penchila Narasimha Swamy Logo"
                   fill
                   priority
                   sizes="80px"
@@ -450,8 +580,8 @@ function LoginContent() {
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>
               {language === 'te'
-                ? 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్ • సురక్షిత లాగిన్'
-                : 'Sri Penchila LakshmiNarasimha Swamy Cement Work • Secure Portal'}
+                ? 'శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్స్ • సురక్షిత లాగిన్'
+                : 'Sri Lakshmi Penchila Narasimha Swamy Cement Work • Secure Portal'}
             </span>
           </p>
         </div>

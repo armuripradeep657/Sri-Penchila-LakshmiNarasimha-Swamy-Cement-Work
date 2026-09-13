@@ -89,8 +89,8 @@ export default function RegisterPage() {
           <div>
             <span className="text-[11px] font-extrabold uppercase tracking-widest text-amber-400 block mb-0.5">
               {language === 'te'
-                ? 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్'
-                : 'Sri Penchila LakshmiNarasimha Swamy'}
+                ? 'శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్స్'
+                : 'Sri Lakshmi Penchila Narasimha Swamy'}
             </span>
             <h1 className="text-2xl sm:text-3xl font-black text-white">
               {language === 'te' ? 'కొత్త ఖాతా సృష్టించండి' : 'Create Account'}

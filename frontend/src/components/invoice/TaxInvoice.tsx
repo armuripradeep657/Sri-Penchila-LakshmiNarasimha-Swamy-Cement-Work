@@ -120,7 +120,7 @@ export default function TaxInvoice({
               />
             </div>
             <p className="font-mono font-black tracking-wider text-slate-950 text-[10px] sm:text-xs uppercase leading-tight">
-              ★ SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK ★
+              ★ SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK ★
               <br />
               ★ PRASAD CEMENT WORK • OFFICIAL PRECAST SEAL ★
             </p>
@@ -178,7 +178,7 @@ export default function TaxInvoice({
           <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-amber-500/40 bg-slate-900 shrink-0 shadow-md">
             <Image
               src="/images/logo.png"
-              alt="Sri Penchila LakshmiNarasimha Swamy Cement Work (PRASAD CEMENT WORK)"
+              alt="Sri Lakshmi Penchila Narasimha Swamy Cement Work (PRASAD CEMENT WORK)"
               fill
               className="object-cover"
             />
@@ -188,7 +188,7 @@ export default function TaxInvoice({
               PRASAD CEMENT WORK
             </span>
             <h1 className="text-lg sm:text-xl font-black text-slate-900 leading-tight">
-              Sri Penchila LakshmiNarasimha Swamy Cement Work
+              Sri Lakshmi Penchila Narasimha Swamy Cement Work
             </h1>
             <p className="text-xs text-slate-600 mt-1">
               Reinforced Precast Concrete Products, Windows, Darwajas, Bricks & Gagulu
@@ -388,7 +388,7 @@ export default function TaxInvoice({
       {/* ─── Signatory & Stamp ─── */}
       <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-end justify-between gap-6">
         <div className="text-[11px] text-slate-500 space-y-0.5">
-          <p className="font-bold text-slate-700">SRI PENCHILA LAKSHMINARASIMHA SWAMY CEMENT WORK</p>
+          <p className="font-bold text-slate-700">SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK</p>
           <p>This is a computer-generated tax invoice and verified manufacturing record.</p>
           <p>For yard inquiries or dispatch status, contact: +91 89195 26315</p>
         </div>
@@ -411,7 +411,7 @@ export default function TaxInvoice({
       <div className="no-print mt-8 pt-6 border-t-2 border-slate-200 flex flex-wrap items-center justify-between gap-3">
         <a
           href={`https://wa.me/918919526315?text=${encodeURIComponent(
-            `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work (PRASAD CEMENT WORK)! I have received Tax Invoice #${invoiceNumber} for Order #${orderNumber}. Please update me on dispatch.`
+            `Hello Sri Lakshmi Penchila Narasimha Swamy Cement Work (PRASAD CEMENT WORK)! I have received Tax Invoice #${invoiceNumber} for Order #${orderNumber}. Please update me on dispatch.`
           )}`}
           target="_blank"
           rel="noopener noreferrer"

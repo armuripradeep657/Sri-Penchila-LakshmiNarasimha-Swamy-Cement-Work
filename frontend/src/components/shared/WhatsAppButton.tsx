@@ -17,13 +17,13 @@ export default function WhatsAppButton({ productName }: WhatsAppButtonProps) {
 
   const defaultMessage =
     language === 'te'
-      ? 'నమస్కారం శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్, నేను మీ ప్రీకాస్ట్ సిమెంట్ ప్రొడక్ట్స్ (కిటికీలు, ఇటుకలు, గగులు) గురించి వివరాలు మరియు ధర తెలుసుకోవాలనుకుంటున్నాను.'
-      : 'Hello Sri Penchila LakshmiNarasimha Swamy Cement Work, I would like to inquire about your precast cement products (windows, bricks, gagulu rings).';
+      ? 'నమస్కారం శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్స్, నేను మీ ప్రీకాస్ట్ సిమెంట్ ప్రొడక్ట్స్ (కిటికీలు, ఇటుకలు, గగులు) గురించి వివరాలు మరియు ధర తెలుసుకోవాలనుకుంటున్నాను.'
+      : 'Hello Sri Lakshmi Penchila Narasimha Swamy Cement Work, I would like to inquire about your precast cement products (windows, bricks, gagulu rings).';
 
   const message = productName
     ? language === 'te'
-      ? `నమస్కారం శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్, నేను "${productName}" గురించి ఎంక్వైరీ చేయాలనుకుంటున్నాను. దయచేసి ధర మరియు డెలివరీ వివరాలు పంపగలరు.`
-      : `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work, I am interested in inquiring about "${productName}". Could you please provide pricing and delivery timeline?`
+      ? `నమస్కారం శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్స్, నేను "${productName}" గురించి ఎంక్వైరీ చేయాలనుకుంటున్నాను. దయచేసి ధర మరియు డెలివరీ వివరాలు పంపగలరు.`
+      : `Hello Sri Lakshmi Penchila Narasimha Swamy Cement Work, I am interested in inquiring about "${productName}". Could you please provide pricing and delivery timeline?`
     : defaultMessage;
 
   const whatsappUrl = `https://wa.me/${ownerPhone}?text=${encodeURIComponent(message)}`;
@@ -40,15 +40,15 @@ export default function WhatsAppButton({ productName }: WhatsAppButtonProps) {
         className="flex items-center gap-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white p-3 sm:pl-2.5 sm:pr-4 sm:py-2.5 rounded-full shadow-[0_8px_30px_rgb(16,185,129,0.35)] hover:shadow-[0_10px_35px_rgb(16,185,129,0.55)] transition-all duration-300 hover:scale-105 border border-emerald-300/40 backdrop-blur-md"
         title={
           language === 'te'
-            ? 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్ తో వాట్సాప్ చాట్'
-            : 'Chat with Sri Penchila LakshmiNarasimha Swamy Cement Work'
+            ? 'శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్స్ తో వాట్సాప్ చాట్'
+            : 'Chat with Sri Lakshmi Penchila Narasimha Swamy Cement Work'
         }
       >
         {/* Brand Logo Avatar with pulsing active ring */}
         <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/60 shrink-0 bg-slate-950 shadow-inner">
           <Image
             src="/images/logo.png"
-            alt="Sri Penchila LakshmiNarasimha Swamy Cement Work"
+            alt="Sri Lakshmi Penchila Narasimha Swamy Cement Work"
             fill
             sizes="32px"
             className="object-cover"
@@ -75,8 +75,8 @@ export default function WhatsAppButton({ productName }: WhatsAppButtonProps) {
           </span>
           <span className="text-xs font-black text-white tracking-tight leading-tight mt-0.5 max-w-[200px] sm:max-w-[280px] truncate">
             {language === 'te'
-              ? 'శ్రీ పెంచల లక్ష్మీనరసింహ స్వామి సిమెంట్ వర్క్స్'
-              : 'Sri Penchila LakshmiNarasimha Swamy Cement Work'}
+              ? 'శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి సిమెంట్ వర్క్స్'
+              : 'Sri Lakshmi Penchila Narasimha Swamy Cement Work'}
           </span>
         </div>
       </a>

@@ -206,7 +206,7 @@ export default function RealtimePaymentModal({
             {/* WhatsApp Confirmation to Owner */}
             <a
               href={`https://wa.me/918919526315?text=${encodeURIComponent(
-                `Hello Sri Penchila LakshmiNarasimha Swamy Cement Work (PRASAD CEMENT WORK)! I have successfully booked and paid ${formatPrice(
+                `Hello Sri Lakshmi Penchila Narasimha Swamy Cement Work (PRASAD CEMENT WORK)! I have successfully booked and paid ${formatPrice(
                   amount
                 )} for Order #${orderNumber}. Txn: ${txnId}. Please confirm dispatch schedule to Velagatoor / Jagtial.`
               )}`}

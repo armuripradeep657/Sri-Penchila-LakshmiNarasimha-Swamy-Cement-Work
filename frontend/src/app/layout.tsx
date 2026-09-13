@@ -12,11 +12,11 @@ import AmbientLogoBackground from '@/components/shared/AmbientLogoBackground';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Sri Penchila LakshmiNarasimha Swamy Cement Work | Quality Precast Concrete Windows, Bricks & Gagulu',
+  title: 'Sri Lakshmi Penchila Narasimha Swamy Cement Work | Quality Precast Concrete Windows, Bricks & Gagulu',
   description:
     'Manufacturer and supplier of high-strength precast cement windows, machine & hand-made ketikelu, gagulu cement well rings, solid bricks, and ventilator jalis. Direct factory pricing and wholesale yard dispatch.',
   keywords: [
-    'Sri Penchila LakshmiNarasimha Swamy Cement Work',
+    'Sri Lakshmi Penchila Narasimha Swamy Cement Work',
     'Prasad Cement Products',
     'cement windows',
     'kodada ketikelu',
