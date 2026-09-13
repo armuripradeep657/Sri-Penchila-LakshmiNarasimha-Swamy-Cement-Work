@@ -76,8 +76,8 @@ export default function Header() {
 
           {/* Action Buttons & Language Switcher */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Language Switcher Pill */}
-            <div className="flex items-center bg-slate-900 border border-slate-700/80 rounded-xl p-0.5 shadow-inner">
+            {/* Language Switcher Pill — hidden on mobile, shown in mobile drawer instead */}
+            <div className="hidden md:flex items-center bg-slate-900 border border-slate-700/80 rounded-xl p-0.5 shadow-inner">
               <button
                 type="button"
                 onClick={() => setLanguage('en')}
@@ -287,33 +287,6 @@ export default function Header() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur-xl px-4 pt-2 pb-6 space-y-2">
-          {/* Mobile Language Switcher */}
-          <div className="p-3 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Globe className="w-4 h-4 text-amber-400" />
-              <span>{t('lang_toggle_label')} / Language</span>
-            </span>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setLanguage('en')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                  language === 'en' ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400'
-                }`}
-              >
-                English
-              </button>
-              <button
-                type="button"
-                onClick={() => setLanguage('te')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                  language === 'te' ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400'
-                }`}
-              >
-                తెలుగు
-              </button>
-            </div>
-          </div>
           {isAdmin && (
             <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between text-xs">
               <span className="font-bold text-amber-400">👑 Logged in as Owner (Prasad)</span>
@@ -355,6 +328,34 @@ export default function Header() {
               📦 My Orders & Tracking
             </Link>
           )}
+
+          {/* Language Switcher — placed below navigation items on mobile */}
+          <div className="p-3 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <Globe className="w-4 h-4 text-amber-400" />
+              <span>{t('lang_toggle_label')} / Language</span>
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setLanguage('en')}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                  language === 'en' ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+                }`}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage('te')}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                  language === 'te' ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+                }`}
+              >
+                తెలుగు
+              </button>
+            </div>
+          </div>
 
           <div className="pt-2 border-t border-slate-800 text-xs text-slate-400 space-y-1">
             <p>Jagtial - Velgatoor Road, Opp. Sudha Hospital, Velagatoor (Mandal), Jagtial Dist - 505526</p>
