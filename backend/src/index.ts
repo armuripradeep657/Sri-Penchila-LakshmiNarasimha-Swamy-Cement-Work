@@ -32,6 +32,7 @@ app.use(
       process.env.FRONTEND_URL || 'http://localhost:3000',
       'http://localhost:3001',
       'http://localhost:3002',
+      /\.vercel\.app$/,
     ],
     credentials: true,
   })
