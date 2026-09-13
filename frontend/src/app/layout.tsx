@@ -40,13 +40,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} min-h-screen flex flex-col bg-[#0b0f19] text-slate-100 antialiased relative`}>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+      </head>
+      <body className={`${inter.className} min-h-screen flex flex-col bg-[#0b0f19] text-slate-100 antialiased relative overflow-x-hidden`}>
         <LanguageProvider>
           <AuthProvider>
             <CartProvider>
               <AmbientLogoBackground />
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 overflow-x-hidden">{children}</main>
               <Footer />
               <WhatsAppButton />
             </CartProvider>

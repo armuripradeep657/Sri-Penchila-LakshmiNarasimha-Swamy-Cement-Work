@@ -308,13 +308,15 @@ export default function ProductDetailPage() {
         {/* Dynamic Role Badge Indicator */}
         <div className="flex items-center gap-2">
           {isAdmin ? (
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 font-bold text-[11px] shadow-sm">
-              <Crown className="w-3.5 h-3.5 text-amber-400" />
-              <span>{language === 'te' ? 'యజమాని / అడ్మిన్ మోడ్ — స్టాక్ & ధర నిర్వహణ' : 'OWNER / ADMIN MODE — DIRECT INVENTORY & PRICING CONTROLS'}</span>
+            <div className="flex items-center gap-2 px-2 sm:px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 font-bold text-[10px] sm:text-[11px] shadow-sm flex-wrap">
+              <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="hidden sm:inline">{language === 'te' ? 'యజమాని / అడ్మిన్ మోడ్ — స్టాక్ & ధర నిర్వహణ' : 'OWNER / ADMIN MODE — DIRECT INVENTORY & PRICING CONTROLS'}</span>
+              <span className="sm:hidden">{language === 'te' ? 'అడ్మిన్ మోడ్' : 'ADMIN MODE'}</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 font-semibold text-[11px]">
-              <span>{language === 'te' ? 'బిల్డర్ & కాంట్రాక్టర్ క్యాటలాగ్' : 'BUILDER & CONTRACTOR CATALOG'}</span>
+            <div className="flex items-center gap-2 px-2 sm:px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 font-semibold text-[10px] sm:text-[11px]">
+              <span className="hidden sm:inline">{language === 'te' ? 'బిల్డర్ & కాంట్రాక్టర్ క్యాటలాగ్' : 'BUILDER & CONTRACTOR CATALOG'}</span>
+              <span className="sm:hidden">{language === 'te' ? 'క్యాటలాగ్' : 'CATALOG'}</span>
             </div>
           )}
         </div>
@@ -332,7 +334,7 @@ export default function ProductDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Left: Image Gallery */}
         <div className="lg:col-span-6 space-y-4">
-          <div className="relative h-96 sm:h-[460px] w-full rounded-3xl overflow-hidden glass-panel border border-slate-800 bg-slate-950 shadow-2xl">
+          <div className="relative h-64 sm:h-96 md:h-[460px] w-full rounded-2xl sm:rounded-3xl overflow-hidden glass-panel border border-slate-800 bg-slate-950 shadow-2xl">
             <img
               src={activeImage || 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=1000&q=80'}
               alt={locProduct?.name || product.name}
@@ -840,10 +842,11 @@ export default function ProductDetailPage() {
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all shadow-sm"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 sm:px-6 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all shadow-sm"
                 >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Chat on WhatsApp with Sri Penchila LakshmiNarasimha Swamy Cement Work</span>
+                  <MessageCircle className="w-4 h-4 shrink-0" />
+                  <span className="hidden sm:inline">Chat on WhatsApp with Sri Penchila LakshmiNarasimha Swamy Cement Work</span>
+                  <span className="sm:hidden">WhatsApp Enquiry</span>
                 </a>
               </div>
             </div>
