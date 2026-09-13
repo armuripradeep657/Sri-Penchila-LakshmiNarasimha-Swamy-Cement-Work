@@ -48,6 +48,13 @@ class ApiClient {
     });
   }
 
+  async loginWithGoogle(data?: { email?: string; name?: string; phone?: string }) {
+    return this.request<any>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify(data || {}),
+    });
+  }
+
   async forgotPassword(identifier: string) {
     return this.request<any>('/auth/forgot-password', {
       method: 'POST',

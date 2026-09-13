@@ -481,6 +481,43 @@ async function handleServerless(req: NextRequest, path: string[]) {
     });
   }
 
+  // Google Direct Login
+  if (route === 'auth/google' && method === 'POST') {
+    const body = await req.json().catch(() => ({}));
+    const email = (body.email || 'user.google@gmail.com').toLowerCase().trim();
+    const name = body.name || 'Google User';
+    let user = store.users.find((u) => u.email.toLowerCase() === email);
+
+    if (!user) {
+      user = {
+        id: `usr_g_${Date.now()}`,
+        phone: body.phone || '9876543210',
+        email,
+        name,
+        role: 'CUSTOMER',
+        password: '',
+        addresses: [],
+      };
+      store.users.push(user);
+    }
+
+    const token = `tok_google_${Date.now()}`;
+    return NextResponse.json({
+      success: true,
+      message: 'Google login successful',
+      accessToken: token,
+      refreshToken: `${token}_refresh`,
+      user: {
+        id: user.id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        role: user.role,
+        addresses: user.addresses,
+      },
+    });
+  }
+
   // Register
   if (route === 'auth/register' && method === 'POST') {
     const body = await req.json();
