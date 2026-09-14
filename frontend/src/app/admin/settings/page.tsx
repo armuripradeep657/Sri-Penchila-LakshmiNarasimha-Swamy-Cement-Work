@@ -58,7 +58,7 @@ export default function AdminSettingsPage() {
     e.preventDefault();
     setIsSavingSettings(true);
     try {
-      // In production API, PUT /admin/settings updates key-values
+      await api.updateStoreSettings(settings);
       alert('Store settings saved successfully!');
     } catch (err: any) {
       alert(err.message || 'Failed to save settings');
@@ -67,23 +67,32 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handleCreateZone = (e: React.FormEvent) => {
+  const handleCreateZone = async (e: React.FormEvent) => {
     e.preventDefault();
     const pincodesList = newZonePincodes.split(',').map((p) => p.trim());
     const feePaisa = Math.round(parseFloat(newZoneFeeRupees || '0') * 100);
 
-    const newZone: DeliveryZone = {
-      id: `zone_${Date.now()}`,
+    const newZoneData = {
       name: newZoneName,
       pincodes: pincodesList,
       fee: feePaisa,
+      description: 'Owner set village rate / auto rent',
       isActive: true,
     };
 
-    setZones([...zones, newZone]);
-    setShowAddZone(false);
-    setNewZoneName('');
-    alert('Delivery zone added!');
+    try {
+      const res = await api.createDeliveryZone(newZoneData);
+      if (res?.zone) {
+        setZones([...zones, res.zone]);
+      } else {
+        setZones([...zones, { id: `z_${Date.now()}`, ...newZoneData }]);
+      }
+      setShowAddZone(false);
+      setNewZoneName('');
+      alert('Village auto rent delivery zone added!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to add delivery zone');
+    }
   };
 
   return (

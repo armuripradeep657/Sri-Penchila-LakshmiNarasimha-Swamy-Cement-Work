@@ -41,6 +41,7 @@ export interface TaxInvoiceProps {
   items: InvoiceItem[];
   subtotal: number;
   deliveryFee: number;
+  workerPlacementFee?: number;
   grandTotal: number;
   paymentStatus: string;
   paymentMethod?: string;
@@ -82,6 +83,7 @@ export default function TaxInvoice({
   items,
   subtotal,
   deliveryFee,
+  workerPlacementFee = 0,
   grandTotal,
   paymentStatus,
   paymentMethod = 'ONLINE',
@@ -331,6 +333,15 @@ export default function TaxInvoice({
               {deliveryFee === 0 ? 'FREE DISPATCH' : formatPrice(deliveryFee)}
             </span>
           </div>
+
+          {workerPlacementFee > 0 && (
+            <div className="flex justify-between text-slate-700 font-medium">
+              <span>Home Placement by Yard Workers (+₹40/item):</span>
+              <span className="font-mono font-semibold text-slate-900">
+                {formatPrice(workerPlacementFee)}
+              </span>
+            </div>
+          )}
 
           {(codFee || isCOD) && (
             <div className="flex justify-between text-amber-800 font-semibold">

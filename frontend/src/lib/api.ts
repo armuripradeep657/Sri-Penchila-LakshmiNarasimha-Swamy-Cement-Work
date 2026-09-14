@@ -293,8 +293,22 @@ class ApiClient {
     return this.request<any>('/admin/delivery-zones');
   }
 
+  async createDeliveryZone(zoneData: any) {
+    return this.request<any>('/admin/delivery-zones', {
+      method: 'POST',
+      body: JSON.stringify(zoneData),
+    });
+  }
+
   async getStoreSettings() {
     return this.request<any>('/admin/settings');
+  }
+
+  async updateStoreSettings(settings: Record<string, string>) {
+    return this.request<any>('/admin/settings', {
+      method: 'PUT',
+      body: JSON.stringify({ settings }),
+    });
   }
 }
 

@@ -123,6 +123,7 @@ export interface Order {
   status: OrderStatus;
   totalAmount: number;
   deliveryFee: number;
+  workerPlacementFee?: number;
   grandTotal: number;
   deliveryAddressId?: string | null;
   deliveryZoneId?: string | null;

@@ -337,9 +337,66 @@ const store = {
     },
   ],
   deliveryZones: [
-    { id: 'z1', name: 'Local (0-10 km)', pincodes: ['500001', '500002', '500003', '500004', '500005'], fee: 0 },
-    { id: 'z2', name: 'City (10-30 km)', pincodes: ['500010', '500020', '500030', '500032', '500040', '500050'], fee: 150000 },
-    { id: 'z3', name: 'District (30-60 km)', pincodes: ['501001', '501101', '501201', '501301', '502001'], fee: 350000 },
+    {
+      id: 'z_local',
+      name: 'Local / Within Town (0 to 1.5 km)',
+      description: 'Velagatoor town limits & immediate yard surrounding',
+      pincodes: ['505526'],
+      fee: 15000, // ₹150 in paisa
+      minDistanceKm: 0,
+      maxDistanceKm: 1.5,
+      isActive: true,
+    },
+    {
+      id: 'z_3km',
+      name: 'Up to 3 km (Velagatoor Outskirts / Gopalpur)',
+      description: 'Up to 3 km delivery by yard auto / trolley',
+      pincodes: ['505526'],
+      fee: 25000, // ₹250 in paisa
+      minDistanceKm: 1.5,
+      maxDistanceKm: 3,
+      isActive: true,
+    },
+    {
+      id: 'z_kishanraopet',
+      name: 'Kishanraopet / Padkal (3.5 - 5 km)',
+      description: 'Owner Village Rate / Auto Rent',
+      pincodes: ['505526', '505527'],
+      fee: 35000, // ₹350 in paisa
+      minDistanceKm: 3,
+      maxDistanceKm: 5,
+      isActive: true,
+    },
+    {
+      id: 'z_cheggam',
+      name: 'Cheggam / Saka / Pathagudoor (5 - 7 km)',
+      description: 'Owner Village Rate / Auto Rent',
+      pincodes: ['505526', '505528'],
+      fee: 45000, // ₹450 in paisa
+      minDistanceKm: 5,
+      maxDistanceKm: 7,
+      isActive: true,
+    },
+    {
+      id: 'z_dharmapuri',
+      name: 'Dharmapuri Mandal (8 - 12 km)',
+      description: 'Mandal Auto / Tractor Trolley Rent',
+      pincodes: ['505425'],
+      fee: 65000, // ₹650 in paisa
+      minDistanceKm: 8,
+      maxDistanceKm: 12,
+      isActive: true,
+    },
+    {
+      id: 'z_jagtial',
+      name: 'Jagtial Town / Commercial Sites (15 - 20 km)',
+      description: 'Highway Auto / Mini Crane Truck Freight',
+      pincodes: ['505327'],
+      fee: 85000, // ₹850 in paisa
+      minDistanceKm: 15,
+      maxDistanceKm: 20,
+      isActive: true,
+    },
   ],
   settings: [
     { key: 'store_name', value: 'Sri Lakshmi Penchila Narasimha Swamy Cement Work' },
@@ -348,7 +405,172 @@ const store = {
     { key: 'store_email', value: 'armuriprasad@gmail.com' },
     { key: 'store_address', value: 'Jagtial - Velgatoor Road, Opposite to Sudha Hospital, Velagatoor, Velagatoor Mandal, Jagtial District, Telangana - 505526' },
   ],
-  orders: [] as any[],
+  orders: [
+    {
+      id: 'ord_101',
+      orderNumber: 'PCP-2026-8192',
+      status: 'DELIVERED',
+      paymentStatus: 'PAID',
+      paymentMethod: 'ONLINE',
+      totalAmount: 1110000,
+      deliveryFee: 35000,
+      workerPlacementFee: 24000,
+      grandTotal: 1169000,
+      notes: 'Delivered and stacked safely near house compound by yard workers (+₹40/item service).',
+      createdAt: new Date(Date.now() - 3600000 * 28).toISOString(),
+      user: {
+        id: 'usr_kavitha',
+        name: 'Kavitha Reddy',
+        phone: '9849123456',
+        email: 'kavitha.reddy@gmail.com',
+      },
+      deliveryAddress: {
+        line1: 'House #4-82, Near Primary School',
+        city: 'Kishanraopet Village',
+        state: 'Telangana',
+        pincode: '505526',
+      },
+      items: [
+        {
+          id: 'item_101_1',
+          quantity: 6,
+          unitPrice: 185000,
+          totalPrice: 1110000,
+          variant: {
+            id: 'v_door_4x7',
+            name: '4×7 ft — Standard Main Door',
+            width: 4,
+            height: 7,
+            dimensionUnit: 'ft',
+            product: { name: 'Door Frames (Ketikelu)' },
+          },
+        },
+      ],
+    },
+    {
+      id: 'ord_102',
+      orderNumber: 'PCP-2026-7734',
+      status: 'OUT_FOR_DELIVERY',
+      paymentStatus: 'PAID',
+      paymentMethod: 'ONLINE',
+      totalAmount: 3600000,
+      deliveryFee: 45000,
+      workerPlacementFee: 40000,
+      grandTotal: 3685000,
+      notes: 'Dispatched via hydraulic crane truck. Yard workers accompanying for home/site placement.',
+      createdAt: new Date(Date.now() - 3600000 * 6).toISOString(),
+      user: {
+        id: 'usr_mahesh',
+        name: 'Mahesh Builder',
+        phone: '9988776655',
+        email: 'mahesh.builder@gmail.com',
+      },
+      deliveryAddress: {
+        line1: 'Farm Well Plot #12, Cheggam Road',
+        city: 'Cheggam Village',
+        state: 'Telangana',
+        pincode: '505526',
+      },
+      items: [
+        {
+          id: 'item_102_1',
+          quantity: 10,
+          unitPrice: 360000,
+          totalPrice: 3600000,
+          variant: {
+            id: 'v_gag_4ft',
+            name: '4ft Diameter Ring',
+            width: 4,
+            height: 1,
+            dimensionUnit: 'ft',
+            product: { name: 'Gagulu Cement Ring – 4ft Diameter' },
+          },
+        },
+      ],
+    },
+    {
+      id: 'ord_103',
+      orderNumber: 'PCP-2026-6512',
+      status: 'IN_PRODUCTION',
+      paymentStatus: 'PAID',
+      paymentMethod: 'ONLINE',
+      totalAmount: 2400000,
+      deliveryFee: 15000,
+      workerPlacementFee: 16000,
+      grandTotal: 2431000,
+      notes: 'Currently in day 18 underwater curing tank at Velagatoor yard. Local dispatch scheduled.',
+      createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
+      user: {
+        id: 'usr_srinivas',
+        name: 'Srinivas Goud',
+        phone: '9123456789',
+        email: 'srinivas.goud@gmail.com',
+      },
+      deliveryAddress: {
+        line1: 'Opp. Hanuman Temple, Main Bazaar',
+        city: 'Velagatoor',
+        state: 'Telangana',
+        pincode: '505526',
+      },
+      items: [
+        {
+          id: 'item_103_1',
+          quantity: 4,
+          unitPrice: 600000,
+          totalPrice: 2400000,
+          variant: {
+            id: 'v_mch_3x3',
+            name: '3ft × 3ft',
+            width: 3,
+            height: 3,
+            dimensionUnit: 'ft',
+            product: { name: 'Machine Ketikelu – 3ft × 3ft' },
+          },
+        },
+      ],
+    },
+    {
+      id: 'ord_104',
+      orderNumber: 'PCP-2026-5201',
+      status: 'CONFIRMED',
+      paymentStatus: 'PENDING',
+      paymentMethod: 'COD',
+      totalAmount: 1400000,
+      deliveryFee: 25000,
+      workerPlacementFee: 8000,
+      grandTotal: 1433000,
+      notes: '[CASH ON DELIVERY] Site verified with auto/crane entry clearance at Gopalpur.',
+      createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+      user: {
+        id: 'usr_rajesh',
+        name: 'Rajesh Kumar',
+        phone: '8888888888',
+        email: 'rajesh@gmail.com',
+      },
+      deliveryAddress: {
+        line1: 'Plot #8, Gopalpur Outskirts',
+        city: 'Gopalpur (2.8 km)',
+        state: 'Telangana',
+        pincode: '505526',
+      },
+      items: [
+        {
+          id: 'item_104_1',
+          quantity: 2,
+          unitPrice: 700000,
+          totalPrice: 1400000,
+          variant: {
+            id: 'v_brk_9x4_1k',
+            name: '9×4 inches — Lot of 1000 Bricks',
+            width: 9,
+            height: 4,
+            dimensionUnit: 'in',
+            product: { name: 'Cement Bricks & Blocks – 9×4 inches' },
+          },
+        },
+      ],
+    },
+  ] as any[],
   quotes: [
     {
       id: 'qt_101',
@@ -649,12 +871,191 @@ async function handleServerless(req: NextRequest, path: string[]) {
     return NextResponse.json({ success: true, user });
   }
 
+  // ─── ADMIN DASHBOARD ───────────────────────────────────────────────────────
+  if (route === 'admin/dashboard' && method === 'GET') {
+    const totalRev = store.orders.reduce((sum, o) => sum + (o.grandTotal || 0), 0);
+    const lowStock = store.products
+      .flatMap((p) => p.variants.map((v) => ({ ...v, product: { name: p.name } })))
+      .filter((v) => (v.stock || 0) <= 20);
+
+    return NextResponse.json({
+      success: true,
+      stats: {
+        monthOrders: store.orders.length,
+        monthRevenuePaisa: totalRev,
+        totalRevenuePaisa: totalRev,
+        pendingQuotesCount: store.quotes.filter((q) => q.status === 'PENDING').length,
+        lowStockCount: lowStock.length,
+        totalOrders: store.orders.length,
+      },
+      lowStockVariants: lowStock,
+      recentOrders: store.orders,
+    });
+  }
+
+  // ─── ADMIN PRODUCTS ────────────────────────────────────────────────────────
+  if (route === 'admin/products' && method === 'GET') {
+    return NextResponse.json({
+      success: true,
+      products: store.products,
+    });
+  }
+
+  if (route === 'admin/products' && method === 'POST') {
+    const body = await req.json();
+    const newProduct = {
+      id: `prod_${Date.now()}`,
+      name: body.name || 'New Precast Product',
+      slug: (body.slug || body.name.toLowerCase().replace(/\s+/g, '-')).replace(/[^a-z0-9-]/g, ''),
+      description: body.description || '',
+      category: body.category || 'WINDOW',
+      subType: body.subType || 'Precast',
+      unitOfSale: body.unitOfSale || 'PIECE',
+      minOrderQuantity: body.minOrderQuantity || 1,
+      isFeatured: body.isFeatured || false,
+      sortOrder: body.sortOrder || 0,
+      images: body.images && body.images.length > 0 ? body.images : [{ id: `img_${Date.now()}`, url: '/images/products/window.jpg', altText: body.name || 'Precast Cement Product' }],
+      variants: body.initialVariant
+        ? [
+            {
+              id: `var_${Date.now()}`,
+              name: body.initialVariant.name || 'Standard',
+              sku: body.initialVariant.sku || `PCP-${Date.now().toString().slice(-4)}`,
+              width: body.initialVariant.width || 3,
+              height: body.initialVariant.height || 4,
+              depth: body.initialVariant.depth || 0.5,
+              dimensionUnit: body.initialVariant.dimensionUnit || 'ft',
+              price: body.initialVariant.price || 185000,
+              stock: body.initialVariant.stock || 25,
+              availability: 'IN_STOCK',
+              sortOrder: 0,
+            },
+          ]
+        : [],
+    };
+    store.products.unshift(newProduct);
+    return NextResponse.json({ success: true, product: newProduct });
+  }
+
+  if (path[0] === 'admin' && path[1] === 'products' && path.length === 3 && method === 'PUT') {
+    const prodId = path[2];
+    const body = await req.json();
+    const prod = store.products.find((p) => p.id === prodId || p.slug === prodId);
+    if (prod) {
+      Object.assign(prod, body);
+      return NextResponse.json({ success: true, product: prod });
+    }
+    return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+  }
+
+  if (path[0] === 'admin' && path[1] === 'products' && path.length === 3 && method === 'DELETE') {
+    const prodId = path[2];
+    store.products = store.products.filter((p) => p.id !== prodId && p.slug !== prodId);
+    return NextResponse.json({ success: true, message: 'Product deleted' });
+  }
+
+  if (path[0] === 'admin' && path[1] === 'products' && path[3] === 'variants' && method === 'POST') {
+    const prodId = path[2];
+    const body = await req.json();
+    const prod = store.products.find((p) => p.id === prodId || p.slug === prodId);
+    if (prod) {
+      const newVar = {
+        id: `var_${Date.now()}`,
+        name: body.name || 'New Variant',
+        sku: body.sku || `PCP-${Date.now().toString().slice(-4)}`,
+        width: body.width || null,
+        height: body.height || null,
+        depth: body.depth || null,
+        dimensionUnit: body.dimensionUnit || 'ft',
+        price: body.price || null,
+        stock: body.stock || 20,
+        availability: 'IN_STOCK',
+        sortOrder: prod.variants.length,
+      };
+      prod.variants.push(newVar);
+      return NextResponse.json({ success: true, variant: newVar });
+    }
+    return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+  }
+
+  if (path[0] === 'admin' && path[1] === 'products' && path[3] === 'variants' && path.length === 5 && ['PUT', 'PATCH'].includes(method)) {
+    const prodId = path[2];
+    const varId = path[4];
+    const body = await req.json();
+    const prod = store.products.find((p) => p.id === prodId || p.slug === prodId);
+    if (prod) {
+      const v = prod.variants.find((vr) => vr.id === varId);
+      if (v) {
+        Object.assign(v, body);
+        return NextResponse.json({ success: true, variant: v });
+      }
+    }
+    return NextResponse.json({ success: false, message: 'Variant not found' }, { status: 404 });
+  }
+
+  if (path[0] === 'admin' && path[1] === 'products' && path[3] === 'variants' && path.length === 5 && method === 'DELETE') {
+    const prodId = path[2];
+    const varId = path[4];
+    const prod = store.products.find((p) => p.id === prodId || p.slug === prodId);
+    if (prod) {
+      prod.variants = prod.variants.filter((vr) => vr.id !== varId);
+      return NextResponse.json({ success: true, message: 'Variant deleted' });
+    }
+    return NextResponse.json({ success: false, message: 'Variant not found' }, { status: 404 });
+  }
+
   // 3. DELIVERY ZONES & SETTINGS
   if ((route === 'orders/zones' || route === 'admin/delivery-zones') && method === 'GET') {
     return NextResponse.json({ success: true, zones: store.deliveryZones });
   }
 
+  if (route === 'admin/delivery-zones' && method === 'POST') {
+    const body = await req.json();
+    const newZone = {
+      id: `z_${Date.now()}`,
+      name: body.name,
+      description: body.description || 'Custom Village Auto Rent',
+      pincodes: body.pincodes || ['505526'],
+      fee: body.fee || 35000,
+      minDistanceKm: body.minDistanceKm || 3,
+      maxDistanceKm: body.maxDistanceKm || 10,
+      isActive: true,
+    };
+    store.deliveryZones.push(newZone);
+    return NextResponse.json({ success: true, zone: newZone });
+  }
+
+  if (path[0] === 'admin' && path[1] === 'delivery-zones' && path.length === 3 && ['PUT', 'PATCH'].includes(method)) {
+    const zoneId = path[2];
+    const body = await req.json();
+    const zone = store.deliveryZones.find((z) => z.id === zoneId);
+    if (zone) {
+      Object.assign(zone, body);
+      return NextResponse.json({ success: true, zone });
+    }
+    return NextResponse.json({ success: false, message: 'Zone not found' }, { status: 404 });
+  }
+
   if (route === 'admin/settings' && method === 'GET') {
+    return NextResponse.json({ success: true, settings: store.settings });
+  }
+
+  if (route === 'admin/settings' && ['POST', 'PUT'].includes(method)) {
+    const body = await req.json();
+    if (body.settings) {
+      if (Array.isArray(body.settings)) {
+        store.settings = body.settings;
+      } else if (typeof body.settings === 'object') {
+        Object.entries(body.settings).forEach(([key, value]) => {
+          const existing = store.settings.find((s: any) => s.key === key);
+          if (existing) {
+            existing.value = String(value);
+          } else {
+            store.settings.push({ key, value: String(value) });
+          }
+        });
+      }
+    }
     return NextResponse.json({ success: true, settings: store.settings });
   }
 
@@ -664,35 +1065,38 @@ async function handleServerless(req: NextRequest, path: string[]) {
     const isCOD = body.paymentMethod === 'COD';
     const codFee = isCOD ? 15000 : 0;
     const totalAmount = body.totalAmount || 80000;
-    const deliveryFee = body.deliveryFee || 0;
-    const grandTotal = totalAmount + deliveryFee + codFee;
+    const deliveryFee = body.deliveryFee !== undefined ? body.deliveryFee : 15000;
+    const workerPlacementFee = body.workerPlacementFee || (body.workerPlacement ? (body.quantity || 1) * 4000 : 0);
+    const grandTotal = totalAmount + deliveryFee + workerPlacementFee + codFee;
 
     const order = {
       id: `ord_${Date.now()}`,
       orderNumber: `PCP-2026-${Math.floor(10000 + Math.random() * 90000)}`,
       status: 'CONFIRMED',
+      paymentStatus: isCOD ? 'PENDING' : 'PAID',
+      paymentMethod: body.paymentMethod || 'ONLINE',
       totalAmount,
-      deliveryFee: deliveryFee + codFee,
+      deliveryFee,
+      workerPlacementFee,
       grandTotal,
-      notes: isCOD
-        ? `[CASH ON DELIVERY (COD) - Processing Fee: ₹150] ${body.notes || ''}`.trim()
-        : body.notes || '',
+      notes: [
+        isCOD ? '[CASH ON DELIVERY - Fee: ₹150]' : '',
+        workerPlacementFee > 0 ? `[Worker Home Placement Service: ₹${workerPlacementFee / 100}]` : '',
+        body.notes || '',
+      ].filter(Boolean).join(' '),
       createdAt: new Date().toISOString(),
       items: (body.items && body.items.length > 0)
         ? body.items
         : [
             {
               id: 'item_default',
-              quantity: 100,
-              unitPrice: 800,
-              totalPrice: 80000,
+              quantity: body.quantity || 1,
+              unitPrice: totalAmount,
+              totalPrice: totalAmount,
               variant: {
-                id: 'v_brk_9x4_pc',
-                name: '9×4 inches — Per Piece',
-                width: 9,
-                height: 4,
-                dimensionUnit: 'in',
-                product: { name: 'Cement Bricks & Blocks – 9×4 inches' },
+                id: 'v_default',
+                name: 'Precast Cement Unit',
+                product: { name: body.productName || 'Precast Cement Product' },
               },
             },
           ],
@@ -704,14 +1108,35 @@ async function handleServerless(req: NextRequest, path: string[]) {
       },
       user: {
         id: 'usr_customer',
-        name: 'Rajesh Kumar',
-        phone: '8888888888',
-        email: 'rajesh@gmail.com',
+        name: body.deliveryAddress?.fullName || 'Valued Builder',
+        phone: body.deliveryAddress?.phone || '9912179771',
+        email: 'customer@prasadcement.com',
       },
     };
 
     store.orders.unshift(order);
     return NextResponse.json({ success: true, order });
+  }
+
+  // Admin orders & general orders list
+  if ((route === 'admin/orders' || route === 'orders') && method === 'GET') {
+    const status = url.searchParams.get('status');
+    const search = url.searchParams.get('search')?.toLowerCase();
+
+    let items = store.orders;
+    if (status) {
+      items = items.filter((o) => o.status === status);
+    }
+    if (search) {
+      items = items.filter(
+        (o) =>
+          o.orderNumber?.toLowerCase().includes(search) ||
+          o.user?.phone?.includes(search) ||
+          o.user?.name?.toLowerCase().includes(search) ||
+          o.deliveryAddress?.city?.toLowerCase().includes(search)
+      );
+    }
+    return NextResponse.json({ success: true, orders: items });
   }
 
   if (route.startsWith('orders/') && method === 'GET') {
@@ -720,24 +1145,23 @@ async function handleServerless(req: NextRequest, path: string[]) {
     return NextResponse.json({ success: true, order });
   }
 
-  if (route.includes('orders') && route.includes('status') && method === 'PATCH') {
+  if (route.includes('orders') && route.includes('status') && ['PATCH', 'PUT'].includes(method)) {
     const body = await req.json();
     const parts = route.split('/');
     const id = parts[parts.indexOf('orders') + 1];
     const order = store.orders.find((o) => o.id === id || o.orderNumber === id) || store.orders[0];
     if (order) {
       order.status = body.status || 'CONFIRMED';
+      if (body.notes) {
+        order.notes = `${order.notes ? order.notes + ' | ' : ''}${body.notes}`;
+      }
     }
-    const phone = order?.user?.phone || '8888888888';
-    const statusText = body.status === 'CONFIRMED' ? 'CONFIRMED' : 'CANCELLED';
-    const msg = `*SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK*\n*(PRASAD CEMENT WORK)*\nDear ${order?.user?.name || 'Customer'},\nOrder #${order?.orderNumber} status: *${statusText}* by owner Prasad.\nYard contact: 8919526315.`;
+    const phone = order?.user?.phone || '9912179771';
+    const statusText = (body.status || 'CONFIRMED').replace(/_/g, ' ');
+    const msg = `*SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK*\n*(PRASAD CEMENT WORK)*\nDear ${order?.user?.name || 'Customer'},\nOrder #${order?.orderNumber} status update: *${statusText}* by owner Prasad.\nDelivery location: ${order?.deliveryAddress?.city || 'Velagatoor'}.\nYard contact: 9912179771 / 8919526315.`;
     const cleanPhone = phone.replace(/\D/g, '').slice(-10);
     const whatsappUrl = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(msg)}`;
     return NextResponse.json({ success: true, order, whatsappUrl, whatsappMsg: msg });
-  }
-
-  if (route === 'orders' && method === 'GET') {
-    return NextResponse.json({ success: true, orders: store.orders });
   }
 
   if (route === 'cart' && method === 'GET') {

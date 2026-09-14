@@ -102,12 +102,12 @@ export default function AdminOrdersPage() {
   };
 
   const statuses = [
-    { value: '', label: 'All Statuses' },
-    { value: 'CONFIRMED', label: 'Confirmed' },
-    { value: 'IN_PRODUCTION', label: 'In Production (Steam Curing)' },
-    { value: 'OUT_FOR_DELIVERY', label: 'Out For Delivery' },
-    { value: 'DELIVERED', label: 'Delivered' },
-    { value: 'CANCELLED', label: 'Cancelled' },
+    { value: '', label: 'All Orders' },
+    { value: 'DELIVERED', label: '✅ Fulfilled Orders (Delivered)' },
+    { value: 'OUT_FOR_DELIVERY', label: '🚚 Out For Delivery' },
+    { value: 'IN_PRODUCTION', label: '🏗️ In Production (Curing)' },
+    { value: 'CONFIRMED', label: '📋 Confirmed' },
+    { value: 'CANCELLED', label: '❌ Cancelled' },
   ];
 
   return (
@@ -126,7 +126,7 @@ export default function AdminOrdersPage() {
             Order Fulfillment & Dispatch Control
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            Update curing progress, schedule truck dispatch, and view site delivery details
+            Manage live precast orders, distance delivery freight, yard worker home placement, and customer dispatch
           </p>
         </div>
 
@@ -152,7 +152,7 @@ export default function AdminOrdersPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-amber-500 w-full sm:w-auto"
+            className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-amber-500 w-full sm:w-auto font-semibold"
           >
             {statuses.map((s) => (
               <option key={s.value} value={s.value}>
@@ -180,7 +180,7 @@ export default function AdminOrdersPage() {
               {/* Order Top Bar */}
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-800">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <span className="font-mono font-extrabold text-base text-white">
                       {order.orderNumber}
                     </span>
@@ -200,6 +200,11 @@ export default function AdminOrdersPage() {
                     >
                       {order.paymentStatus}
                     </span>
+                    {(order.workerPlacementFee ?? 0) > 0 && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        🏡 Worker Placement (+{formatPrice(order.workerPlacementFee!)})
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-slate-400">
                     Placed: {formatDate(order.createdAt)} • Customer: <strong>{order.user?.name || 'Customer'}</strong> ({order.user?.phone})
@@ -295,10 +300,17 @@ export default function AdminOrdersPage() {
                     ))}
                   </div>
 
-                  <div className="flex justify-between items-center pt-2 text-xs">
-                    <span className="text-slate-400">
-                      Truck Delivery ({order.deliveryZone?.name || 'Local'}): {formatPrice(order.deliveryFee)}
-                    </span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2.5 text-xs border-t border-slate-800">
+                    <div className="flex flex-wrap items-center gap-3 text-slate-400">
+                      <span>
+                        🚚 Delivery Freight: <strong className="text-white">{formatPrice(order.deliveryFee)}</strong>
+                      </span>
+                      {(order.workerPlacementFee ?? 0) > 0 && (
+                        <span className="text-amber-400 font-semibold">
+                          🏡 Worker Home Placement: <strong>+{formatPrice(order.workerPlacementFee!)}</strong>
+                        </span>
+                      )}
+                    </div>
                     <span className="text-sm font-extrabold text-white">
                       Grand Total: <span className="text-amber-400">{formatPrice(order.grandTotal)}</span>
                     </span>

@@ -955,6 +955,7 @@ export default function ProductDetailPage() {
           }
           subtotal={customerInvoiceData?.totalAmount || (selectedVariant?.price || 0) * quantity}
           deliveryFee={customerInvoiceData?.deliveryFee || 0}
+          workerPlacementFee={customerInvoiceData?.workerPlacementFee || 0}
           grandTotal={customerInvoiceData?.grandTotal || (selectedVariant?.price || 0) * quantity}
           paymentMethod={customerInvoiceData?.paymentMethod || 'UPI Instant'}
           paymentStatus="PAID"

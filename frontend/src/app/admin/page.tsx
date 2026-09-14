@@ -266,16 +266,24 @@ export default function AdminDashboardPage() {
                       {formatDate(order.createdAt)}
                     </td>
                     <td className="py-3 px-4">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusColor(
-                          order.status
-                        )}`}
-                      >
-                        {order.status.replace(/_/g, ' ')}
-                      </span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusColor(
+                            order.status
+                          )}`}
+                        >
+                          {order.status.replace(/_/g, ' ')}
+                        </span>
+                        {(order.workerPlacementFee ?? 0) > 0 && (
+                          <span className="text-[10px] text-amber-400 font-semibold flex items-center gap-0.5">
+                            🏡 Home Placement
+                          </span>
+                        )}
+                      </div>
                     </td>
-                    <td className="py-3 px-4 font-extrabold text-amber-400">
-                      {formatPrice(order.grandTotal)}
+                    <td className="py-3 px-4">
+                      <p className="font-extrabold text-amber-400 font-mono">{formatPrice(order.grandTotal)}</p>
+                      <p className="text-[10px] text-slate-500">Freight: {formatPrice(order.deliveryFee)}</p>
                     </td>
                     <td className="py-3 px-4 text-right">
                       <Link

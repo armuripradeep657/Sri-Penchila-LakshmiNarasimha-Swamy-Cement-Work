@@ -13,6 +13,7 @@ import {
   AlertCircle,
   ArrowLeft,
   Lock,
+  Home,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -29,6 +30,7 @@ export default function CheckoutPage() {
 
   const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
   const [selectedZoneId, setSelectedZoneId] = useState<string>('');
+  const [workerPlacement, setWorkerPlacement] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'COD'>('ONLINE');
   const [address, setAddress] = useState({
     line1: '',
@@ -58,11 +60,14 @@ export default function CheckoutPage() {
           setSelectedZoneId(res.zones[0].id);
         }
       } catch (err) {
-        // Fallback default zones
+        // Fallback default distance & village auto rent zones
         const defaultZones: DeliveryZone[] = [
-          { id: 'zone_local', name: 'Local Velagatoor Mandal (0-10 km)', pincodes: ['505526'], fee: 0, isActive: true },
-          { id: 'zone_city', name: 'Jagtial District & Surrounds (10-30 km)', pincodes: ['505327'], fee: 150000, isActive: true },
-          { id: 'zone_dist', name: 'Karimnagar / Mancherial Border (30-60 km)', pincodes: ['505001'], fee: 350000, isActive: true },
+          { id: 'z_local', name: 'Local / Within Town (0 to 1.5 km)', pincodes: ['505526'], fee: 15000, isActive: true },
+          { id: 'z_3km', name: 'Up to 3 km (Velagatoor Outskirts / Gopalpur)', pincodes: ['505526'], fee: 25000, isActive: true },
+          { id: 'z_kishanraopet', name: 'Kishanraopet / Padkal (3.5 - 5 km)', pincodes: ['505526', '505527'], fee: 35000, isActive: true },
+          { id: 'z_cheggam', name: 'Cheggam / Saka / Pathagudoor (5 - 7 km)', pincodes: ['505526', '505528'], fee: 45000, isActive: true },
+          { id: 'z_dharmapuri', name: 'Dharmapuri Mandal (8 - 12 km)', pincodes: ['505425'], fee: 65000, isActive: true },
+          { id: 'z_jagtial', name: 'Jagtial Town / Surrounds (15 - 20 km)', pincodes: ['505327'], fee: 85000, isActive: true },
         ];
         setDeliveryZones(defaultZones);
         setSelectedZoneId(defaultZones[0].id);
@@ -72,9 +77,11 @@ export default function CheckoutPage() {
   }, []);
 
   const selectedZone = deliveryZones.find((z) => z.id === selectedZoneId);
-  const deliveryFee = selectedZone ? selectedZone.fee : 0;
+  const deliveryFee = selectedZone ? selectedZone.fee : 15000;
+  const totalCartItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+  const workerPlacementFee = workerPlacement ? totalCartItems * 4000 : 0; // ₹40 per item in paise
   const codFee = paymentMethod === 'COD' ? 15000 : 0; // ₹150 nominal COD processing fee
-  const grandTotal = cart.subtotal + deliveryFee + codFee;
+  const grandTotal = cart.subtotal + deliveryFee + codFee + workerPlacementFee;
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,7 +103,21 @@ export default function CheckoutPage() {
       const orderRes = await api.placeOrder({
         deliveryAddress: address,
         deliveryZoneId: selectedZoneId || undefined,
-        notes,
+        deliveryFee,
+        workerPlacementFee,
+        totalAmount: cart.subtotal,
+        quantity: totalCartItems,
+        items: cart.items.map((item) => ({
+          id: item.id,
+          quantity: item.quantity,
+          unitPrice: item.variant?.price || 0,
+          totalPrice: (item.variant?.price || 0) * item.quantity,
+          variant: item.variant,
+        })),
+        notes: [
+          workerPlacement ? `[Worker Home Placement Service: YES (+₹${(workerPlacementFee / 100).toFixed(0)})]` : '',
+          notes,
+        ].filter(Boolean).join(' '),
         paymentMethod,
       });
 
@@ -280,9 +301,43 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Section 3: Special Site Instructions */}
+          {/* Section 3: Worker Home Placement Service */}
+          <div className="rounded-2xl glass-panel border border-slate-800 p-6 space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <Home className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-bold text-white">3. Home / Doorstep Placement by Yard Workers</h2>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      ₹40 / item
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Have our factory workers carefully carry and stack all heavy cement items safely inside your house compound or near your home door.
+                  </p>
+                  <p className="text-xs text-amber-400 font-semibold mt-1">
+                    {totalCartItems} items × ₹40 = {formatPrice(totalCartItems * 4000)}
+                  </p>
+                </div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+                <input
+                  type="checkbox"
+                  checked={workerPlacement}
+                  onChange={(e) => setWorkerPlacement(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+              </label>
+            </div>
+          </div>
+
+          {/* Section 4: Special Site Instructions */}
           <div className="rounded-2xl glass-panel border border-slate-800 p-6 space-y-3">
-            <h2 className="text-sm font-bold text-white">3. Site Unloading & Gate Instructions (Optional)</h2>
+            <h2 className="text-sm font-bold text-white">4. Site Unloading & Gate Instructions (Optional)</h2>
             <textarea
               rows={2}
               value={notes}
@@ -387,11 +442,17 @@ export default function CheckoutPage() {
                 <span className="text-white font-medium">{formatPrice(cart.subtotal)}</span>
               </div>
               <div className="flex justify-between text-slate-400">
-                <span>Truck Delivery Fee</span>
+                <span>Truck Delivery ({selectedZone?.name?.split('(')[0]?.trim() || 'Distance'})</span>
                 <span className="text-amber-400 font-semibold">
-                  {deliveryFee === 0 ? 'FREE' : formatPrice(deliveryFee)}
+                  {formatPrice(deliveryFee)}
                 </span>
               </div>
+              {workerPlacement && (
+                <div className="flex justify-between text-amber-300 font-medium">
+                  <span>Worker Home Placement ({totalCartItems} items × ₹40)</span>
+                  <span className="font-mono font-bold">+{formatPrice(workerPlacementFee)}</span>
+                </div>
+              )}
               {paymentMethod === 'COD' && (
                 <div className="flex justify-between text-amber-300 font-medium">
                   <span>COD Processing Fee (Site Verification)</span>

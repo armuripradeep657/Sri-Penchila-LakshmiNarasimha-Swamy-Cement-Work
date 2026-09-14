@@ -20,11 +20,14 @@ import {
   QrCode,
   Banknote,
   Send,
+  Users,
+  Home,
 } from 'lucide-react';
 import { Product, ProductVariant } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { api } from '@/lib/api';
 import OfficialSeal from '@/components/invoice/OfficialSeal';
 
 interface CustomerBookingModalProps {
@@ -38,6 +41,7 @@ interface CustomerBookingModalProps {
     items: any[];
     totalAmount: number;
     deliveryFee: number;
+    workerPlacementFee?: number;
     grandTotal: number;
     deliveryAddress: any;
     paymentMethod: 'ONLINE' | 'COD';
@@ -69,19 +73,57 @@ export default function CustomerBookingModal({
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [deliveryError, setDeliveryError] = useState('');
 
+  // Distance & Village Auto Rent state
+  const [selectedZoneKey, setSelectedZoneKey] = useState<string>('local');
+  const [workerPlacement, setWorkerPlacement] = useState<boolean>(false);
+
   // Payment Form State
   const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'COD'>('ONLINE');
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
   const [txnId, setTxnId] = useState('');
 
+  // ─── Distance & Village Delivery Tiers ──────────────────────────────────────
+  const DELIVERY_TIERS: Record<string, { label: string; fee: number; desc: string }> = {
+    local: {
+      label: 'Local (Within Town 0 - 1.5 km)',
+      fee: 15000, // ₹150 in paisa
+      desc: 'Velagatoor town limits & immediate yard (₹150 flat)',
+    },
+    '3km': {
+      label: 'Up to 3 km (Velagatoor Outskirts / Gopalpur)',
+      fee: 25000, // ₹250 in paisa
+      desc: 'Up to 3 km yard auto delivery (₹250 flat)',
+    },
+    kishanraopet: {
+      label: 'Kishanraopet / Padkal (3.5 - 5 km)',
+      fee: 35000, // ₹350 in paisa
+      desc: 'Village Auto Rent (₹350)',
+    },
+    cheggam: {
+      label: 'Cheggam / Saka / Pathagudoor (5 - 7 km)',
+      fee: 45000, // ₹450 in paisa
+      desc: 'Village Auto Rent (₹450)',
+    },
+    dharmapuri: {
+      label: 'Dharmapuri Mandal (8 - 12 km)',
+      fee: 65000, // ₹650 in paisa
+      desc: 'Mandal Auto / Tractor Trolley Rent (₹650)',
+    },
+    jagtial: {
+      label: 'Jagtial Town / Commercial Sites (15 - 20 km)',
+      fee: 85000, // ₹850 in paisa
+      desc: 'Highway Auto / Mini Truck Freight (₹850)',
+    },
+  };
+
   // Pricing calculations
-  const unitPrice = selectedVariant?.price || 1000;
+  const unitPrice = selectedVariant?.price || 100000;
   const itemsTotal = unitPrice * quantity;
-  // Local delivery free within 505526, otherwise ₹1500 estimate
-  const deliveryFee = pincode.trim() === '505526' ? 0 : 150000;
-  const codFee = paymentMethod === 'COD' ? 15000 : 0; // ₹150 COD verification
-  const grandTotal = itemsTotal + deliveryFee + codFee;
+  const deliveryFee = DELIVERY_TIERS[selectedZoneKey]?.fee || 15000;
+  const workerPlacementFee = workerPlacement ? quantity * 4000 : 0; // ₹40 per item in paisa
+  const codFee = paymentMethod === 'COD' ? 15000 : 0; // ₹150 COD fee
+  const grandTotal = itemsTotal + deliveryFee + workerPlacementFee + codFee;
 
   useEffect(() => {
     if (user) {
@@ -125,13 +167,59 @@ export default function CustomerBookingModal({
   const handleCompletePayment = async () => {
     setIsProcessing(true);
 
-    const generatedOrderNum = `ORD-${Date.now().toString().slice(-6)}`;
+    const generatedOrderNum = `PCP-${Math.floor(10000 + Math.random() * 90000)}`;
     const generatedTxn = `TXN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
     setOrderNumber(generatedOrderNum);
     setTxnId(generatedTxn);
 
+    // Save order into system store so Admin Orders & Dashboard reflect it instantly
+    try {
+      await api.placeOrder({
+        orderNumber: generatedOrderNum,
+        totalAmount: itemsTotal,
+        deliveryFee,
+        workerPlacementFee,
+        workerPlacement,
+        quantity,
+        productName: product.name,
+        paymentMethod,
+        deliveryAddress: {
+          fullName,
+          phone,
+          line1: addressLine,
+          line2: landmark ? `Near ${landmark}` : undefined,
+          city: `${city} (${DELIVERY_TIERS[selectedZoneKey]?.label?.split('(')[0] || 'Local'})`,
+          state: 'Telangana',
+          pincode,
+        },
+        items: [
+          {
+            id: `item_${Date.now()}`,
+            quantity,
+            unitPrice,
+            totalPrice: itemsTotal,
+            variant: {
+              id: selectedVariant?.id || 'v_default',
+              name: selectedVariant?.name || 'Standard Specification',
+              width: selectedVariant?.width || null,
+              height: selectedVariant?.height || null,
+              dimensionUnit: selectedVariant?.dimensionUnit || 'ft',
+              product: { name: product.name },
+            },
+          },
+        ],
+        notes: [
+          `Distance Tier: ${DELIVERY_TIERS[selectedZoneKey]?.label}`,
+          workerPlacement ? `Worker Home Placement: ₹${workerPlacementFee / 100} (${quantity} items × ₹40)` : '',
+          deliveryNotes || '',
+        ].filter(Boolean).join(' | '),
+      });
+    } catch (err) {
+      console.warn('Booking persist notice:', err);
+    }
+
     // Simulated high-security gateway processing
-    await new Promise((r) => setTimeout(r, 1600));
+    await new Promise((r) => setTimeout(r, 1200));
 
     setIsProcessing(false);
     setStep(3);
@@ -158,14 +246,14 @@ export default function CustomerBookingModal({
           angle: 120,
           spread: 55,
           origin: { x: 1 },
-          colors: ['#0024d6', '#3b82f6', '#ffffff'],
+          colors: ['#0024d6', '#10b981', '#f59e0b'],
         });
-      }, 350);
-    } catch {}
+      }, 300);
+    } catch (e) {}
   };
 
   const getInvoiceData = () => ({
-    orderNumber: orderNumber || `ORD-${Date.now().toString().slice(-6)}`,
+    orderNumber,
     items: [
       {
         name: product.name,
@@ -180,11 +268,14 @@ export default function CustomerBookingModal({
     ],
     totalAmount: itemsTotal,
     deliveryFee,
+    workerPlacementFee,
     grandTotal,
     deliveryAddress: {
+      fullName,
+      phone,
       line1: addressLine,
       line2: landmark ? `Near ${landmark}` : undefined,
-      city,
+      city: `${city} (${DELIVERY_TIERS[selectedZoneKey]?.label?.split('(')[0] || 'Local'})`,
       state: 'Telangana',
       pincode,
     },
@@ -216,7 +307,7 @@ export default function CustomerBookingModal({
               {step === 3 && 'STEP 3 OF 3 • BOOKING CONFIRMED'}
             </span>
             <h2 className="text-xl sm:text-2xl font-black leading-tight">
-              {step === 1 && (language === 'te' ? 'డెలివరీ & అన్‌లోడింగ్ వివరాలు' : 'Delivery & Site Details')}
+              {step === 1 && (language === 'te' ? 'డెలివరీ & అన్‌లోడింగ్ వివరాలు' : 'Delivery & Distance Details')}
               {step === 2 && (language === 'te' ? 'చెల్లింపు & బుకింగ్' : 'Payment & Order Allocation')}
               {step === 3 && (language === 'te' ? 'ఆర్డర్ విజయవంతంగా పూర్తయింది!' : 'Allotment Confirmed!')}
             </h2>
@@ -231,7 +322,7 @@ export default function CustomerBookingModal({
           </button>
         </div>
 
-        {/* ─── STEP 1: DELIVERY DETAILS ─── */}
+        {/* ─── STEP 1: DELIVERY & DISTANCE DETAILS ─── */}
         {step === 1 && (
           <form onSubmit={handleProceedToPayment} className="p-6 sm:p-8 space-y-4">
             {/* Selected Item Mini-Banner */}
@@ -354,6 +445,70 @@ export default function CustomerBookingModal({
               </div>
             </div>
 
+            {/* ─── Distance & Village Delivery Selection ─── */}
+            <div className="space-y-2 p-3.5 rounded-2xl bg-slate-950/80 border border-amber-500/30">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Truck className="w-4 h-4 text-amber-400" />
+                  <span>Delivery Distance & Village Auto Rent *</span>
+                </label>
+                <span className="font-mono text-xs font-black text-amber-400">
+                  {formatPrice(deliveryFee)}
+                </span>
+              </div>
+
+              <select
+                value={selectedZoneKey}
+                onChange={(e) => setSelectedZoneKey(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-medium focus:outline-none focus:border-amber-500 cursor-pointer"
+              >
+                <option value="local">Local (Within Town 0 to 1.5 km - Velagatoor) — ₹150</option>
+                <option value="3km">Up to 3 km (Velagatoor Outskirts / Gopalpur) — ₹250</option>
+                <option value="kishanraopet">Kishanraopet / Padkal Village (3.5 - 5 km) — ₹350 (Auto Rent)</option>
+                <option value="cheggam">Cheggam / Saka Village (5 - 7 km) — ₹450 (Auto Rent)</option>
+                <option value="dharmapuri">Dharmapuri Mandal (8 - 12 km) — ₹650 (Auto Rent)</option>
+                <option value="jagtial">Jagtial Town / Commercial Sites (15 - 20 km) — ₹850 (Truck Freight)</option>
+              </select>
+              <p className="text-[10px] text-slate-400">
+                {DELIVERY_TIERS[selectedZoneKey]?.desc || 'Yard auto rent based on distance'}
+              </p>
+            </div>
+
+            {/* ─── Worker Home Placement Option (+₹40 per item) ─── */}
+            <div
+              onClick={() => setWorkerPlacement(!workerPlacement)}
+              className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                workerPlacement
+                  ? 'bg-amber-500/15 border-amber-400 shadow-md shadow-amber-500/10'
+                  : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="workerPlacement"
+                  checked={workerPlacement}
+                  onChange={(e) => setWorkerPlacement(e.target.checked)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="mt-0.5 w-4 h-4 rounded text-amber-500 focus:ring-amber-400 cursor-pointer"
+                />
+                <div className="flex-1 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-white flex items-center gap-1.5">
+                      <Home className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Deliver to Home / Yard Workers Placement</span>
+                    </span>
+                    <span className="font-mono font-bold text-amber-400 text-xs">
+                      {workerPlacement ? `+${formatPrice(workerPlacementFee)}` : '+₹40/item'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                    Factory workers will physically lift, carry, and place precast items safely near your home or site (Total: {quantity} items × ₹40 = <strong>₹{quantity * 40}</strong>).
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Site Crane Access Checkbox */}
             <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-950/60 border border-slate-800">
               <input
@@ -361,10 +516,10 @@ export default function CustomerBookingModal({
                 id="craneAccess"
                 checked={craneAccess}
                 onChange={(e) => setCraneAccess(e.target.checked)}
-                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400"
+                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 cursor-pointer"
               />
               <label htmlFor="craneAccess" className="text-xs text-slate-300 cursor-pointer">
-                Site has road access for hydraulic unloading truck / crane
+                Site has road clearance for hydraulic auto trolley / truck delivery
               </label>
             </div>
 
@@ -393,6 +548,14 @@ export default function CustomerBookingModal({
                 <p className="text-slate-300">
                   {addressLine}, {city} - {pincode}
                 </p>
+                <p className="text-[11px] text-amber-400 font-medium">
+                  Zone: {DELIVERY_TIERS[selectedZoneKey]?.label}
+                </p>
+                {workerPlacement && (
+                  <p className="text-[11px] text-emerald-400 font-medium">
+                    ✓ Worker home placement included (+₹{workerPlacementFee / 100})
+                  </p>
+                )}
                 <p className="text-[11px] text-slate-400">
                   Contact: {fullName} ({phone})
                 </p>
@@ -414,11 +577,17 @@ export default function CustomerBookingModal({
                 <span className="font-mono font-bold text-white">{formatPrice(itemsTotal)}</span>
               </div>
               <div className="flex justify-between text-slate-300">
-                <span>Transport & Unloading ({pincode === '505526' ? 'Local Velagatoor' : 'District Delivery'}):</span>
+                <span>Distance Auto Delivery ({DELIVERY_TIERS[selectedZoneKey]?.label?.split('(')[0]?.trim()}):</span>
                 <span className="font-mono font-bold text-emerald-400">
-                  {deliveryFee === 0 ? 'FREE (Local)' : formatPrice(deliveryFee)}
+                  {formatPrice(deliveryFee)}
                 </span>
               </div>
+              {workerPlacement && (
+                <div className="flex justify-between text-amber-300">
+                  <span>Worker Home Placement ({quantity} items × ₹40):</span>
+                  <span className="font-mono font-bold">{formatPrice(workerPlacementFee)}</span>
+                </div>
+              )}
               {paymentMethod === 'COD' && (
                 <div className="flex justify-between text-amber-400">
                   <span>COD Processing Fee:</span>
@@ -448,18 +617,14 @@ export default function CustomerBookingModal({
                       : 'bg-slate-950 border-slate-800 hover:border-slate-700'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-white flex items-center gap-2">
-                      <QrCode className="w-4 h-4 text-amber-400" />
-                      <span>Instant UPI / Card</span>
-                    </span>
-                    {paymentMethod === 'ONLINE' && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                    )}
+                  <div className="flex items-center gap-2 mb-1">
+                    <QrCode className="w-4 h-4 text-amber-400" />
+                    <span className="font-bold text-white text-xs">Instant UPI / QR / Card</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    Google Pay, PhonePe, Paytm, Cards
-                  </p>
+                  <p className="text-[10px] text-slate-400">PhonePe, Google Pay, Paytm, NetBanking</p>
+                  <span className="inline-block mt-2 text-[9px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    ★ Zero Surcharge
+                  </span>
                 </button>
 
                 {/* Cash on Delivery */}
@@ -472,137 +637,163 @@ export default function CustomerBookingModal({
                       : 'bg-slate-950 border-slate-800 hover:border-slate-700'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-white flex items-center gap-2">
-                      <Banknote className="w-4 h-4 text-emerald-400" />
-                      <span>Pay on Delivery</span>
-                    </span>
-                    {paymentMethod === 'COD' && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                    )}
+                  <div className="flex items-center gap-2 mb-1">
+                    <Banknote className="w-4 h-4 text-emerald-400" />
+                    <span className="font-bold text-white text-xs">Cash on Delivery (COD)</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    Verify material at site & pay cash
-                  </p>
+                  <p className="text-[10px] text-slate-400">Pay cash directly when truck arrives at your site</p>
+                  <span className="inline-block mt-2 text-[9px] font-medium text-amber-400">
+                    +₹150 verification fee
+                  </span>
                 </button>
               </div>
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex items-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="py-3 px-4 rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-300 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Back</span>
-              </button>
-
+            {/* Action Buttons */}
+            <div className="space-y-2 pt-2">
               <button
                 type="button"
                 disabled={isProcessing}
                 onClick={handleCompletePayment}
-                className="flex-1 py-3.5 px-6 rounded-2xl font-black text-sm text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 transition-all shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                className="w-full py-4 px-6 rounded-2xl font-black text-sm text-slate-950 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 transition-all shadow-xl shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isProcessing ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
-                    <span>Allocating Material & Authorizing...</span>
+                    <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                    <span>Allocating Factory Stock & Reserving Slot...</span>
                   </>
                 ) : (
                   <>
+                    <Sparkles className="w-4 h-4 fill-slate-950" />
                     <span>
-                      {paymentMethod === 'ONLINE'
-                        ? `Pay ${formatPrice(grandTotal)} & Confirm Allotment`
-                        : `Confirm Site Booking (${formatPrice(grandTotal)})`}
+                      {paymentMethod === 'COD'
+                        ? `Confirm Cash on Delivery Booking (${formatPrice(grandTotal)})`
+                        : `Pay & Reserve Precast Stock Now (${formatPrice(grandTotal)})`}
                     </span>
-                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="w-full py-2 text-center text-xs text-slate-400 hover:text-white"
+              >
+                ← Back to Delivery Details
               </button>
             </div>
           </div>
         )}
 
-        {/* ─── STEP 3: CELEBRATION ANIMATION & DIRECT INVOICE ACTIONS ─── */}
+        {/* ─── STEP 3: CELEBRATION & INVOICE DOWNLOAD ─── */}
         {step === 3 && (
-          <div className="p-6 sm:p-8 space-y-6 text-center animate-in zoom-in-95 duration-300">
-            {/* High-Tech Animated Glowing Checkmark with Concentric Waves */}
-            <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full bg-emerald-500/20 animate-ping opacity-50" />
-              <div className="absolute inset-2 rounded-full border-2 border-emerald-400/40 animate-pulse" />
-              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-2xl shadow-emerald-500/50 flex items-center justify-center">
-                <CheckCircle2 className="w-10 h-10 text-slate-950" />
-              </div>
+          <div className="p-6 sm:p-8 space-y-6 text-center animate-in zoom-in-95 duration-200">
+            {/* Glowing Allotment Seal */}
+            <div className="relative mx-auto w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-2xl shadow-emerald-500/40 animate-pulse">
+              <CheckCircle2 className="w-12 h-12 text-slate-950" />
             </div>
 
-            {/* Official Confirmation Notice */}
-            <div className="space-y-1.5">
-              <span className="inline-block px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                ★ 100% QUALITY VERIFIED & RESERVED ★
+            {/* Official Confirmation Badge */}
+            <div className="space-y-1">
+              <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                ★ OFFICIAL PRECAST ALLOTMENT RESERVED ★
               </span>
-              <h3 className="text-2xl font-black text-white">
-                {language === 'te' ? 'బుకింగ్ విజయవంతమైంది!' : 'Booking Allotment Successful!'}
+              <h3 className="text-2xl sm:text-3xl font-black text-white">
+                Precast Units Booked Successfully!
               </h3>
-              <p className="text-xs text-slate-400">
-                Official Order Reference: <strong className="font-mono text-amber-400">{orderNumber}</strong>
-                {txnId && <> • Txn: <span className="font-mono text-slate-300">{txnId}</span></>}
+              <p className="text-xs text-slate-400 font-mono">
+                Order Allotment No: <strong className="text-amber-400">{orderNumber}</strong>
               </p>
             </div>
 
-            {/* Official Seal Badge Preview */}
-            <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-center gap-4">
-              <OfficialSeal size={65} rotation={-2} className="shrink-0" />
-              <div className="text-left text-xs">
-                <p className="font-bold text-white uppercase text-[11px]">
-                  Sri Lakshmi Penchila Narasimha Swamy
-                </p>
-                <p className="text-[10px] text-amber-400 font-semibold">
-                  Official Precast Manufacturing Seal Affixed
-                </p>
-                <p className="text-[10px] text-slate-400">
-                  Velagatoor Factory Yard, Telangana
-                </p>
+            {/* Quality and Dispatch Timeline */}
+            <div className="space-y-2 bg-slate-950/80 p-4 rounded-2xl border border-slate-800 text-xs text-left">
+              <div className="flex items-center gap-3 text-emerald-400">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>Velagatoor Yard Stock Allocated: {quantity} {product.unitOfSale}s of {product.name}</span>
+              </div>
+              <div className="flex items-center gap-3 text-emerald-400">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>53-Grade OPC Concrete Quality Inspected & Cured</span>
+              </div>
+              <div className="flex items-center gap-3 text-emerald-400">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>Delivery: {DELIVERY_TIERS[selectedZoneKey]?.label} ({formatPrice(deliveryFee)})</span>
+              </div>
+              {workerPlacement && (
+                <div className="flex items-center gap-3 text-emerald-400">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Yard Workers Home Placement Confirmed ({quantity} items × ₹40 = ₹{quantity * 40})</span>
+                </div>
+              )}
+              <div className="flex items-center gap-3 text-amber-400">
+                <Clock className="w-4 h-4 shrink-0 animate-pulse" />
+                <span>Auto / Truck Delivery Dispatched to: {addressLine}, {city}</span>
               </div>
             </div>
 
-            {/* Primary Action Buttons: View & Download Invoice */}
-            <div className="space-y-3 pt-1">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* View Invoice */}
-                <button
-                  type="button"
-                  onClick={handleOpenInvoice}
-                  className="py-3 px-4 rounded-2xl font-black text-xs text-slate-950 bg-amber-400 hover:bg-amber-300 transition-all shadow-md shadow-amber-400/20 flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>View Official Tax Invoice</span>
-                </button>
-
-                {/* Download Invoice PDF */}
-                <button
-                  type="button"
-                  onClick={handleDownloadInvoice}
-                  className="py-3 px-4 rounded-2xl font-black text-xs text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Download className="w-4 h-4 text-emerald-400" />
-                  <span>Download Invoice (PDF)</span>
-                </button>
+            {/* Order Summary Box */}
+            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2 text-xs text-left">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Recipient:</span>
+                <span className="text-white font-bold">{fullName} ({phone})</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Delivery Address:</span>
+                <span className="text-white font-medium truncate max-w-[200px]">{addressLine}, {city}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Payment Mode:</span>
+                <span className="text-emerald-400 font-bold">{paymentMethod === 'COD' ? 'Cash on Delivery' : 'Instant UPI / Online'}</span>
+              </div>
+              <div className="pt-2 border-t border-slate-700 flex justify-between text-sm">
+                <span className="text-slate-300 font-bold">Total Payable:</span>
+                <span className="text-amber-400 font-black">{formatPrice(grandTotal)}</span>
+              </div>
+            </div>
 
-              {/* WhatsApp Confirmation */}
+            {/* ─── INVOICE ACTIONS WITH OFFICIAL SEAL ─── */}
+            <div className="space-y-2.5 pt-2">
+              {/* View Official Tax Invoice */}
+              <button
+                type="button"
+                onClick={handleOpenInvoice}
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-extrabold text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 border-2 border-amber-500/50 hover:border-amber-400 transition-all shadow-lg cursor-pointer"
+              >
+                <FileText className="w-4 h-4 text-amber-400" />
+                <span>View Official Tax Invoice (With Blue Rubber Stamp Seal)</span>
+              </button>
+
+              {/* Download Invoice PDF */}
+              <button
+                type="button"
+                onClick={handleDownloadInvoice}
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-xs bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 transition-all cursor-pointer"
+              >
+                <Download className="w-4 h-4 text-slate-300" />
+                <span>Download / Print Official Tax Invoice (PDF)</span>
+              </button>
+
+              {/* Confirm on WhatsApp */}
               <a
                 href={`https://wa.me/918919526315?text=${encodeURIComponent(
-                  `Hello Sri Lakshmi Penchila Narasimha Swamy Cement Work (PRASAD CEMENT WORK)!\nI have booked ${quantity} ${product.name} (Order #${orderNumber}).\nUnloading site: ${addressLine}, ${city} - ${pincode}.\nPlease confirm dispatch timeline.`
+                  `Namaskaram Sri Lakshmi Penchila Narasimha Swamy Cement Work (PRASAD CEMENT WORK)! I just completed booking order #${orderNumber} for ${quantity} units of "${product.name}". Delivery location: ${addressLine}, ${city}. Please confirm dispatch schedule.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 px-4 rounded-2xl font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 transition-all flex items-center justify-center gap-2 shadow-sm"
+                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-2xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all"
               >
-                <Phone className="w-3.5 h-3.5" />
-                <span>Confirm on WhatsApp with Owner Prasad (8919526315)</span>
+                <Send className="w-4 h-4" />
+                <span>Confirm Delivery on WhatsApp (8919526315)</span>
               </a>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-2.5 text-center text-xs text-slate-400 hover:text-white"
+              >
+                Close & Browse More Precast Materials
+              </button>
             </div>
           </div>
         )}
