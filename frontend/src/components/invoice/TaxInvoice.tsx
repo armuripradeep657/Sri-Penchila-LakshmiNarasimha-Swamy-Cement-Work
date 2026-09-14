@@ -106,12 +106,22 @@ export default function TaxInvoice({
       id="tax-invoice"
       className="relative overflow-hidden bg-white text-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-300 max-w-3xl mx-auto font-sans leading-relaxed select-text"
     >
-      {/* ─── Circular Center Watermark Stamp for Screen & Print ─── */}
+      {/* ─── Circular Company Logo Watermark in Background ─── */}
       <div
         aria-hidden="true"
         className="pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 flex flex-col items-center justify-center text-center"
       >
-        <OfficialSeal size={380} watermark={true} />
+        <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full p-2.5 border-4 border-amber-500/15 flex items-center justify-center shadow-inner">
+          <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-slate-200/50 opacity-[0.08] filter contrast-125">
+            <Image
+              src="/images/logo.png"
+              alt="Sri Lakshmi Penchila Narasimha Swamy"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+        </div>
       </div>
 
       {/* ─── Top Control Bar (Hidden on print) ─── */}

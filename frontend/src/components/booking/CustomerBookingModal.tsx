@@ -33,7 +33,6 @@ import { formatPrice } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
-import OfficialSeal from '@/components/invoice/OfficialSeal';
 
 interface CustomerBookingModalProps {
   isOpen: boolean;
@@ -1034,7 +1033,7 @@ export default function CustomerBookingModal({
                 className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-extrabold text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 border-2 border-amber-500/50 hover:border-amber-400 transition-all shadow-lg cursor-pointer"
               >
                 <FileText className="w-4 h-4 text-amber-400" />
-                <span>View Official Tax Invoice (With Blue Rubber Stamp Seal)</span>
+                <span>View Official Tax Invoice (With Authorised Seal)</span>
               </button>
 
               {/* Download Invoice PDF */}
