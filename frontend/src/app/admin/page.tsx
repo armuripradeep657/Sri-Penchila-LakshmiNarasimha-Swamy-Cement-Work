@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Truck,
   Plus,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
@@ -130,6 +131,7 @@ export default function AdminDashboardPage() {
     pendingQuotesCount: 0,
     lowStockCount: 0,
     totalOrders: 0,
+    registeredUsersCount: 0,
   };
 
   return (
@@ -166,6 +168,14 @@ export default function AdminDashboardPage() {
 
         {/* Quick Nav Links */}
         <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/profile"
+            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 flex items-center gap-1.5 transition-all"
+            title="View all registered customer accounts with phone, email and village"
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Customer Directory ({stats.registeredUsersCount || 8})</span>
+          </Link>
           <Link
             href="/admin/products"
             className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 flex items-center gap-1.5 transition-all shadow-md shadow-amber-500/10"

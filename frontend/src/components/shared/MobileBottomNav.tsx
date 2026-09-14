@@ -8,7 +8,7 @@ import {
   Layers,
   ShoppingBag,
   Clock,
-  Phone,
+  User as UserIcon,
   Crown,
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
@@ -26,6 +26,7 @@ export default function MobileBottomNav() {
   const isCart = pathname === '/cart';
   const isOrders = pathname.startsWith('/orders') || pathname === '/quote';
   const isAdminPage = pathname.startsWith('/admin');
+  const isProfile = pathname.startsWith('/profile');
 
   return (
     <nav
@@ -139,19 +140,25 @@ export default function MobileBottomNav() {
           </Link>
         )}
 
-        {/* 5. Speed Dial Call */}
-        <a
-          href="tel:+919912179771"
-          className="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-emerald-400 hover:text-emerald-300 transition-all"
-          title="Direct Call to Prasad (+91 99121 79771)"
+        {/* 5. Profile / Account */}
+        <Link
+          href="/profile"
+          className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all ${
+            isProfile
+              ? 'text-amber-400 font-bold'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
         >
-          <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shadow-sm active:scale-95 transition-transform">
-            <Phone className="w-4 h-4 text-emerald-400" />
+          <div className="relative flex items-center justify-center">
+            <UserIcon className={`w-5 h-5 transition-transform ${isProfile ? 'scale-110' : ''}`} />
+            {isProfile && (
+              <span className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-amber-400" />
+            )}
           </div>
-          <span className="text-[10px] font-bold tracking-tight mt-0.5 leading-none text-emerald-300">
-            {language === 'te' ? 'కాల్' : 'Call'}
+          <span className="text-[10px] tracking-tight mt-1 leading-none">
+            {language === 'te' ? 'ప్రొఫైల్' : 'Profile'}
           </span>
-        </a>
+        </Link>
       </div>
     </nav>
   );

@@ -16,6 +16,7 @@ import {
   Building,
   LogIn,
   CheckCircle2,
+  MapPin,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -31,6 +32,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [village, setVillage] = useState('Velagatoor');
   const [firmName, setFirmName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,6 +87,7 @@ export default function RegisterPage() {
         password,
         name: name.trim(),
         email: email.trim() || undefined,
+        village: village.trim() || 'Velagatoor',
         firmName: firmName.trim() || undefined,
       });
       router.push('/');
@@ -227,6 +230,27 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="yourname@gmail.com"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+
+            {/* Village / Town (Required for Delivery & Owner Directory) */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                  {language === 'te' ? 'గ్రామం / మండలం' : 'Village / Town / Mandal'} *
+                </span>
+                <span className="text-[10px] text-amber-400 font-semibold">
+                  {language === 'te' ? 'డెలివరీ కోసం' : 'Site Delivery'}
+                </span>
+              </label>
+              <input
+                type="text"
+                required
+                value={village}
+                onChange={(e) => setVillage(e.target.value)}
+                placeholder={language === 'te' ? 'ఉదా: వెలగటూర్, కిషన్‌రావుపేట్, చెగ్గం, ధర్మపురి' : 'e.g. Velagatoor, Kishanraopet, Cheggam, Dharmapuri'}
                 className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500"
               />
             </div>

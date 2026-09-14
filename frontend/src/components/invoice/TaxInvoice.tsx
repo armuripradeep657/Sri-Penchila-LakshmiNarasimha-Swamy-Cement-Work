@@ -104,15 +104,52 @@ export default function TaxInvoice({
     <div
       ref={invoiceRef}
       id="tax-invoice"
-      className="relative overflow-hidden bg-white text-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-10 shadow-2xl border border-slate-300 max-w-3xl mx-auto font-sans leading-relaxed select-text"
+      className="relative overflow-hidden bg-white text-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-6 md:p-8 shadow-2xl border border-slate-300 w-full max-w-3xl mx-auto font-sans text-xs leading-normal select-text print:p-3 print:rounded-none print:shadow-none print:border print:border-slate-800"
     >
+      <style jsx global>{`
+        @page {
+          size: A4 portrait;
+          margin: 6mm 8mm;
+        }
+        @media print {
+          html, body {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+          #tax-invoice {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 4mm 6mm !important;
+            border: 1.5px solid #0f172a !important;
+            border-radius: 4px !important;
+            box-shadow: none !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            font-size: 10px !important;
+            line-height: 1.25 !important;
+          }
+          #tax-invoice * {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+        }
+      `}</style>
+
       {/* ─── Circular Company Logo Watermark in Background ─── */}
       <div
         aria-hidden="true"
         className="pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 flex flex-col items-center justify-center text-center"
       >
-        <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full p-2.5 border-4 border-amber-500/15 flex items-center justify-center shadow-inner">
-          <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-slate-200/50 opacity-[0.08] filter contrast-125">
+        <div className="relative w-48 h-48 sm:w-72 sm:h-72 rounded-full p-2 border-4 border-amber-500/15 flex items-center justify-center shadow-inner">
+          <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-slate-200/50 opacity-[0.07] filter contrast-125">
             <Image
               src="/images/logo.png"
               alt="Sri Lakshmi Penchila Narasimha Swamy"
@@ -125,7 +162,7 @@ export default function TaxInvoice({
       </div>
 
       {/* ─── Top Control Bar (Hidden on print) ─── */}
-      <div className="relative z-10 no-print flex flex-wrap items-center justify-between gap-3 pb-4 sm:pb-6 mb-6 border-b border-slate-200">
+      <div className="relative z-10 no-print flex flex-wrap items-center justify-between gap-2.5 pb-3 sm:pb-4 mb-4 border-b border-slate-200">
         <div className="flex items-center gap-2">
           <span
             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${
@@ -169,9 +206,9 @@ export default function TaxInvoice({
       </div>
 
       {/* ─── Company Header & Logo ─── */}
-      <div className="flex flex-col sm:flex-row items-start justify-between gap-6 pb-6 border-b-2 border-slate-800">
-        <div className="flex items-start gap-4">
-          <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-amber-500/40 bg-slate-900 shrink-0 shadow-md">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-4 pb-3.5 print:pb-2 border-b-2 border-slate-800">
+        <div className="flex items-start gap-3">
+          <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border border-amber-500/40 bg-slate-900 shrink-0 shadow-md">
             <Image
               src="/images/logo.png"
               alt="Sri Lakshmi Penchila Narasimha Swamy Cement Work (PRASAD CEMENT WORK)"
@@ -180,35 +217,35 @@ export default function TaxInvoice({
             />
           </div>
           <div>
-            <span className="text-[11px] font-black uppercase tracking-widest text-amber-600">
+            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-amber-600">
               PRASAD CEMENT WORK
             </span>
-            <h1 className="text-lg sm:text-xl font-black text-slate-900 leading-tight">
+            <h1 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
               Sri Lakshmi Penchila Narasimha Swamy Cement Work
             </h1>
-            <p className="text-xs text-slate-600 mt-1">
+            <p className="text-[11px] text-slate-600 mt-0.5">
               Reinforced Precast Concrete Products, Windows, Darwajas, Bricks & Gagulu
             </p>
-            <p className="text-[11px] text-slate-500 mt-0.5">
+            <p className="text-[10px] text-slate-500 mt-0.5">
               Opp. Sudha Hospital, Jagtial - Velgatoor Road, Velagatoor, Dist. Jagtial, Telangana - 505526
             </p>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[10px] text-slate-500">
               Phone: +91 89195 26315 / +91 99121 79771 • Email: prasadcementproducts@gmail.com
             </p>
-            <p className="text-[11px] font-bold text-slate-700 mt-0.5">
+            <p className="text-[10px] font-bold text-slate-700 mt-0.5">
               GSTIN: 36AABCP1924L1Z8 • State: 36 (Telangana)
             </p>
           </div>
         </div>
 
-        <div className="text-right sm:min-w-[200px] bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+        <div className="text-left sm:text-right w-full sm:w-auto sm:min-w-[190px] bg-slate-50 p-2.5 sm:p-3 rounded-xl border border-slate-200">
+          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
             Tax Invoice / Receipt
           </span>
-          <p className="font-mono text-base font-extrabold text-slate-900 mt-0.5">
+          <p className="font-mono text-sm sm:text-base font-extrabold text-slate-900 mt-0.5">
             {invoiceNumber}
           </p>
-          <div className="mt-2 text-xs text-slate-600 space-y-0.5">
+          <div className="mt-1.5 text-[11px] text-slate-600 space-y-0.5">
             <p>
               <strong>Date:</strong> {formatDate(typeof date === 'string' ? date : date.toISOString())}
             </p>
@@ -217,7 +254,7 @@ export default function TaxInvoice({
               <span className="font-mono font-bold text-amber-700">{orderNumber}</span>
             </p>
             {paymentId && (
-              <p className="text-[10px] font-mono text-slate-500 truncate">
+              <p className="text-[9px] font-mono text-slate-500 truncate">
                 <strong>Txn ID:</strong> {paymentId}
               </p>
             )}
@@ -226,22 +263,22 @@ export default function TaxInvoice({
       </div>
 
       {/* ─── Bill To & Delivery Site Details ─── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 py-6 border-b border-slate-200 text-xs">
-        <div className="space-y-1">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 py-3 print:py-2 border-b border-slate-200 text-xs">
+        <div className="space-y-0.5">
+          <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
             Bill To / Client Details:
           </span>
-          <p className="font-bold text-sm text-slate-900">{customerName}</p>
-          <p className="text-slate-600">Contact: {customerPhone}</p>
-          <p className="text-slate-600">Type: Verified Precast Direct Buyer</p>
+          <p className="font-bold text-xs sm:text-sm text-slate-900">{customerName}</p>
+          <p className="text-slate-600 text-[11px]">Contact: {customerPhone}</p>
+          <p className="text-slate-500 text-[10px]">Type: Verified Precast Direct Buyer</p>
         </div>
 
-        <div className="space-y-1 sm:text-right">
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+        <div className="space-y-0.5 sm:text-right">
+          <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
             Delivery Site / Unloading Point:
           </span>
           {customerAddress ? (
-            <div className="text-slate-800">
+            <div className="text-slate-800 text-[11px]">
               <p className="font-semibold">{customerAddress.line1}</p>
               {customerAddress.line2 && <p>{customerAddress.line2}</p>}
               <p>
@@ -250,45 +287,45 @@ export default function TaxInvoice({
               </p>
             </div>
           ) : (
-            <p className="text-slate-600 italic">Factory Yard Direct Pickup (Velagatoor, Jagtial)</p>
+            <p className="text-slate-600 italic text-[11px]">Factory Yard Direct Pickup (Velagatoor, Jagtial)</p>
           )}
         </div>
       </div>
 
       {/* ─── Itemized Products Table ─── */}
-      <div className="py-6 overflow-x-auto">
-        <table className="w-full min-w-[520px] text-left text-xs border-collapse">
+      <div className="py-2.5 print:py-1.5 overflow-x-auto">
+        <table className="w-full text-left text-[11px] sm:text-xs border-collapse">
           <thead>
             <tr className="border-b-2 border-slate-800 bg-slate-100 text-slate-700 font-extrabold">
-              <th className="py-3 px-3 text-center w-12">#</th>
-              <th className="py-3 px-3">Item Description & Specifications</th>
-              <th className="py-3 px-3 text-center">HSN</th>
-              <th className="py-3 px-3 text-center">Qty</th>
-              <th className="py-3 px-3 text-right">Unit Rate (₹)</th>
-              <th className="py-3 px-3 text-right">Total (₹)</th>
+              <th className="py-2 px-2 text-center w-8 print:py-1">#</th>
+              <th className="py-2 px-2 print:py-1">Item Description & Specifications</th>
+              <th className="py-2 px-2 text-center print:py-1">HSN</th>
+              <th className="py-2 px-2 text-center print:py-1">Qty</th>
+              <th className="py-2 px-2 text-right print:py-1">Unit Rate (₹)</th>
+              <th className="py-2 px-2 text-right print:py-1">Total (₹)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
             {items.map((item, idx) => (
               <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                <td className="py-3.5 px-3 text-center font-bold text-slate-500">{idx + 1}</td>
-                <td className="py-3.5 px-3">
+                <td className="py-2 px-2 text-center font-bold text-slate-500 print:py-1">{idx + 1}</td>
+                <td className="py-2 px-2 print:py-1">
                   <p className="font-bold text-slate-900">{item.name}</p>
-                  <p className="text-[11px] text-slate-600 font-medium">
+                  <p className="text-[10px] text-slate-600 font-medium">
                     {item.variantName || 'Standard'} {item.dimensions ? `• ${item.dimensions}` : ''}
                   </p>
-                  <p className="text-[10px] text-slate-500">
+                  <p className="text-[9px] text-slate-500">
                     53-Grade OPC Concrete • TMT Reinforced • Steam Cured
                   </p>
                 </td>
-                <td className="py-3.5 px-3 text-center font-mono text-slate-600">6810</td>
-                <td className="py-3.5 px-3 text-center font-bold font-mono text-slate-900">
+                <td className="py-2 px-2 text-center font-mono text-slate-600 print:py-1">6810</td>
+                <td className="py-2 px-2 text-center font-bold font-mono text-slate-900 print:py-1">
                   {item.quantity}
                 </td>
-                <td className="py-3.5 px-3 text-right font-mono text-slate-700">
+                <td className="py-2 px-2 text-right font-mono text-slate-700 print:py-1">
                   {formatPrice(item.unitPrice)}
                 </td>
-                <td className="py-3.5 px-3 text-right font-mono font-bold text-slate-900">
+                <td className="py-2 px-2 text-right font-mono font-bold text-slate-900 print:py-1">
                   {formatPrice(item.totalPrice)}
                 </td>
               </tr>
@@ -298,18 +335,18 @@ export default function TaxInvoice({
       </div>
 
       {/* ─── Financial Calculation & Tax Summary ─── */}
-      <div className="border-t-2 border-slate-800 pt-4 grid grid-cols-1 sm:grid-cols-12 gap-6 text-xs">
-        <div className="sm:col-span-7 space-y-3">
+      <div className="border-t-2 border-slate-800 pt-2.5 print:pt-1.5 grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-5 text-xs">
+        <div className="sm:col-span-7 space-y-2">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
               Amount in Words:
             </span>
-            <p className="font-bold text-slate-800 italic mt-0.5">
+            <p className="font-bold text-slate-800 italic mt-0.5 text-[11px]">
               {numberToWords(grandTotal)}
             </p>
           </div>
 
-          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-[11px] text-slate-600 space-y-1">
+          <div className="p-2 sm:p-2.5 print:p-1.5 bg-slate-50 rounded-xl border border-slate-200 text-[10px] sm:text-[11px] text-slate-600 space-y-0.5">
             <p className="font-bold text-slate-800">Quality & Dispatch Guarantee:</p>
             <p>1. Manufactured with IS-standard 53-grade cement and ribbed steel rebar.</p>
             <p>2. Weatherproof, 100% termite-proof with compressive load ratings.</p>
@@ -317,27 +354,27 @@ export default function TaxInvoice({
           </div>
         </div>
 
-        <div className="sm:col-span-5 space-y-2 text-right">
-          <div className="flex justify-between text-slate-600">
+        <div className="sm:col-span-5 space-y-1.5 text-right">
+          <div className="flex justify-between text-slate-600 text-[11px]">
             <span>Precast Materials Subtotal:</span>
             <span className="font-mono font-semibold text-slate-900">{formatPrice(subtotal)}</span>
           </div>
 
-          <div className="flex justify-between text-slate-600">
+          <div className="flex justify-between text-slate-600 text-[11px]">
             <span>CGST (Inclusive 9%):</span>
             <span className="font-mono font-medium text-slate-700">
               {formatPrice(Math.round((subtotal * 0.09) / 1.18))}
             </span>
           </div>
 
-          <div className="flex justify-between text-slate-600">
+          <div className="flex justify-between text-slate-600 text-[11px]">
             <span>SGST (Inclusive 9%):</span>
             <span className="font-mono font-medium text-slate-700">
               {formatPrice(Math.round((subtotal * 0.09) / 1.18))}
             </span>
           </div>
 
-          <div className="flex justify-between text-slate-600">
+          <div className="flex justify-between text-slate-600 text-[11px]">
             <span>Truck Delivery & Freight:</span>
             <span className="font-mono font-semibold text-slate-900">
               {deliveryFee === 0 ? 'FREE DISPATCH' : formatPrice(deliveryFee)}
@@ -345,8 +382,8 @@ export default function TaxInvoice({
           </div>
 
           {workerPlacementFee > 0 && (
-            <div className="flex justify-between text-slate-700 font-medium">
-              <span>Home Placement by Yard Workers (+₹40/item):</span>
+            <div className="flex justify-between text-slate-700 font-medium text-[11px]">
+              <span>Home Placement (+₹40/item):</span>
               <span className="font-mono font-semibold text-slate-900">
                 {formatPrice(workerPlacementFee)}
               </span>
@@ -354,24 +391,24 @@ export default function TaxInvoice({
           )}
 
           {(codFee || isCOD) && (
-            <div className="flex justify-between text-amber-800 font-semibold">
-              <span>COD Processing Fee (Site Verification):</span>
+            <div className="flex justify-between text-amber-800 font-semibold text-[11px]">
+              <span>COD Processing Fee:</span>
               <span className="font-mono font-bold text-amber-700">
                 {formatPrice(codFee || 15000)}
               </span>
             </div>
           )}
 
-          <div className="pt-2 border-t-2 border-slate-800 flex justify-between items-baseline text-sm font-extrabold text-slate-950">
+          <div className="pt-1.5 border-t-2 border-slate-800 flex justify-between items-baseline text-xs sm:text-sm font-extrabold text-slate-950">
             <span>Grand Total:</span>
-            <span className="text-xl font-black text-amber-600 font-mono">
+            <span className="text-lg sm:text-xl font-black text-amber-600 font-mono">
               {formatPrice(grandTotal)}
             </span>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-1">
             <span
-              className={`inline-block px-3 py-1 rounded-full text-[10px] font-extrabold border uppercase tracking-widest ${
+              className={`inline-block px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border uppercase tracking-wider ${
                 isCOD
                   ? 'bg-amber-100 text-amber-800 border-amber-300'
                   : paymentStatus === 'PAID'
@@ -391,24 +428,24 @@ export default function TaxInvoice({
       </div>
 
       {/* ─── Signatory & Stamp ─── */}
-      <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-end justify-between gap-6">
-        <div className="text-[11px] text-slate-500 space-y-0.5">
-          <p className="font-bold text-slate-700">SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK</p>
+      <div className="mt-4 sm:mt-5 print:mt-2 pt-3 print:pt-2 border-t border-slate-200 flex flex-row items-end justify-between gap-4">
+        <div className="text-[10px] text-slate-500 space-y-0.5 text-left">
+          <p className="font-bold text-slate-700 text-[11px]">SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK</p>
           <p>This is a computer-generated tax invoice and verified manufacturing record.</p>
           <p>For yard inquiries or dispatch status, contact: +91 89195 26315</p>
         </div>
 
-        <div className="flex flex-col items-center sm:items-end text-center sm:text-right">
-          <div className="relative mb-1">
-            <OfficialSeal size={120} rotation={-2.5} className="filter contrast-125" />
+        <div className="flex flex-col items-center sm:items-end text-center sm:text-right shrink-0">
+          <div className="relative mb-0.5">
+            <OfficialSeal size={105} rotation={-2} className="filter contrast-125" />
           </div>
-          <p className="text-xs font-black tracking-wide text-slate-900 mt-1">Authorised Signatory & Seal</p>
-          <p className="text-[10px] font-semibold text-slate-500">Prasad Cement Work (Velagatoor Yard)</p>
+          <p className="text-[11px] font-black tracking-wide text-slate-900">Authorised Signatory & Seal</p>
+          <p className="text-[9px] font-semibold text-slate-500">Prasad Cement Work (Velagatoor Yard)</p>
         </div>
       </div>
 
       {/* ─── Bottom Action Bar (Hidden on print) ─── */}
-      <div className="no-print mt-8 pt-6 border-t-2 border-slate-200 flex flex-wrap items-center justify-between gap-3">
+      <div className="no-print mt-4 sm:mt-6 pt-3 sm:pt-4 border-t-2 border-slate-200 flex flex-wrap items-center justify-between gap-2.5">
         <a
           href={`https://wa.me/918919526315?text=${encodeURIComponent(
             `Hello Sri Lakshmi Penchila Narasimha Swamy Cement Work (PRASAD CEMENT WORK)! I have received Tax Invoice #${invoiceNumber} for Order #${orderNumber}. Please update me on dispatch.`

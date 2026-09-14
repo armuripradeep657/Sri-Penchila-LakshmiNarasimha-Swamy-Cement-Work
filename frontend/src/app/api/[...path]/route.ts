@@ -314,29 +314,117 @@ const store = {
       email: 'armuriprasad@gmail.com',
       password: '905250',
       name: 'Prasad Armuri',
+      village: 'Velagatoor',
       role: 'ADMIN',
+      firmName: 'Sri Lakshmi Penchila Narasimha Swamy Cement Work',
+      createdAt: '2024-01-15T09:00:00.000Z',
       addresses: [],
     },
     {
-      id: 'usr_customer',
+      id: 'usr_customer_1',
       phone: '8888888888',
       email: 'rajesh@gmail.com',
       password: 'rajesh@123',
       name: 'Rajesh Kumar',
+      village: 'Gopalpur',
       role: 'CUSTOMER',
+      firmName: 'Rajesh Infrastructure',
+      createdAt: '2026-03-01T10:30:00.000Z',
       addresses: [
         {
           id: 'addr_1',
           label: 'Construction Site',
-          line1: '45, Industrial Area',
-          city: 'Hyderabad',
+          line1: 'Plot #8, Beside Royal Garden, Gopalpur Outskirts',
+          city: 'Gopalpur (2.8 km)',
           state: 'Telangana',
-          pincode: '500032',
+          pincode: '505526',
           isDefault: true,
         },
       ],
     },
-  ],
+    {
+      id: 'usr_customer_2',
+      phone: '9849123456',
+      email: 'kavitha.reddy@gmail.com',
+      password: 'customer@123',
+      name: 'Kavitha Reddy',
+      village: 'Kishanraopet',
+      role: 'CUSTOMER',
+      firmName: 'Reddy Constructions',
+      createdAt: '2026-03-04T14:15:00.000Z',
+      addresses: [
+        {
+          id: 'addr_2',
+          label: 'Home Compound',
+          line1: 'House #4-82, Near Primary School',
+          city: 'Kishanraopet Village (4.5 km)',
+          state: 'Telangana',
+          pincode: '505526',
+          isDefault: true,
+        },
+      ],
+    },
+    {
+      id: 'usr_customer_3',
+      phone: '9440123456',
+      email: 'suresh.civil@gmail.com',
+      password: 'customer@123',
+      name: 'Suresh Goud',
+      village: 'Cheggam',
+      role: 'CUSTOMER',
+      firmName: 'Sri Sai Ram Infra',
+      createdAt: '2026-03-07T16:40:00.000Z',
+      addresses: [],
+    },
+    {
+      id: 'usr_customer_4',
+      phone: '9848022338',
+      email: 'venkat.darwajas@gmail.com',
+      password: 'customer@123',
+      name: 'Venkatesh Rao',
+      village: 'Dharmapuri',
+      role: 'CUSTOMER',
+      firmName: 'Venkat Builders & Civil Work',
+      createdAt: '2026-03-09T11:20:00.000Z',
+      addresses: [],
+    },
+    {
+      id: 'usr_customer_5',
+      phone: '9912345678',
+      email: 'anji.mason@gmail.com',
+      password: 'customer@123',
+      name: 'Anjaiah Mistry',
+      village: 'Velagatoor',
+      role: 'CUSTOMER',
+      firmName: 'Velagatoor Masonry Services',
+      createdAt: '2026-03-11T08:45:00.000Z',
+      addresses: [],
+    },
+    {
+      id: 'usr_customer_6',
+      phone: '9123456780',
+      email: 'srinivas.agro@gmail.com',
+      password: 'customer@123',
+      name: 'Srinivas Farm Wells',
+      village: 'Padkal',
+      role: 'CUSTOMER',
+      firmName: 'Kisan Agro Well Digging',
+      createdAt: '2026-03-12T13:10:00.000Z',
+      addresses: [],
+    },
+    {
+      id: 'usr_customer_7',
+      phone: '9701234567',
+      email: 'ramu.jagtial@gmail.com',
+      password: 'customer@123',
+      name: 'Ramu Goud',
+      village: 'Jagtial',
+      role: 'CUSTOMER',
+      firmName: 'Town Housing Project',
+      createdAt: '2026-03-14T09:30:00.000Z',
+      addresses: [],
+    },
+  ] as any[],
   deliveryZones: [
     {
       id: 'z_local',
@@ -786,11 +874,14 @@ async function handleServerless(req: NextRequest, path: string[]) {
       email: body.email ? body.email.toLowerCase().trim() : `${cleanPhone}@customer.pcp`,
       password: body.password,
       name: body.name,
+      village: body.village || 'Velagatoor',
+      firmName: body.firmName || '',
       role: 'CUSTOMER',
+      createdAt: new Date().toISOString(),
       addresses: [],
     };
 
-    store.users.push(newUser);
+    store.users.unshift(newUser);
     const token = `tok_customer_${Date.now()}`;
 
     return NextResponse.json({
@@ -799,6 +890,25 @@ async function handleServerless(req: NextRequest, path: string[]) {
       accessToken: token,
       refreshToken: `${token}_refresh`,
       user: newUser,
+    });
+  }
+
+  // Admin Users Directory (Owner Access)
+  if (route === 'admin/users' && method === 'GET') {
+    return NextResponse.json({
+      success: true,
+      totalCount: store.users.length,
+      customersCount: store.users.filter((u) => u.role === 'CUSTOMER').length,
+      users: store.users.map((u) => ({
+        id: u.id,
+        name: u.name,
+        phone: u.phone,
+        email: u.email,
+        village: u.village || 'Velagatoor',
+        firmName: u.firmName || '',
+        role: u.role,
+        createdAt: u.createdAt || '2026-03-01T00:00:00.000Z',
+      })),
     });
   }
 
@@ -1349,6 +1459,7 @@ async function handleServerless(req: NextRequest, path: string[]) {
         pendingQuotesCount: store.quotes.filter((q) => q.status === 'SUBMITTED').length,
         lowStockCount: lowStockVariants.length,
         totalOrders: store.orders.length,
+        registeredUsersCount: store.users.length,
       },
       recentOrders: store.orders.slice(0, 15),
       lowStockVariants,

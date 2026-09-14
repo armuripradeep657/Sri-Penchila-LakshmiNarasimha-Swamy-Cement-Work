@@ -11,11 +11,11 @@ interface AuthContextType {
   isLoading: boolean;
   login: (identifier: string, password: string) => Promise<User>;
   loginWithGoogle: (googleData?: { email?: string; name?: string; phone?: string }) => Promise<User>;
-  register: (data: { phone: string; password: string; name: string; email?: string; firmName?: string }) => Promise<User>;
+  register: (data: { phone: string; password: string; name: string; email?: string; firmName?: string; village?: string }) => Promise<User>;
   logout: () => void;
   isAdmin: boolean;
   refreshUser: () => Promise<void>;
-  updateProfile: (profileData: { name?: string; email?: string; firmName?: string; phone?: string }) => Promise<User>;
+  updateProfile: (profileData: { name?: string; email?: string; firmName?: string; phone?: string; village?: string }) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -109,6 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     name: string;
     email?: string;
     firmName?: string;
+    village?: string;
   }): Promise<User> => {
     const res = await api.register(data);
     if (res.accessToken && res.user) {

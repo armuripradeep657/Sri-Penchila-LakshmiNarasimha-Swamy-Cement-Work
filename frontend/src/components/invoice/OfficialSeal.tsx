@@ -141,7 +141,7 @@ export default function OfficialSeal({
             startOffset="50%"
             textAnchor="middle"
           >
-            ★ SRI PENCHILA LAKSHMI NARASIMHA SWAMY ★
+            ★ SRI LAKSHMI PENCHILA NARASIMHA SWAMY ★
           </textPath>
         </text>
 
