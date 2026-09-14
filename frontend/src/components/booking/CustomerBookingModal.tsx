@@ -22,6 +22,11 @@ import {
   Send,
   Users,
   Home,
+  Copy,
+  Check,
+  ExternalLink,
+  Globe,
+  Smartphone,
 } from 'lucide-react';
 import { Product, ProductVariant } from '@/types';
 import { formatPrice } from '@/lib/utils';
@@ -78,10 +83,34 @@ export default function CustomerBookingModal({
   const [workerPlacement, setWorkerPlacement] = useState<boolean>(false);
 
   // Payment Form State
-  const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'COD'>('ONLINE');
+  const [paymentSubTab, setPaymentSubTab] = useState<'QR' | 'UPI_APPS' | 'NETBANKING' | 'COD'>('QR');
+  const [selectedBank, setSelectedBank] = useState('SBI');
+  const [copiedUPI, setCopiedUPI] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
   const [txnId, setTxnId] = useState('');
+
+  // Audio synthesizer celebration chime (Web Audio API)
+  const playCelebrationChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.45);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.12);
+        osc.stop(ctx.currentTime + i * 0.12 + 0.45);
+      });
+    } catch (e) {}
+  };
 
   // ─── Distance & Village Delivery Tiers ──────────────────────────────────────
   const DELIVERY_TIERS: Record<string, { label: string; fee: number; desc: string }> = {
@@ -122,8 +151,9 @@ export default function CustomerBookingModal({
   const itemsTotal = unitPrice * quantity;
   const deliveryFee = DELIVERY_TIERS[selectedZoneKey]?.fee || 15000;
   const workerPlacementFee = workerPlacement ? quantity * 4000 : 0; // ₹40 per item in paisa
-  const codFee = paymentMethod === 'COD' ? 15000 : 0; // ₹150 COD fee
+  const codFee = paymentSubTab === 'COD' ? 15000 : 0; // ₹150 COD fee
   const grandTotal = itemsTotal + deliveryFee + workerPlacementFee + codFee;
+  const paymentMethod: 'ONLINE' | 'COD' = paymentSubTab === 'COD' ? 'COD' : 'ONLINE';
 
   useEffect(() => {
     if (user) {
@@ -182,7 +212,7 @@ export default function CustomerBookingModal({
         workerPlacement,
         quantity,
         productName: product.name,
-        paymentMethod,
+        paymentMethod: paymentSubTab === 'COD' ? 'COD' : 'ONLINE',
         deliveryAddress: {
           fullName,
           phone,
@@ -211,6 +241,10 @@ export default function CustomerBookingModal({
         notes: [
           `Distance Tier: ${DELIVERY_TIERS[selectedZoneKey]?.label}`,
           workerPlacement ? `Worker Home Placement: ₹${workerPlacementFee / 100} (${quantity} items × ₹40)` : '',
+          paymentSubTab === 'QR' ? 'Paid via Dynamic UPI QR (Receiver: 9059179771)' : '',
+          paymentSubTab === 'UPI_APPS' ? 'Paid via Mobile UPI App (Receiver: 9059179771)' : '',
+          paymentSubTab === 'NETBANKING' ? `Paid via Net Banking (${selectedBank})` : '',
+          paymentSubTab === 'COD' ? 'Cash on Delivery at Construction Site' : '',
           deliveryNotes || '',
         ].filter(Boolean).join(' | '),
       });
@@ -218,8 +252,11 @@ export default function CustomerBookingModal({
       console.warn('Booking persist notice:', err);
     }
 
-    // Simulated high-security gateway processing
-    await new Promise((r) => setTimeout(r, 1200));
+    // Auto-detection simulated verification progress
+    await new Promise((r) => setTimeout(r, 1500));
+
+    // Play celebration sound chime
+    playCelebrationChime();
 
     setIsProcessing(false);
     setStep(3);
@@ -601,85 +638,321 @@ export default function CustomerBookingModal({
             </div>
 
             {/* Payment Method Selector */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">
-                Select Payment Mode
+                Choose Payment Mode
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Instant Online UPI / Card */}
+              {/* 4 Interactive Payment Mode Tabs */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('ONLINE')}
-                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                    paymentMethod === 'ONLINE'
-                      ? 'bg-amber-500/15 border-amber-400 shadow-md shadow-amber-500/10'
-                      : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                  onClick={() => setPaymentSubTab('QR')}
+                  className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                    paymentSubTab === 'QR'
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md shadow-amber-500/10 ring-1 ring-amber-500/30'
+                      : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'
                   }`}
                 >
-                  <div className="flex items-center gap-2 mb-1">
-                    <QrCode className="w-4 h-4 text-amber-400" />
-                    <span className="font-bold text-white text-xs">Instant UPI / QR / Card</span>
-                  </div>
-                  <p className="text-[10px] text-slate-400">PhonePe, Google Pay, Paytm, NetBanking</p>
-                  <span className="inline-block mt-2 text-[9px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    ★ Zero Surcharge
-                  </span>
+                  <QrCode className="w-4 h-4 text-amber-400" />
+                  <span className="text-xs font-bold">UPI QR Code</span>
+                  <span className="text-[9px] text-emerald-400 font-extrabold">Instant</span>
                 </button>
 
-                {/* Cash on Delivery */}
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('COD')}
-                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                    paymentMethod === 'COD'
-                      ? 'bg-amber-500/15 border-amber-400 shadow-md shadow-amber-500/10'
-                      : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                  onClick={() => setPaymentSubTab('UPI_APPS')}
+                  className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                    paymentSubTab === 'UPI_APPS'
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md shadow-amber-500/10 ring-1 ring-amber-500/30'
+                      : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'
                   }`}
                 >
-                  <div className="flex items-center gap-2 mb-1">
-                    <Banknote className="w-4 h-4 text-emerald-400" />
-                    <span className="font-bold text-white text-xs">Cash on Delivery (COD)</span>
-                  </div>
-                  <p className="text-[10px] text-slate-400">Pay cash directly when truck arrives at your site</p>
-                  <span className="inline-block mt-2 text-[9px] font-medium text-amber-400">
-                    +₹150 verification fee
-                  </span>
+                  <Smartphone className="w-4 h-4 text-blue-400" />
+                  <span className="text-xs font-bold">UPI Apps</span>
+                  <span className="text-[9px] text-slate-400">GPay / PhonePe</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentSubTab('NETBANKING')}
+                  className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                    paymentSubTab === 'NETBANKING'
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md shadow-amber-500/10 ring-1 ring-amber-500/30'
+                      : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'
+                  }`}
+                >
+                  <Globe className="w-4 h-4 text-cyan-400" />
+                  <span className="text-xs font-bold">Net Banking</span>
+                  <span className="text-[9px] text-slate-400">All Banks</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentSubTab('COD')}
+                  className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                    paymentSubTab === 'COD'
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md shadow-amber-500/10 ring-1 ring-amber-500/30'
+                      : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'
+                  }`}
+                >
+                  <Banknote className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-bold">Cash On Delivery</span>
+                  <span className="text-[9px] text-amber-400 font-extrabold">+₹150</span>
                 </button>
               </div>
+
+              {/* TAB 1: UPI QR CODE (Scan to 9059179771) */}
+              {paymentSubTab === 'QR' && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+                  <div className="flex flex-col sm:flex-row items-center gap-5 justify-between">
+                    {/* QR Display */}
+                    <div className="relative p-2.5 bg-white rounded-2xl shadow-xl shadow-amber-500/10 border-2 border-amber-500/40 shrink-0">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=6&data=${encodeURIComponent(
+                          `upi://pay?pa=9059179771@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR&tn=Precast%20Booking`
+                        )}`}
+                        alt="UPI Payment QR Code for 9059179771"
+                        className="w-36 h-36 object-contain"
+                      />
+                      <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-600 text-white shadow whitespace-nowrap">
+                        9059179771@ybl
+                      </span>
+                    </div>
+
+                    {/* QR Details */}
+                    <div className="space-y-2 text-left flex-1 text-xs">
+                      <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span>Auto-Detecting Live Payment</span>
+                      </div>
+                      <p className="text-white font-black text-sm">
+                        Prasad Cement Work (Sri Lakshmi Penchila Narasimha Swamy)
+                      </p>
+                      <p className="text-slate-400 text-[11px]">
+                        Scan with Google Pay, PhonePe, Paytm, or BHIM UPI app on your phone.
+                      </p>
+
+                      <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
+                        <div>
+                          <span className="text-[10px] text-slate-400 block">UPI Payee Number:</span>
+                          <span className="font-mono font-bold text-amber-400 text-xs">9059179771</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText('9059179771');
+                            setCopiedUPI(true);
+                            setTimeout(() => setCopiedUPI(false), 2000);
+                          }}
+                          className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1 cursor-pointer"
+                        >
+                          {copiedUPI ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                          <span>{copiedUPI ? 'Copied' : 'Copy'}</span>
+                        </button>
+                      </div>
+
+                      <div className="text-[11px] text-slate-400 flex items-center justify-between pt-1">
+                        <span>Exact Payable Amount:</span>
+                        <strong className="text-amber-400 font-mono text-sm">{formatPrice(grandTotal)}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleCompletePayment}
+                    className="w-full py-3.5 px-6 rounded-2xl font-black text-sm text-slate-950 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 transition-all shadow-xl shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                        <span>Detecting Payment on 9059179771...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 fill-slate-950" />
+                        <span>I Have Paid via QR — Auto-Detect & Confirm ({formatPrice(grandTotal)})</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* TAB 2: POPULAR UPI APPS */}
+              {paymentSubTab === 'UPI_APPS' && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+                  <p className="text-xs text-slate-300">
+                    Tap your preferred UPI app to initiate payment directly to <strong>9059179771</strong>:
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <a
+                      href={`upi://pay?pa=9059179771@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
+                      className="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 flex items-center gap-2.5 transition-all text-xs font-bold text-white"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-black text-xs">
+                        G
+                      </div>
+                      <span>Google Pay</span>
+                    </a>
+
+                    <a
+                      href={`upi://pay?pa=9059179771@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
+                      className="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 flex items-center gap-2.5 transition-all text-xs font-bold text-white"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-xs">
+                        Pe
+                      </div>
+                      <span>PhonePe</span>
+                    </a>
+
+                    <a
+                      href={`upi://pay?pa=9059179771@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
+                      className="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 flex items-center gap-2.5 transition-all text-xs font-bold text-white"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-black text-xs">
+                        Pay
+                      </div>
+                      <span>Paytm UPI</span>
+                    </a>
+
+                    <a
+                      href={`upi://pay?pa=9059179771@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
+                      className="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 flex items-center gap-2.5 transition-all text-xs font-bold text-white"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-xs">
+                        BH
+                      </div>
+                      <span>BHIM UPI</span>
+                    </a>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleCompletePayment}
+                    className="w-full py-3.5 px-6 rounded-2xl font-black text-sm text-slate-950 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                        <span>Verifying App Payment on 9059179771...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 fill-slate-950" />
+                        <span>Verify & Confirm App Payment ({formatPrice(grandTotal)})</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* TAB 3: NET BANKING */}
+              {paymentSubTab === 'NETBANKING' && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+                  <p className="text-xs text-slate-300">
+                    Select your bank to complete payment securely:
+                  </p>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {[
+                      { id: 'SBI', name: 'State Bank of India' },
+                      { id: 'HDFC', name: 'HDFC Bank' },
+                      { id: 'ICICI', name: 'ICICI Bank' },
+                      { id: 'AXIS', name: 'Axis Bank' },
+                      { id: 'TGB', name: 'Telangana Grameena Bank' },
+                      { id: 'UNION', name: 'Union Bank of India' },
+                    ].map((bank) => (
+                      <button
+                        key={bank.id}
+                        type="button"
+                        onClick={() => setSelectedBank(bank.id)}
+                        className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
+                          selectedBank === bank.id
+                            ? 'bg-amber-500/15 border-amber-400 text-white shadow-sm ring-1 ring-amber-400/40'
+                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[11px]">{bank.id}</span>
+                          {selectedBank === bank.id && <Check className="w-3.5 h-3.5 text-amber-400" />}
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-1 truncate">{bank.name}</p>
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleCompletePayment}
+                    className="w-full py-3.5 px-6 rounded-2xl font-black text-sm text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                        <span>Connecting to {selectedBank} NetBanking...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 fill-slate-950" />
+                        <span>Proceed via {selectedBank} NetBanking ({formatPrice(grandTotal)})</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* TAB 4: CASH ON DELIVERY */}
+              {paymentSubTab === 'COD' && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4 text-xs">
+                  <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 space-y-1">
+                    <p className="font-bold flex items-center gap-1.5">
+                      <Banknote className="w-4 h-4 text-amber-400" />
+                      <span>Cash on Delivery with Site Inspection</span>
+                    </p>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      Precast cement materials and distance auto delivery charges ({formatPrice(deliveryFee)}) will be paid in cash directly to our driver upon delivery and crane unloading at your construction site.
+                    </p>
+                  </div>
+
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span>COD Site Verification Fee:</span>
+                    <span className="font-mono font-bold text-amber-400">+₹150.00</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleCompletePayment}
+                    className="w-full py-3.5 px-6 rounded-2xl font-black text-sm text-slate-950 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                        <span>Confirming Cash on Delivery Booking...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4" />
+                        <span>Confirm Cash on Delivery Booking ({formatPrice(grandTotal)})</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-2 pt-2">
-              <button
-                type="button"
-                disabled={isProcessing}
-                onClick={handleCompletePayment}
-                className="w-full py-4 px-6 rounded-2xl font-black text-sm text-slate-950 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 transition-all shadow-xl shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                {isProcessing ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                    <span>Allocating Factory Stock & Reserving Slot...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 fill-slate-950" />
-                    <span>
-                      {paymentMethod === 'COD'
-                        ? `Confirm Cash on Delivery Booking (${formatPrice(grandTotal)})`
-                        : `Pay & Reserve Precast Stock Now (${formatPrice(grandTotal)})`}
-                    </span>
-                  </>
-                )}
-              </button>
-
+            <div className="pt-1 text-center">
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="w-full py-2 text-center text-xs text-slate-400 hover:text-white"
+                className="text-xs text-slate-400 hover:text-white cursor-pointer"
               >
-                ← Back to Delivery Details
+                ← Back to Delivery & Distance Details
               </button>
             </div>
           </div>

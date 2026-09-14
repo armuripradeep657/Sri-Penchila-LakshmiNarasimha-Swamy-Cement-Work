@@ -305,6 +305,7 @@ const INITIAL_PRODUCTS: Product[] = [
 
 // Global in-memory storage for serverless runtime
 const store = {
+  cart: { id: 'cart_1', items: [] as any[] },
   products: [...INITIAL_PRODUCTS],
   users: [
     {
@@ -1164,8 +1165,102 @@ async function handleServerless(req: NextRequest, path: string[]) {
     return NextResponse.json({ success: true, order, whatsappUrl, whatsappMsg: msg });
   }
 
+  const getCartData = () => {
+    let subtotal = 0;
+    let totalItems = 0;
+    let quoteRequiredCount = 0;
+    for (const item of store.cart.items) {
+      totalItems += item.quantity;
+      if (item.variant?.price) {
+        subtotal += item.variant.price * item.quantity;
+      } else {
+        quoteRequiredCount++;
+      }
+    }
+    return {
+      id: store.cart.id,
+      items: store.cart.items,
+      subtotal,
+      totalItems,
+      quoteRequiredCount,
+    };
+  };
+
   if (route === 'cart' && method === 'GET') {
-    return NextResponse.json({ success: true, cart: { items: [], total: 0 } });
+    return NextResponse.json({ success: true, cart: getCartData() });
+  }
+
+  if (route === 'cart/items' && method === 'POST') {
+    const body = await req.json();
+    const variantId = body.variantId;
+    const quantity = parseInt(body.quantity) || 1;
+
+    let foundProduct: any = null;
+    let foundVariant: any = null;
+
+    for (const prod of store.products) {
+      const v = prod.variants.find((variant) => variant.id === variantId);
+      if (v) {
+        foundProduct = prod;
+        foundVariant = v;
+        break;
+      }
+    }
+
+    if (!foundVariant) {
+      return NextResponse.json({ success: false, message: 'Variant not found' }, { status: 404 });
+    }
+
+    const existingIdx = store.cart.items.findIndex((item) => item.variantId === variantId);
+    if (existingIdx > -1) {
+      store.cart.items[existingIdx].quantity += quantity;
+    } else {
+      store.cart.items.push({
+        id: `ci_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        cartId: store.cart.id,
+        variantId: foundVariant.id,
+        quantity,
+        variant: {
+          ...foundVariant,
+          product: {
+            id: foundProduct.id,
+            name: foundProduct.name,
+            slug: foundProduct.slug,
+            category: foundProduct.category,
+            unitOfSale: foundProduct.unitOfSale,
+            images: foundProduct.images,
+          },
+        },
+      });
+    }
+
+    return NextResponse.json({ success: true, cart: getCartData() });
+  }
+
+  if (path[0] === 'cart' && path[1] === 'items' && path.length === 3 && method === 'PATCH') {
+    const itemId = path[2];
+    const body = await req.json();
+    const qty = parseInt(body.quantity);
+    const item = store.cart.items.find((i) => i.id === itemId);
+    if (item) {
+      if (qty <= 0) {
+        store.cart.items = store.cart.items.filter((i) => i.id !== itemId);
+      } else {
+        item.quantity = qty;
+      }
+    }
+    return NextResponse.json({ success: true, cart: getCartData() });
+  }
+
+  if (path[0] === 'cart' && path[1] === 'items' && path.length === 3 && method === 'DELETE') {
+    const itemId = path[2];
+    store.cart.items = store.cart.items.filter((i) => i.id !== itemId);
+    return NextResponse.json({ success: true, cart: getCartData() });
+  }
+
+  if (route === 'cart/clear' && method === 'DELETE') {
+    store.cart.items = [];
+    return NextResponse.json({ success: true, cart: getCartData() });
   }
 
   // 5. QUOTES & PRECAST CALCULATOR

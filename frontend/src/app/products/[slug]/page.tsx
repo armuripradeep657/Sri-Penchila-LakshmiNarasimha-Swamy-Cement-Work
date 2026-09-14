@@ -785,13 +785,13 @@ export default function ProductDetailPage() {
               <div className="space-y-3 pt-2">
                 {!isQuoteOnly ? (
                   <div className="space-y-3">
-                    {/* PRIMARY ACTION: Book Item (With festive reservation ticket animation) */}
+                    {/* PRIMARY ACTION: Book Now */}
                     <button
                       onClick={handleBookItem}
-                      className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl font-extrabold text-sm bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 shadow-xl shadow-amber-500/25 transition-all transform hover:scale-[1.01] active:scale-98 animate-pulse hover:animate-none"
+                      className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl font-black text-sm bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 shadow-xl shadow-amber-500/25 transition-all transform hover:scale-[1.01] active:scale-98 cursor-pointer"
                     >
                       <Sparkles className="w-5 h-5 text-slate-950 fill-slate-950" />
-                      <span>✨ Book Item (Instant Yard Reservation)</span>
+                      <span>Book Now</span>
                     </button>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

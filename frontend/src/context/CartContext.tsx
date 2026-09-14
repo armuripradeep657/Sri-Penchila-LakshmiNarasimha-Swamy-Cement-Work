@@ -88,40 +88,41 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     product: Product,
     quantity: number = 1
   ) => {
-    if (user) {
-      setIsLoading(true);
-      try {
-        await api.addToCart(variant.id, quantity);
-        await refreshCart();
-      } catch (err: any) {
-        alert(err.message || 'Failed to add item to cart');
-      } finally {
-        setIsLoading(false);
-      }
+    // 1. Instantly update client state so user sees item in cart immediately
+    const currentItems = [...cart.items];
+    const existingIdx = currentItems.findIndex((i) => i.variantId === variant.id);
+
+    if (existingIdx > -1) {
+      currentItems[existingIdx].quantity += quantity;
     } else {
-      // Guest cart
-      const currentItems = [...cart.items];
-      const existingIdx = currentItems.findIndex((i) => i.variantId === variant.id);
+      const newItem: CartItem = {
+        id: `ci_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        cartId: 'user_cart',
+        variantId: variant.id,
+        quantity,
+        variant: {
+          ...variant,
+          product,
+        },
+      };
+      currentItems.push(newItem);
+    }
 
-      if (existingIdx > -1) {
-        currentItems[existingIdx].quantity += quantity;
-      } else {
-        const newItem: CartItem = {
-          id: `guest_item_${Date.now()}_${Math.random()}`,
-          cartId: 'guest_cart',
-          variantId: variant.id,
-          quantity,
-          variant: {
-            ...variant,
-            product,
-          },
-        };
-        currentItems.push(newItem);
-      }
-
-      const updated = calculateTotals(currentItems);
-      setCart(updated);
+    const updated = calculateTotals(currentItems);
+    setCart(updated);
+    try {
       localStorage.setItem('pcp_guest_cart', JSON.stringify(currentItems));
+    } catch {}
+
+    // 2. Synchronize with API if logged in or serverless
+    try {
+      await api.addToCart(variant.id, quantity);
+      const res = await api.getCart();
+      if (res?.cart?.items && res.cart.items.length > 0) {
+        setCart(res.cart);
+      }
+    } catch (err) {
+      console.warn('Cart server sync notice, local cart active');
     }
   };
 
@@ -130,48 +131,51 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return removeItem(itemId);
     }
 
+    const currentItems = cart.items.map((i) =>
+      i.id === itemId ? { ...i, quantity } : i
+    );
+    const updated = calculateTotals(currentItems);
+    setCart(updated);
+    try {
+      localStorage.setItem('pcp_guest_cart', JSON.stringify(currentItems));
+    } catch {}
+
     if (user) {
       try {
         await api.updateCartItem(itemId, quantity);
-        await refreshCart();
       } catch (err: any) {
-        alert(err.message || 'Failed to update quantity');
+        console.warn('Failed to sync quantity to server');
       }
-    } else {
-      const currentItems = cart.items.map((i) =>
-        i.id === itemId ? { ...i, quantity } : i
-      );
-      const updated = calculateTotals(currentItems);
-      setCart(updated);
-      localStorage.setItem('pcp_guest_cart', JSON.stringify(currentItems));
     }
   };
 
   const removeItem = async (itemId: string) => {
+    const currentItems = cart.items.filter((i) => i.id !== itemId);
+    const updated = calculateTotals(currentItems);
+    setCart(updated);
+    try {
+      localStorage.setItem('pcp_guest_cart', JSON.stringify(currentItems));
+    } catch {}
+
     if (user) {
       try {
         await api.removeCartItem(itemId);
-        await refreshCart();
       } catch (err: any) {
-        console.error('Failed to remove cart item:', err);
+        console.warn('Failed to remove server cart item');
       }
-    } else {
-      const currentItems = cart.items.filter((i) => i.id !== itemId);
-      const updated = calculateTotals(currentItems);
-      setCart(updated);
-      localStorage.setItem('pcp_guest_cart', JSON.stringify(currentItems));
     }
   };
 
   const clearCart = async () => {
+    try {
+      localStorage.removeItem('pcp_guest_cart');
+    } catch {}
+    setCart(defaultCart);
+
     if (user) {
       try {
         await api.clearCart();
-        setCart(defaultCart);
       } catch {}
-    } else {
-      localStorage.removeItem('pcp_guest_cart');
-      setCart(defaultCart);
     }
   };
 
