@@ -80,13 +80,21 @@ The frontend runs at **`http://localhost:3000`**.
 
 ---
 
-## 🔑 Demo Credentials
+## 🔑 Official Owner Credentials & Access
 
-| Role | Mobile Number | OTP Code | Description |
-|---|---|---|---|
-| **Prasad (Admin)** | `9999999999` | `123456` | Full administrative access to dashboard, orders, inventory, and quotes. |
-| **Rajesh (Customer)** | `8888888888` | `123456` | Customer account with sample address and order history. |
-| **New Customers** | Any 10-digit number | `123456` | Instantly registers a new customer profile. |
+| Role | Mobile Number | Email | Password | Description |
+|---|---|---|---|---|
+| **Owner (Admin)** | `9912179771` | `armuriprasad@gmail.com` | `905250` | Full administrative control: inventory, order fulfillment, quotes, factory settings. |
+| **New Customers** | Any valid 10-digit number | Any email | Custom password / Google Auth | Self-service customer account creation via `/register` or 1-Click Google Sign-In. |
+
+---
+
+## ⚡ Supabase Database Setup
+
+To run with Supabase:
+1. Open your Supabase Dashboard and go to the **SQL Editor**.
+2. Run the provided [`supabase-schema.sql`](./supabase-schema.sql) script.
+3. In `backend/.env` and `frontend/.env.local`, set your `DATABASE_URL`, `DIRECT_URL`, and Supabase API keys.
 
 ---
 

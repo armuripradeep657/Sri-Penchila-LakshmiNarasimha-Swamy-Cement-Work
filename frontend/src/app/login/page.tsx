@@ -139,40 +139,7 @@ function LoginContent() {
     }
   };
 
-  // ─── Apple / X Mock / Instant Access ──────────────────────────────────────
-  const handleAppleOrXLogin = (provider: 'Apple' | 'X') => {
-    setError('');
-    setSocialNotification(`${provider} authentication is ready! Click "Google" for 1-click sign-in or use Demo Access.`);
-    setTimeout(() => setSocialNotification(null), 4000);
-  };
-
-  // ─── One-Click Demo Access ─────────────────────────────────────────────────
-  const handleOneClickDemo = async (role: 'ADMIN' | 'CUSTOMER') => {
-    setError('');
-    setSocialNotification(null);
-    setIsLoading(true);
-
-    const demoUser =
-      role === 'ADMIN'
-        ? { id: '9912179771', pass: 'prasad@123' }
-        : { id: '8888888888', pass: 'rajesh@123' };
-
-    setIdentifier(demoUser.id);
-    setPassword(demoUser.pass);
-
-    try {
-      const user = await login(demoUser.id, demoUser.pass);
-      if (user?.role === 'ADMIN' && redirectUrl === '/') {
-        router.push('/admin');
-      } else {
-        router.push(redirectUrl);
-      }
-    } catch (err: any) {
-      setError(err.message || 'Demo login failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // ─── Direct Google Login ───
 
   return (
     <div className="relative min-h-[92vh] flex items-center justify-center px-4 py-10 bg-[#0a0d14] overflow-hidden">
@@ -453,124 +420,56 @@ function LoginContent() {
           {/* OR Divider */}
           <div className="flex items-center my-5 gap-3">
             <div className="h-px bg-slate-800 flex-1"></div>
-            <span className="text-[11px] font-bold text-slate-500 tracking-wider">OR</span>
+            <span className="text-[11px] font-bold text-slate-500 tracking-wider">OR QUICK SIGN IN</span>
             <div className="h-px bg-slate-800 flex-1"></div>
           </div>
 
-          {/* Social Login Buttons: Apple, Google (Direct), X */}
-          <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-            {/* Apple Button */}
-            <button
-              type="button"
-              onClick={() => handleAppleOrXLogin('Apple')}
-              className="py-3 px-4 rounded-xl bg-[#141926] hover:bg-[#1a2133] border border-slate-800 hover:border-slate-700 flex items-center justify-center transition-all group"
-              title="Sign in with Apple"
-            >
-              <svg className="w-5 h-5 fill-white group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.86c.66-.82 1.11-1.96.99-3.1-.96.04-2.12.65-2.8 1.45-.6.7-.1.13-1.84.97-3.03 1.07-.03 2.18.68 2.84 1.48z" />
+          {/* ─── Prominent Secure Google Authentication ─── */}
+          <button
+            type="button"
+            onClick={handleDirectGoogleLogin}
+            disabled={isGoogleLoading}
+            className="w-full py-3.5 px-4 rounded-xl bg-[#141926] hover:bg-[#1a2133] border border-slate-700 hover:border-slate-600 flex items-center justify-center gap-3 transition-all font-semibold text-sm text-white shadow-lg group cursor-pointer"
+          >
+            {isGoogleLoading ? (
+              <div className="w-5 h-5 border-2 border-slate-500 border-t-amber-400 rounded-full animate-spin"></div>
+            ) : (
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform flex-shrink-0" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                />
               </svg>
-            </button>
-
-            {/* Google Direct Login Button */}
-            <button
-              type="button"
-              onClick={handleDirectGoogleLogin}
-              disabled={isGoogleLoading}
-              className="py-3 px-4 rounded-xl bg-[#141926] hover:bg-[#1a2133] border border-slate-800 hover:border-slate-700 flex items-center justify-center transition-all group relative"
-              title="Direct Google Login"
-            >
-              {isGoogleLoading ? (
-                <div className="w-5 h-5 border-2 border-slate-600 border-t-amber-400 rounded-full animate-spin"></div>
-              ) : (
-                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                  />
-                </svg>
-              )}
-            </button>
-
-            {/* X (Twitter) Button */}
-            <button
-              type="button"
-              onClick={() => handleAppleOrXLogin('X')}
-              className="py-3 px-4 rounded-xl bg-[#141926] hover:bg-[#1a2133] border border-slate-800 hover:border-slate-700 flex items-center justify-center transition-all group"
-              title="Sign in with X"
-            >
-              <svg className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* ─── QUICK DEMO ACCESS SECTION (One-Click Testing) ────────────────── */}
-        <div className="bg-[#0f1422]/70 border border-slate-800/80 rounded-2xl p-3.5 space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>{language === 'te' ? 'డెమో తక్షణ యాక్సెస్' : 'Demo 1-Click Access'}</span>
+            )}
+            <span>
+              {language === 'te' ? 'గూగుల్ ఖాతాతో కొనసాగించండి (Google Login)' : 'Continue with Google'}
             </span>
-            <span className="text-[10px] text-slate-500">
-              {language === 'te' ? 'తక్షణమే లాగిన్ అవ్వండి' : 'Auto-fill & Sign In'}
-            </span>
-          </div>
+          </button>
 
-          <div className="grid grid-cols-2 gap-2">
-            {/* Prasad Admin Demo Button */}
-            <button
-              type="button"
-              onClick={() => handleOneClickDemo('ADMIN')}
-              className="p-2.5 rounded-xl bg-[#131929] border border-amber-500/30 hover:border-amber-400 hover:bg-[#182136] text-left transition-all group"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-300 group-hover:text-amber-200">
-                  👑 Prasad
-                </span>
-                <span className="text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold">
-                  Admin
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-400 block font-mono mt-0.5">9912179771</span>
-              <span className="text-[9px] text-emerald-400 flex items-center gap-1 mt-1 font-medium">
-                <span>Instant sign in</span>
-                <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
-              </span>
-            </button>
-
-            {/* Rajesh Customer Demo Button */}
-            <button
-              type="button"
-              onClick={() => handleOneClickDemo('CUSTOMER')}
-              className="p-2.5 rounded-xl bg-[#131929] border border-blue-500/30 hover:border-blue-400 hover:bg-[#182136] text-left transition-all group"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-blue-300 group-hover:text-blue-200">
-                  👤 Rajesh
-                </span>
-                <span className="text-[9px] px-1 py-0.5 rounded bg-blue-500/20 text-blue-300 font-semibold">
-                  Customer
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-400 block font-mono mt-0.5">8888888888</span>
-              <span className="text-[9px] text-emerald-400 flex items-center gap-1 mt-1 font-medium">
-                <span>Instant sign in</span>
-                <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
-              </span>
-            </button>
+          {/* New Customer Account Creation Link */}
+          <div className="mt-5 pt-4 border-t border-slate-800/80 text-center">
+            <p className="text-xs text-slate-400">
+              <span>{language === 'te' ? 'కొత్త కస్టమరా? ' : 'New to Prasad Cement? '}</span>
+              <Link
+                href="/register"
+                className="text-amber-400 font-bold hover:text-amber-300 hover:underline transition-colors ml-1 inline-flex items-center gap-1"
+              >
+                <span>{language === 'te' ? 'కొత్త ఖాతా సృష్టించండి' : 'Create Customer Account'}</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </p>
           </div>
         </div>
 

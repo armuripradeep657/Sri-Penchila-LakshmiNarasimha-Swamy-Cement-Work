@@ -23,6 +23,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Globe } from 'lucide-react';
 
 import Logo from '@/components/shared/Logo';
+import NotificationCenter from '@/components/notifications/NotificationCenter';
 
 export default function Header() {
   const pathname = usePathname();
@@ -141,6 +142,9 @@ export default function Header() {
                 )}
               </Link>
             ) : null}
+
+            {/* Notification Center (Live Status Reports & Offers) */}
+            <NotificationCenter />
 
             {/* User Profile / Login */}
             {user ? (

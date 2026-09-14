@@ -26,15 +26,15 @@ async function main() {
   console.log('  → Creating users...');
 
   // Hash passwords
-  const adminPassword = await bcrypt.hash('prasad@123', 12);
-  const customerPassword = await bcrypt.hash('rajesh@123', 12);
+  const adminPassword = await bcrypt.hash('905250', 12);
+  const customerPassword = await bcrypt.hash('customer@123', 12);
 
   const admin = await prisma.user.create({
     data: {
       phone: '9912179771',
-      email: 'prasad@prasadcement.com',
+      email: 'armuriprasad@gmail.com',
       password: adminPassword,
-      name: 'PRASAD',
+      name: 'Prasad Armuri',
       role: UserRole.ADMIN,
     },
   });

@@ -40,7 +40,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
 import TaxInvoice from '@/components/invoice/TaxInvoice';
-import RealtimePaymentModal from '@/components/payment/RealtimePaymentModal';
+import CustomerBookingModal from '@/components/booking/CustomerBookingModal';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -60,9 +60,8 @@ export default function ProductDetailPage() {
   // Customer booking state & animations
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
-  const [bookingTicketNumber, setBookingTicketNumber] = useState('');
+  const [customerInvoiceData, setCustomerInvoiceData] = useState<any | null>(null);
 
   // Admin In-Page Editing state
   const [adminStock, setAdminStock] = useState<number>(0);
@@ -153,16 +152,8 @@ export default function ProductDetailPage() {
 
   const handleBookItem = async () => {
     if (!product || !selectedVariant) return;
-
-    // Add to cart
     await addToCart(selectedVariant, product, quantity);
-
-    // Generate randomized reservation ticket reference
-    const ticket = `PCP-${Math.floor(100000 + Math.random() * 900000)}`;
-    setBookingTicketNumber(ticket);
-
-    // Trigger Real-Time Payment / Allotment Animation Modal
-    setShowPaymentModal(true);
+    setShowBookingModal(true);
   };
 
   // ─── Admin In-Page Actions ──────────────────────────────────────────────────
@@ -909,163 +900,63 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════════
-          ANIMATED CUSTOMER BOOKING TICKET MODAL
-          Displayed when a customer clicks "Book Item"
+          MULTI-STEP CUSTOMER BOOKING MODAL (Delivery -> Payment -> Festive Celebration -> Invoice)
          ══════════════════════════════════════════════════════════════════════════ */}
-      {showBookingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border-2 border-amber-500/50 p-6 sm:p-8 space-y-6 shadow-2xl shadow-amber-500/20 animate-in zoom-in-95 duration-200">
-            {/* Close Button */}
-            <button
-              onClick={() => setShowBookingModal(false)}
-              className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Ticket Header & Seal */}
-            <div className="text-center space-y-2">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/30">
-                <Sparkles className="w-8 h-8 text-slate-950" />
-              </div>
-              <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                ★ OFFICIAL PRECAST ALLOTMENT RESERVED ★
-              </span>
-              <h3 className="text-2xl font-extrabold text-white">
-                Item Booked Successfully!
-              </h3>
-              <p className="text-xs text-slate-400">
-                Booking Reference:{' '}
-                <span className="font-mono font-bold text-amber-400">{bookingTicketNumber}</span>
-              </p>
-            </div>
-
-            {/* Animated Confirmation Steps */}
-            <div className="space-y-2.5 bg-slate-950/80 p-4 rounded-2xl border border-slate-800 text-xs">
-              <div className="flex items-center gap-3 text-emerald-400">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>Factory Yard Inventory Allocated ({quantity} {product.unitOfSale}s)</span>
-              </div>
-              <div className="flex items-center gap-3 text-emerald-400">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>53-Grade OPC Concrete Quality Verified</span>
-              </div>
-              <div className="flex items-center gap-3 text-amber-400">
-                <Clock className="w-4 h-4 shrink-0 animate-pulse" />
-                <span>Hydraulic Crane Truck Delivery Slot Queued</span>
-              </div>
-            </div>
-
-            {/* Booked Item Summary Box */}
-            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'te' ? 'ఉత్పత్తి:' : 'Product:'}</span>
-                <span className="text-white font-bold">{locProduct?.name || product.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'te' ? 'సైజు / వేరియంట్:' : 'Variant / Size:'}</span>
-                <span className="text-amber-400 font-semibold">{locSelectedVariant?.name || selectedVariant?.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">{language === 'te' ? 'పరిమాణం:' : 'Quantity:'}</span>
-                <span className="text-white font-mono font-bold">{quantity} {product.unitOfSale}s</span>
-              </div>
-              <div className="pt-2 border-t border-slate-700 flex justify-between text-sm">
-                <span className="text-slate-300 font-bold">{language === 'te' ? 'మొత్తం అంచనా:' : 'Estimated Total:'}</span>
-                <span className="text-amber-400 font-extrabold">
-                  {formatPrice((selectedVariant?.price || 0) * quantity)}
-                </span>
-              </div>
-            </div>
-
-            {/* Next Steps Buttons */}
-            <div className="space-y-2.5">
-              {/* Download Tax Invoice Button */}
-              <button
-                onClick={() => setShowInvoiceModal(true)}
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 transition-all shadow-md cursor-pointer"
-              >
-                <Download className="w-4 h-4 text-amber-400" />
-                <span>Download Official Tax Invoice (PDF)</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setShowBookingModal(false);
-                  router.push('/checkout');
-                }}
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all"
-              >
-                <span>Proceed to Delivery Address & Checkout →</span>
-              </button>
-
-              <a
-                href={`https://wa.me/918919526315?text=${encodeURIComponent(
-                  `Hello Sri Lakshmi Penchila Narasimha Swamy Cement Work (PRASAD CEMENT WORK)! I just booked ${quantity} units of "${product.name}" (${selectedVariant?.name}). Ref: ${bookingTicketNumber}. Please confirm dispatch schedule to Velagatoor / Jagtial.`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold text-xs bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Confirm on WhatsApp (8919526315)</span>
-              </a>
-
-              <button
-                onClick={() => setShowBookingModal(false)}
-                className="w-full py-2.5 text-center text-xs text-slate-400 hover:text-white"
-              >
-                Continue Browsing Catalog
-              </button>
-            </div>
-          </div>
-        </div>
+      {product && selectedVariant && (
+        <CustomerBookingModal
+          isOpen={showBookingModal}
+          onClose={() => setShowBookingModal(false)}
+          product={product}
+          selectedVariant={selectedVariant}
+          quantity={quantity}
+          onViewInvoice={(invData) => {
+            setCustomerInvoiceData(invData);
+            setShowBookingModal(false);
+            setShowInvoiceModal(true);
+          }}
+        />
       )}
 
-      {/* ─── Real-Time Payment / Booking Animation Modal ─── */}
-      <RealtimePaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => {
-          setShowPaymentModal(false);
-          setShowBookingModal(true);
-        }}
-        orderNumber={bookingTicketNumber || 'PCP-BOOKING'}
-        amount={(selectedVariant?.price || 0) * quantity}
-        productName={locProduct?.name || product.name}
-        variantName={locSelectedVariant?.name || selectedVariant?.name}
-        quantity={quantity}
-        onViewInvoice={() => {
-          setShowPaymentModal(false);
-          setShowInvoiceModal(true);
-        }}
-      />
-
-      {/* ─── Full Tax Invoice Modal ─── */}
+      {/* ─── Full Tax Invoice Modal with Official Seal ─── */}
       {showInvoiceModal && (
         <TaxInvoice
           isModal
           onClose={() => setShowInvoiceModal(false)}
-          invoiceNumber={`INV-${bookingTicketNumber || Date.now().toString().slice(-6)}`}
-          orderNumber={bookingTicketNumber || 'PCP-RESERVE'}
+          invoiceNumber={`INV-${customerInvoiceData?.orderNumber?.replace('PCP-', '') || Date.now().toString().slice(-6)}`}
+          orderNumber={customerInvoiceData?.orderNumber || 'PCP-RESERVE'}
           date={new Date()}
-          customerName={user?.name || 'Valued Builder / Contractor'}
-          customerPhone={user?.phone || '+91 89195 26315'}
-          items={[
-            {
-              name: locProduct?.name || product.name,
-              variantName: locSelectedVariant?.name || selectedVariant?.name,
-              quantity: quantity,
-              unitPrice: selectedVariant?.price || 0,
-              totalPrice: (selectedVariant?.price || 0) * quantity,
-              dimensions:
-                selectedVariant?.width && selectedVariant?.height
-                  ? `${selectedVariant.width}×${selectedVariant.height} ${selectedVariant.dimensionUnit || ''}`
-                  : undefined,
-            },
-          ]}
-          subtotal={(selectedVariant?.price || 0) * quantity}
-          deliveryFee={0}
-          grandTotal={(selectedVariant?.price || 0) * quantity}
+          customerName={customerInvoiceData?.deliveryAddress?.fullName || user?.name || 'Valued Builder / Contractor'}
+          customerPhone={customerInvoiceData?.deliveryAddress?.phone || user?.phone || '+91 89195 26315'}
+          customerAddress={
+            customerInvoiceData?.deliveryAddress
+              ? {
+                  line1: customerInvoiceData.deliveryAddress.line1,
+                  line2: customerInvoiceData.deliveryAddress.line2 || '',
+                  city: customerInvoiceData.deliveryAddress.city,
+                  state: customerInvoiceData.deliveryAddress.state,
+                  pincode: customerInvoiceData.deliveryAddress.pincode,
+                }
+              : null
+          }
+          items={
+            customerInvoiceData?.items || [
+              {
+                name: locProduct?.name || product.name,
+                variantName: locSelectedVariant?.name || selectedVariant?.name,
+                quantity: quantity,
+                unitPrice: selectedVariant?.price || 0,
+                totalPrice: (selectedVariant?.price || 0) * quantity,
+                dimensions:
+                  selectedVariant?.width && selectedVariant?.height
+                    ? `${selectedVariant.width}×${selectedVariant.height} ${selectedVariant.dimensionUnit || ''}`
+                    : undefined,
+              },
+            ]
+          }
+          subtotal={customerInvoiceData?.totalAmount || (selectedVariant?.price || 0) * quantity}
+          deliveryFee={customerInvoiceData?.deliveryFee || 0}
+          grandTotal={customerInvoiceData?.grandTotal || (selectedVariant?.price || 0) * quantity}
+          paymentMethod={customerInvoiceData?.paymentMethod || 'UPI Instant'}
           paymentStatus="PAID"
         />
       )}

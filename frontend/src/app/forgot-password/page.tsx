@@ -26,7 +26,6 @@ function ForgotPasswordContent() {
   const [step, setStep] = useState<'request' | 'reset' | 'success'>('request');
   const [identifier, setIdentifier] = useState('');
   const [otpCode, setOtpCode] = useState('');
-  const [demoOtp, setDemoOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -57,10 +56,6 @@ function ForgotPasswordContent() {
     try {
       const res = await api.forgotPassword(trimmed);
       if (res.success) {
-        if (res.demoOtp) {
-          setDemoOtp(res.demoOtp);
-          setOtpCode(res.demoOtp);
-        }
         setSuccessMsg(res.message || 'OTP sent successfully!');
         setStep('reset');
       }
@@ -168,18 +163,6 @@ function ForgotPasswordContent() {
 
           {step === 'reset' && (
             <form onSubmit={handleResetPassword} className="space-y-4">
-              {demoOtp && (
-                <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-between text-xs text-amber-300">
-                  <span>⚡ Demo OTP: <strong className="font-mono text-white text-sm">{demoOtp}</strong></span>
-                  <button
-                    type="button"
-                    onClick={() => setOtpCode(demoOtp)}
-                    className="px-2 py-1 rounded bg-amber-500 text-slate-950 font-bold text-[10px]"
-                  >
-                    Auto Fill
-                  </button>
-                </div>
-              )}
 
               {/* OTP Code */}
               <div className="space-y-1.5">

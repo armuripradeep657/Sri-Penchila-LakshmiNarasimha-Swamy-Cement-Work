@@ -1,14 +1,13 @@
-// Prasad Cement Products — Supabase PostgreSQL Database Schema
-// Set DATABASE_URL and DIRECT_URL to your Supabase PostgreSQL credentials
+// Prasad Cement Products — Database Schema
+// SQLite for Zero-Setup Local Development (switch to schema.postgresql.prisma for production Postgres)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 // ─── User ────────────────────────────────────────────────────────────────────

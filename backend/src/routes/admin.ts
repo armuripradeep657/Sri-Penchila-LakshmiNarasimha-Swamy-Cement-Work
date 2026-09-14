@@ -540,6 +540,53 @@ router.post(
   }
 );
 
+const rejectQuoteSchema = z.object({
+  rejectionReason: z.string().optional(),
+});
+
+router.post(
+  '/quotes/:id/reject',
+  validateBody(rejectQuoteSchema),
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const id = String(req.params.id);
+      const { rejectionReason } = req.body;
+
+      const quote = await prisma.quoteRequest.findUnique({
+        where: { id },
+        include: { user: true, product: true },
+      });
+
+      if (!quote) throw new NotFoundError('Quote request');
+
+      const updated = await prisma.quoteRequest.update({
+        where: { id },
+        data: {
+          status: 'REJECTED',
+          adminNotes: rejectionReason || 'Dimension cannot be manufactured with current precast moulds.',
+        },
+      });
+
+      const phone = quote.phone || quote.user?.phone;
+      if (phone) {
+        await sendCustomerNotification({
+          toPhone: phone,
+          type: 'QUOTE_RESPONDED',
+          message: `Update from Prasad Cement Products regarding your quote request for ${quote.product.name}: Request could not be accommodated (${rejectionReason || 'Non-standard custom mold'}). Please call 8919526315 for alternatives.`,
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Quote request rejected with reason recorded.',
+        quote: updated,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 // ─── 5. Delivery Zones Management ────────────────────────────────────────────
 router.get('/delivery-zones', async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {

@@ -69,6 +69,13 @@ class ApiClient {
     });
   }
 
+  async changePassword(passwordData: { currentPassword: string; newPassword: string }) {
+    return this.request<any>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(passwordData),
+    });
+  }
+
   async getMe() {
     return this.request<any>('/auth/me');
   }
@@ -272,6 +279,13 @@ class ApiClient {
     return this.request<any>(`/admin/quotes/${quoteId}/respond`, {
       method: 'POST',
       body: JSON.stringify({ quotedPrice, adminNotes }),
+    });
+  }
+
+  async rejectQuote(quoteId: string, rejectionReason?: string) {
+    return this.request<any>(`/admin/quotes/${quoteId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ rejectionReason }),
     });
   }
 

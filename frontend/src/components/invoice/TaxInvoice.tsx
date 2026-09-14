@@ -2,6 +2,7 @@
 
 import React, { useRef } from 'react';
 import Image from 'next/image';
+import OfficialSeal from './OfficialSeal';
 import {
   Download,
   Printer,
@@ -103,29 +104,12 @@ export default function TaxInvoice({
       id="tax-invoice"
       className="relative overflow-hidden bg-white text-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-300 max-w-3xl mx-auto font-sans leading-relaxed select-text"
     >
-      {/* ─── Circular Center Watermark Stamp & Logo for Screen & Print ─── */}
+      {/* ─── Circular Center Watermark Stamp for Screen & Print ─── */}
       <div
         aria-hidden="true"
-        className="pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-[0.08] print:opacity-[0.11] flex flex-col items-center justify-center text-center"
+        className="pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 flex flex-col items-center justify-center text-center"
       >
-        <div className="w-80 h-80 sm:w-[420px] sm:h-[420px] rounded-full border-4 border-dashed border-slate-900/40 p-4 sm:p-6 flex flex-col items-center justify-center text-center">
-          <div className="w-full h-full rounded-full border-2 border-slate-900/50 p-4 flex flex-col items-center justify-center text-center relative overflow-hidden">
-            <div className="relative w-40 h-40 sm:w-56 sm:h-56 rounded-full overflow-hidden mb-2">
-              <Image
-                src="/images/logo.png"
-                alt="PRASAD CEMENT WORK Official Invoice Seal"
-                fill
-                sizes="(max-width: 768px) 160px, 224px"
-                className="object-cover rounded-full filter grayscale contrast-150"
-              />
-            </div>
-            <p className="font-mono font-black tracking-wider text-slate-950 text-[10px] sm:text-xs uppercase leading-tight">
-              ★ SRI LAKSHMI PENCHILA NARASIMHA SWAMY CEMENT WORK ★
-              <br />
-              ★ PRASAD CEMENT WORK • OFFICIAL PRECAST SEAL ★
-            </p>
-          </div>
-        </div>
+        <OfficialSeal size={380} watermark={true} />
       </div>
 
       {/* ─── Top Control Bar (Hidden on print) ─── */}
@@ -393,17 +377,12 @@ export default function TaxInvoice({
           <p>For yard inquiries or dispatch status, contact: +91 89195 26315</p>
         </div>
 
-        <div className="text-center sm:text-right">
-          <div className="inline-block border-2 border-dashed border-amber-600/40 rounded-2xl p-3 bg-amber-50/50 mb-2">
-            <div className="text-[10px] font-black tracking-wider text-amber-800 uppercase">
-              ★ PRASAD CEMENT WORK ★
-            </div>
-            <div className="text-[9px] text-emerald-700 font-bold uppercase mt-0.5">
-              SEALED & QUALITY VERIFIED
-            </div>
+        <div className="flex flex-col items-center sm:items-end text-center sm:text-right">
+          <div className="relative mb-1">
+            <OfficialSeal size={120} rotation={-2.5} className="filter contrast-125" />
           </div>
-          <p className="text-xs font-bold text-slate-800">Authorised Signatory</p>
-          <p className="text-[10px] text-slate-500">Prasad Cement Work (Velagatoor Yard)</p>
+          <p className="text-xs font-black tracking-wide text-slate-900 mt-1">Authorised Signatory & Seal</p>
+          <p className="text-[10px] font-semibold text-slate-500">Prasad Cement Work (Velagatoor Yard)</p>
         </div>
       </div>
 

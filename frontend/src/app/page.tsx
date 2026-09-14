@@ -320,12 +320,12 @@ export default function HomePage() {
                     <div className="text-xs">
                       <p className="text-slate-400 font-medium">Direct Yard Contacts</p>
                       <div className="flex flex-wrap gap-3 mt-0.5 font-mono font-bold">
-                        <a href="tel:+918919526315" className="text-amber-400 hover:underline">
-                          +91 89195 26315 (Prasad)
+                        <a href="tel:+919912179771" className="text-amber-400 hover:underline">
+                          +91 99121 79771 (Prasad)
                         </a>
                         <span className="text-slate-600">•</span>
-                        <a href="tel:+919912179771" className="text-amber-400 hover:underline">
-                          +91 99121 79771
+                        <a href="mailto:armuriprasad@gmail.com" className="text-amber-400 hover:underline">
+                          armuriprasad@gmail.com
                         </a>
                       </div>
                     </div>
@@ -354,8 +354,8 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Responsive Embedded Google Map iframe — perfectly sized across all devices */}
-            <div className="lg:col-span-7 relative w-full rounded-3xl overflow-hidden border-2 border-slate-700/80 shadow-2xl bg-slate-950 min-h-[300px] sm:min-h-[380px] lg:min-h-[460px] h-[320px] sm:h-[400px] lg:h-full">
+            {/* Responsive Embedded Google Map iframe — perfectly sized and spacious across all devices */}
+            <div className="lg:col-span-7 relative w-full rounded-3xl overflow-hidden border-2 border-slate-700/80 shadow-2xl bg-slate-950 min-h-[440px] sm:min-h-[500px] lg:min-h-[560px] h-[480px] lg:h-full flex flex-col">
               <iframe
                 title="Sri Lakshmi Penchila Narasimha Swamy Cement Work (Prasad Cement work) Official Google Maps Location"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3775.9753396386423!2d79.16863837550547!3d18.84376428231365!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcd39451070cfc1%3A0x90cc0b6511d388bd!2sPrasad%20Cement%20work!5e0!3m2!1sen!2sin!4v1789238412071!5m2!1sen!2sin"
@@ -366,10 +366,24 @@ export default function HomePage() {
                 className="absolute inset-0 w-full h-full"
               ></iframe>
 
-              <div className="absolute top-3 left-3 bg-slate-950/95 border border-amber-500/40 px-3.5 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2.5 shadow-xl backdrop-blur-md z-10 pointer-events-none">
+              {/* Top Status Overlay Badge */}
+              <div className="absolute top-4 left-4 bg-slate-950/90 border border-amber-500/40 px-3.5 py-2 rounded-2xl text-xs font-bold text-white flex items-center gap-2.5 shadow-2xl backdrop-blur-md z-10 pointer-events-none">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                <span className="text-amber-400">Prasad Cement work</span>
-                <span className="text-slate-400 font-normal">| Velagatoor, Telangana</span>
+                <span className="text-amber-400 font-extrabold">Prasad Cement Work Yard</span>
+                <span className="text-slate-400 font-normal hidden sm:inline">| Velagatoor, Telangana</span>
+              </div>
+
+              {/* Bottom Quick-Action Floating Button */}
+              <div className="absolute bottom-4 right-4 z-10">
+                <a
+                  href="https://www.google.com/maps/place/Prasad+Cement+work/@18.8437643,79.1686384,17z/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-900 text-amber-400 hover:text-amber-300 border border-amber-500/50 text-xs font-bold flex items-center gap-2 backdrop-blur-md shadow-xl transition-all cursor-pointer"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Full Screen Map</span>
+                </a>
               </div>
             </div>
           </div>

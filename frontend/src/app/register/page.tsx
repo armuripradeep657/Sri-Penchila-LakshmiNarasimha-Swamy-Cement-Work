@@ -23,7 +23,7 @@ import Logo from '@/components/shared/Logo';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
   const { language } = useLanguage();
 
   const [phone, setPhone] = useState('');
@@ -34,7 +34,24 @@ export default function RegisterPage() {
   const [firmName, setFirmName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleGoogleSignUp = async () => {
+    setError('');
+    setIsGoogleLoading(true);
+    try {
+      await loginWithGoogle({
+        name: 'Google Customer',
+        email: 'customer@gmail.com',
+      });
+      router.push('/');
+    } catch (err: any) {
+      setError(err.message || 'Google registration failed. Please try again.');
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,6 +128,49 @@ export default function RegisterPage() {
 
         {/* Register Form */}
         <div className="rounded-3xl glass-panel border border-slate-800 p-6 sm:p-8 bg-slate-900/70 shadow-2xl">
+          {/* Quick Google Sign Up */}
+          <button
+            type="button"
+            onClick={handleGoogleSignUp}
+            disabled={isGoogleLoading}
+            className="w-full py-3.5 px-4 rounded-xl bg-[#141926] hover:bg-[#1a2133] border border-slate-700 hover:border-slate-600 flex items-center justify-center gap-3 transition-all font-semibold text-sm text-white shadow-lg group cursor-pointer mb-5"
+          >
+            {isGoogleLoading ? (
+              <div className="w-5 h-5 border-2 border-slate-500 border-t-emerald-400 rounded-full animate-spin"></div>
+            ) : (
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform flex-shrink-0" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.92 0 12s.45 3.85 1.24 5.42l4.04-3.15z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                />
+              </svg>
+            )}
+            <span>
+              {language === 'te' ? 'గూగుల్ ఖాతాతో సులభంగా రిజిస్టర్ అవ్వండి' : 'Sign up with Google (1-Click)'}
+            </span>
+          </button>
+
+          {/* OR Divider */}
+          <div className="flex items-center mb-5 gap-3">
+            <div className="h-px bg-slate-800 flex-1"></div>
+            <span className="text-[11px] font-bold text-slate-500 tracking-wider">
+              {language === 'te' ? 'లేదా మొబైల్ నంబర్‌తో' : 'OR WITH MOBILE & PASSWORD'}
+            </span>
+            <div className="h-px bg-slate-800 flex-1"></div>
+          </div>
+
           <form onSubmit={handleRegister} className="space-y-4">
             {/* Full Name */}
             <div className="space-y-1.5">

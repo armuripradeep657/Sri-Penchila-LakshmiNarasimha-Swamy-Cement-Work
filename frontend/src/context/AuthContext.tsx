@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/types';
 import { api } from '@/lib/api';
+import { supabase, isSupabaseConfigured, signInWithGoogleOAuth } from '@/lib/supabase';
 
 interface AuthContextType {
   user: User | null;
@@ -66,6 +67,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const loginWithGoogle = async (googleData?: { email?: string; name?: string; phone?: string }): Promise<User> => {
+    if (isSupabaseConfigured && supabase && !googleData?.email) {
+      const { error } = await signInWithGoogleOAuth();
+      if (!error) {
+        // Redirecting to Google OAuth
+        return {} as User;
+      }
+    }
+
     try {
       const res = await api.loginWithGoogle(googleData);
       if (res?.accessToken && res?.user) {
