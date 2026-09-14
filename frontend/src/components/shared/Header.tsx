@@ -76,7 +76,7 @@ export default function Header() {
           </nav>
 
           {/* Action Buttons & Language Switcher */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
             {/* Language Switcher Pill — hidden on mobile, shown in mobile drawer instead */}
             <div className="hidden md:flex items-center bg-slate-900 border border-slate-700/80 rounded-xl p-0.5 shadow-inner">
               <button

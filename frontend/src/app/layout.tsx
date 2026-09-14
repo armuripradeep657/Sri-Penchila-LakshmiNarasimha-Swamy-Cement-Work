@@ -8,6 +8,7 @@ import Header from '@/components/shared/Header';
 import Footer from '@/components/shared/Footer';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
 import AmbientLogoBackground from '@/components/shared/AmbientLogoBackground';
+import MobileBottomNav from '@/components/shared/MobileBottomNav';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -49,9 +50,10 @@ export default function RootLayout({
             <CartProvider>
               <AmbientLogoBackground />
               <Header />
-              <main className="flex-1 overflow-x-hidden">{children}</main>
+              <main className="flex-1 overflow-x-hidden pb-mobile-nav">{children}</main>
               <Footer />
               <WhatsAppButton />
+              <MobileBottomNav />
             </CartProvider>
           </AuthProvider>
         </LanguageProvider>

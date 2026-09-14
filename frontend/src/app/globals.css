@@ -264,25 +264,25 @@ img, video, iframe, embed, object {
   height: auto;
 }
 
-/* Touch-friendly minimum tap targets */
-@media (max-width: 767px) {
-  button, a, [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
+/* Touch-friendly utility class */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
 
-  /* Prevent content from breaking out of viewport */
-  .max-w-7xl {
-    max-width: 100vw;
+/* Mobile bottom nav safe spacing utility */
+.pb-mobile-nav {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  .pb-mobile-nav {
+    padding-bottom: 0;
   }
 }
 
-/* Smooth momentum scrolling for scroll containers on mobile */
+/* Smooth momentum scrolling for horizontal scroll containers on mobile */
 .overflow-x-auto {
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.overflow-x-auto::-webkit-scrollbar {
-  display: none;
 }
 

@@ -104,7 +104,7 @@ export default function TaxInvoice({
     <div
       ref={invoiceRef}
       id="tax-invoice"
-      className="relative overflow-hidden bg-white text-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-300 max-w-3xl mx-auto font-sans leading-relaxed select-text"
+      className="relative overflow-hidden bg-white text-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-10 shadow-2xl border border-slate-300 max-w-3xl mx-auto font-sans leading-relaxed select-text"
     >
       {/* ─── Circular Company Logo Watermark in Background ─── */}
       <div
@@ -125,7 +125,7 @@ export default function TaxInvoice({
       </div>
 
       {/* ─── Top Control Bar (Hidden on print) ─── */}
-      <div className="relative z-10 no-print flex items-center justify-between pb-6 mb-6 border-b border-slate-200">
+      <div className="relative z-10 no-print flex flex-wrap items-center justify-between gap-3 pb-4 sm:pb-6 mb-6 border-b border-slate-200">
         <div className="flex items-center gap-2">
           <span
             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${
@@ -256,8 +256,8 @@ export default function TaxInvoice({
       </div>
 
       {/* ─── Itemized Products Table ─── */}
-      <div className="py-6">
-        <table className="w-full text-left text-xs border-collapse">
+      <div className="py-6 overflow-x-auto">
+        <table className="w-full min-w-[520px] text-left text-xs border-collapse">
           <thead>
             <tr className="border-b-2 border-slate-800 bg-slate-100 text-slate-700 font-extrabold">
               <th className="py-3 px-3 text-center w-12">#</th>

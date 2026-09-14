@@ -26,6 +26,41 @@ export default function AdminDashboardPage() {
 
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [liveAlert, setLiveAlert] = useState<string | null>(null);
+
+  const playNotificationChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const freqs = [587.33, 783.99, 1046.5];
+      freqs.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(f, ctx.currentTime + i * 0.12);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.12);
+        osc.stop(ctx.currentTime + i * 0.12 + 0.35);
+      });
+    } catch (e) {}
+  };
+
+  const loadDashboard = async (silent = false) => {
+    if (!silent) setIsLoading(true);
+    try {
+      const res = await api.getAdminDashboard();
+      if (res) {
+        setDashboardData(res);
+      }
+    } catch (err) {
+      console.error('Failed to load admin dashboard:', err);
+    } finally {
+      if (!silent) setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading) {
@@ -40,23 +75,43 @@ export default function AdminDashboardPage() {
       }
     }
 
-    async function loadDashboard() {
-      if (!user || !isAdmin) return;
-      setIsLoading(true);
-      try {
-        const res = await api.getAdminDashboard();
-        if (res) {
-          setDashboardData(res);
-        }
-      } catch (err) {
-        console.error('Failed to load admin dashboard:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
     if (user && isAdmin) {
-      loadDashboard();
+      loadDashboard(false);
+
+      // ─── Real-time Auto-Refresh & Multi-Tab Synchronization ────────────────
+      const interval = setInterval(() => {
+        loadDashboard(true);
+      }, 4000);
+
+      const onOrderPlaced = (e: any) => {
+        const ord = e.detail;
+        playNotificationChime();
+        setLiveAlert(`🔔 NEW CUSTOMER ORDER: ${ord.orderNumber} • ${ord.user?.name || 'Customer'} (${ord.user?.phone || ''}) • ₹${Math.round((ord.grandTotal || ord.totalAmount) / 100)}`);
+        loadDashboard(true);
+        setTimeout(() => setLiveAlert(null), 8000);
+      };
+
+      window.addEventListener('pcp_order_placed', onOrderPlaced);
+
+      let bc: BroadcastChannel | null = null;
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        bc = new BroadcastChannel('pcp_orders_channel');
+        bc.onmessage = (evt) => {
+          if (evt.data?.type === 'NEW_ORDER') {
+            playNotificationChime();
+            const ord = evt.data.order;
+            setLiveAlert(`🔔 NEW CUSTOMER ORDER: ${ord.orderNumber} • ${ord.user?.name || 'Customer'} • ₹${Math.round((ord.grandTotal || ord.totalAmount) / 100)}`);
+            loadDashboard(true);
+            setTimeout(() => setLiveAlert(null), 8000);
+          }
+        };
+      }
+
+      return () => {
+        clearInterval(interval);
+        window.removeEventListener('pcp_order_placed', onOrderPlaced);
+        if (bc) bc.close();
+      };
     }
   }, [user, isAdmin, authLoading, router]);
 
@@ -79,6 +134,22 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      {/* 🚨 Real-Time Live Order Alert Banner */}
+      {liveAlert && (
+        <div className="p-4 rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-amber-300 font-extrabold text-sm flex items-center justify-between shadow-2xl shadow-amber-500/20 animate-in slide-in-from-top-4 duration-300">
+          <div className="flex items-center gap-3">
+            <span className="w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
+            <span>{liveAlert}</span>
+          </div>
+          <button
+            onClick={() => setLiveAlert(null)}
+            className="text-xs bg-amber-500 text-slate-950 px-3 py-1 rounded-lg font-bold hover:bg-amber-400"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Top Welcome Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
@@ -126,7 +197,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         {/* Month Revenue */}
         <div className="rounded-2xl glass-panel border border-slate-800 p-5 space-y-3">
           <div className="flex items-center justify-between">
@@ -231,9 +302,9 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Recent Orders Table */}
-      <div className="rounded-3xl glass-panel border border-slate-800 p-6 space-y-4">
+      <div className="rounded-2xl sm:rounded-3xl glass-panel border border-slate-800 p-4 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-white">Recent Customer Orders</h2>
+          <h2 className="text-sm sm:text-base font-bold text-white">Recent Customer Orders</h2>
           <Link href="/admin/orders" className="text-xs text-amber-400 hover:underline font-semibold">
             View All Orders →
           </Link>
@@ -241,7 +312,7 @@ export default function AdminDashboardPage() {
 
         {dashboardData?.recentOrders && dashboardData.recentOrders.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full min-w-[560px] text-left text-xs">
               <thead className="text-slate-400 border-b border-slate-800 bg-slate-900/40">
                 <tr>
                   <th className="py-3 px-4">Order #</th>

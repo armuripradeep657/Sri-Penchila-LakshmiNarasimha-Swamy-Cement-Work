@@ -59,25 +59,28 @@ export default function Logo({
       </div>
 
       {showText && (
-        <div className="flex flex-col justify-center">
+        <div className="flex flex-col justify-center min-w-0">
           <span
-            className={`${sizeClasses.title} tracking-tight text-white group-hover:text-amber-400 transition-colors leading-tight line-clamp-1`}
+            className={`${sizeClasses.title} tracking-tight text-white group-hover:text-amber-400 transition-colors leading-tight truncate max-w-[130px] min-[380px]:max-w-[180px] sm:max-w-none`}
           >
             {language === 'te' ? (
               <>శ్రీ లక్ష్మీ పెంచల నరసింహ స్వామి</>
             ) : (
-              <>Sri Lakshmi Penchila Narasimha Swamy</>
+              <>Sri Lakshmi Penchila</>
             )}
+            <span className="hidden min-[380px]:inline">
+              {language === 'te' ? '' : ' Narasimha Swamy'}
+            </span>
           </span>
           <div className="flex items-center gap-1.5 mt-0.5">
             <span
-              className={`${sizeClasses.sub} text-amber-400 font-extrabold tracking-wider uppercase leading-none`}
+              className={`${sizeClasses.sub} text-amber-400 font-extrabold tracking-wider uppercase leading-none truncate`}
             >
               {language === 'te' ? 'ప్రసాద్ సిమెంట్ వర్క్' : 'PRASAD CEMENT WORK'}
             </span>
-            <span className="text-slate-600 text-[9px] leading-none">•</span>
+            <span className="text-slate-600 text-[9px] leading-none hidden sm:inline">•</span>
             <span
-              className={`${sizeClasses.sub} text-slate-400 font-semibold tracking-wider uppercase leading-none`}
+              className={`${sizeClasses.sub} text-slate-400 font-semibold tracking-wider uppercase leading-none hidden sm:inline`}
             >
               {language === 'te' ? 'ప్రీకాస్ట్ సొల్యూషన్స్' : 'Precast Concrete'}
             </span>

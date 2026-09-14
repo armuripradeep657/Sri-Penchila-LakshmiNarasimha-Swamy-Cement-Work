@@ -210,6 +210,25 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Sticky Checkout Bar (Floats above mobile bottom dock) */}
+      <div className="md:hidden fixed bottom-16 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 px-4 py-2.5 shadow-2xl flex items-center justify-between gap-3 safe-bottom">
+        <div className="flex flex-col">
+          <span className="text-[10px] text-slate-400">Total ({cart.totalItems} items)</span>
+          <span className="text-base font-black text-amber-400 font-mono">
+            {formatPrice(cart.subtotal)}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => router.push('/checkout')}
+          disabled={cart.quoteRequiredCount > 0}
+          className="py-2.5 px-5 rounded-xl font-black text-xs text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 active:scale-95 shadow-lg shadow-amber-500/25 transition-all flex items-center gap-1.5 disabled:opacity-50"
+        >
+          <span>Proceed to Checkout</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
     </div>
   );
 }

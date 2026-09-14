@@ -1332,6 +1332,29 @@ async function handleServerless(req: NextRequest, path: string[]) {
     return NextResponse.json({ success: false, message: 'Quote not found' }, { status: 404 });
   }
 
+  // 7. ADMIN DASHBOARD (Real-Time Live Business Operations)
+  if (route === 'admin/dashboard' && method === 'GET') {
+    const monthRevenuePaisa = store.orders.reduce((sum, o) => sum + (o.grandTotal || o.totalAmount || 0), 0);
+    const lowStockVariants = store.products
+      .flatMap((p) => p.variants.map((v) => ({ ...v, product: { name: p.name } })))
+      .filter((v) => v.stock <= 10)
+      .slice(0, 8);
+
+    return NextResponse.json({
+      success: true,
+      stats: {
+        monthOrders: store.orders.length,
+        monthRevenuePaisa,
+        totalRevenuePaisa: monthRevenuePaisa,
+        pendingQuotesCount: store.quotes.filter((q) => q.status === 'SUBMITTED').length,
+        lowStockCount: lowStockVariants.length,
+        totalOrders: store.orders.length,
+      },
+      recentOrders: store.orders.slice(0, 15),
+      lowStockVariants,
+    });
+  }
+
   // Fallback default
   return NextResponse.json({ success: true, message: 'Serverless response' });
 }

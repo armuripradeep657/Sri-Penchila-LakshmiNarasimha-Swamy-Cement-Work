@@ -145,10 +145,10 @@ export default function OrdersPage() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="text-xs text-slate-400">Grand Total</p>
-                      <p className="text-base font-extrabold text-amber-400">
+                  <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/60">
+                    <div className="text-left sm:text-right">
+                      <p className="text-[10px] sm:text-xs text-slate-400">Grand Total</p>
+                      <p className="text-sm sm:text-base font-extrabold text-amber-400 font-mono">
                         {formatPrice(order.grandTotal)}
                       </p>
                     </div>

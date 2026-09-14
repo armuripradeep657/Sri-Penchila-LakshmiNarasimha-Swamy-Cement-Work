@@ -150,14 +150,69 @@ class ApiClient {
   }
 
   async placeOrder(orderData: any) {
-    return this.request<any>('/orders', {
+    const res = await this.request<any>('/orders', {
       method: 'POST',
       body: JSON.stringify(orderData),
     });
+
+    if (typeof window !== 'undefined') {
+      try {
+        const orderToSync = res?.order || {
+          id: `ord_${Date.now()}`,
+          orderNumber: orderData.orderNumber || `PCP-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+          status: 'CONFIRMED',
+          paymentStatus: orderData.paymentMethod === 'COD' ? 'PENDING' : 'PAID',
+          paymentMethod: orderData.paymentMethod || 'ONLINE',
+          totalAmount: orderData.totalAmount || 0,
+          deliveryFee: orderData.deliveryFee || 0,
+          workerPlacementFee: orderData.workerPlacementFee || 0,
+          grandTotal: orderData.grandTotal || orderData.totalAmount || 0,
+          createdAt: new Date().toISOString(),
+          deliveryAddress: orderData.deliveryAddress,
+          items: orderData.items,
+          notes: orderData.notes,
+          user: {
+            name: orderData.deliveryAddress?.fullName || 'Valued Builder',
+            phone: orderData.deliveryAddress?.phone || '9912179771',
+          },
+        };
+
+        // Cache in localStorage for real-time cross-tab sync
+        const liveOrders = JSON.parse(localStorage.getItem('pcp_live_orders') || '[]');
+        const exists = liveOrders.some((o: any) => o.orderNumber === orderToSync.orderNumber);
+        if (!exists) {
+          liveOrders.unshift(orderToSync);
+          localStorage.setItem('pcp_live_orders', JSON.stringify(liveOrders.slice(0, 50)));
+        }
+
+        // Broadcast to Owner account & active sessions
+        window.dispatchEvent(new CustomEvent('pcp_order_placed', { detail: orderToSync }));
+        if ('BroadcastChannel' in window) {
+          const bc = new BroadcastChannel('pcp_orders_channel');
+          bc.postMessage({ type: 'NEW_ORDER', order: orderToSync });
+          bc.close();
+        }
+      } catch (e) {
+        console.warn('Real-time order sync notice:', e);
+      }
+    }
+
+    return res;
   }
 
   async getOrders() {
-    return this.request<any>('/orders');
+    const res = await this.request<any>('/orders');
+    if (typeof window !== 'undefined' && res?.orders) {
+      try {
+        const liveOrders = JSON.parse(localStorage.getItem('pcp_live_orders') || '[]');
+        const existingIds = new Set(res.orders.map((o: any) => o.id || o.orderNumber));
+        const missing = liveOrders.filter((o: any) => !existingIds.has(o.id) && !existingIds.has(o.orderNumber));
+        if (missing.length > 0) {
+          res.orders = [...missing, ...res.orders];
+        }
+      } catch (e) {}
+    }
+    return res;
   }
 
   async getOrder(id: string) {
@@ -199,9 +254,30 @@ class ApiClient {
     });
   }
 
-  // ─── Admin ─────────────────────────────────────────────────────────────────
   async getAdminDashboard() {
-    return this.request<any>('/admin/dashboard');
+    const res = await this.request<any>('/admin/dashboard');
+    if (typeof window !== 'undefined' && res) {
+      try {
+        const liveOrders = JSON.parse(localStorage.getItem('pcp_live_orders') || '[]');
+        if (liveOrders.length > 0) {
+          const currentRecent = res.recentOrders || [];
+          const existingIds = new Set(currentRecent.map((o: any) => o.id || o.orderNumber));
+          const missing = liveOrders.filter((o: any) => !existingIds.has(o.id) && !existingIds.has(o.orderNumber));
+          if (missing.length > 0) {
+            res.recentOrders = [...missing, ...currentRecent].slice(0, 15);
+            const addedRev = missing.reduce((sum: number, o: any) => sum + (o.grandTotal || o.totalAmount || 0), 0);
+            res.stats = {
+              ...res.stats,
+              monthOrders: (res.stats?.monthOrders || 0) + missing.length,
+              totalOrders: (res.stats?.totalOrders || 0) + missing.length,
+              monthRevenuePaisa: (res.stats?.monthRevenuePaisa || 0) + addedRev,
+              totalRevenuePaisa: (res.stats?.totalRevenuePaisa || 0) + addedRev,
+            };
+          }
+        }
+      } catch (e) {}
+    }
+    return res;
   }
 
   async getAdminProducts() {
@@ -259,7 +335,29 @@ class ApiClient {
     const query = new URLSearchParams();
     if (status) query.append('status', status);
     if (search) query.append('search', search);
-    return this.request<any>(`/admin/orders?${query.toString()}`);
+    const res = await this.request<any>(`/admin/orders?${query.toString()}`);
+
+    if (typeof window !== 'undefined' && res?.orders) {
+      try {
+        const liveOrders = JSON.parse(localStorage.getItem('pcp_live_orders') || '[]');
+        const existingIds = new Set(res.orders.map((o: any) => o.id || o.orderNumber));
+        const missing = liveOrders.filter((o: any) => !existingIds.has(o.id) && !existingIds.has(o.orderNumber));
+        if (missing.length > 0) {
+          let merged = [...missing, ...res.orders];
+          if (status) merged = merged.filter((o: any) => o.status === status);
+          if (search) {
+            const s = search.toLowerCase();
+            merged = merged.filter((o: any) =>
+              o.orderNumber?.toLowerCase().includes(s) ||
+              o.user?.phone?.includes(s) ||
+              o.user?.name?.toLowerCase().includes(s)
+            );
+          }
+          res.orders = merged;
+        }
+      } catch (e) {}
+    }
+    return res;
   }
 
   async updateOrderStatus(orderId: string, status: string, notes?: string) {

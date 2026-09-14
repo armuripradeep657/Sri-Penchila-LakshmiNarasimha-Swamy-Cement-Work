@@ -284,7 +284,7 @@ export default function ProductDetailPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       {/* Top Breadcrumb & Role Context Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border-b border-slate-800 pb-4">
-        <div className="flex items-center gap-2 text-slate-400">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-slate-400">
           <Link href="/" className="hover:text-amber-400 transition-colors">{t('nav_home')}</Link>
           <span>/</span>
           <Link href="/products" className="hover:text-amber-400 transition-colors">{t('nav_products')}</Link>
@@ -293,7 +293,7 @@ export default function ProductDetailPage() {
             {localizeCategory(product.category)}
           </Link>
           <span>/</span>
-          <span className="text-slate-200 font-medium truncate max-w-xs">{locProduct?.name || product.name}</span>
+          <span className="text-slate-200 font-medium truncate max-w-[160px] sm:max-w-xs">{locProduct?.name || product.name}</span>
         </div>
 
         {/* Dynamic Role Badge Indicator */}
@@ -898,6 +898,60 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* ─── Mobile Sticky Bottom Purchase Bar (Floats above mobile bottom dock) ─── */}
+      {!isAdmin && (
+        <div className="md:hidden fixed bottom-16 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 px-4 py-2.5 shadow-2xl flex items-center justify-between gap-3 safe-bottom">
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-[10px] text-slate-400 truncate">
+              {selectedVariant ? locSelectedVariant?.name || selectedVariant.name : 'Standard'}
+            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-black text-amber-400 font-mono">
+                {selectedVariant?.price ? formatPrice((selectedVariant.price) * quantity) : (t('quote_on_request') || 'Quote')}
+              </span>
+              {selectedVariant?.price && quantity > 1 && (
+                <span className="text-[10px] text-slate-500 font-mono">
+                  ({quantity}x)
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {selectedVariant?.price ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 active:scale-95 transition-all"
+                  aria-label="Add to cart"
+                  title="Add to cart"
+                >
+                  <ShoppingBag className="w-4 h-4 text-amber-400" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowBookingModal(true)}
+                  className="py-2.5 px-4 rounded-xl font-black text-xs text-slate-950 bg-gradient-to-r from-amber-500 to-amber-600 active:scale-95 shadow-lg shadow-amber-500/25 transition-all flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5 fill-slate-950" />
+                  <span>{language === 'te' ? 'బుకింగ్ చేయండి' : 'Book Now'}</span>
+                </button>
+              </>
+            ) : (
+              <Link
+                href={`/quote?productId=${product.id}&variantId=${selectedVariant?.id || ''}`}
+                className="py-2.5 px-4 rounded-xl font-black text-xs text-white bg-blue-600 active:scale-95 shadow-lg shadow-blue-600/25 transition-all flex items-center gap-1.5"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>{language === 'te' ? 'కోట్ కోరండి' : 'Request Quote'}</span>
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════════════════
           MULTI-STEP CUSTOMER BOOKING MODAL (Delivery -> Payment -> Festive Celebration -> Invoice)

@@ -240,8 +240,8 @@ export default function CustomerBookingModal({
         notes: [
           `Distance Tier: ${DELIVERY_TIERS[selectedZoneKey]?.label}`,
           workerPlacement ? `Worker Home Placement: ₹${workerPlacementFee / 100} (${quantity} items × ₹40)` : '',
-          paymentSubTab === 'QR' ? 'Paid via Dynamic UPI QR (Receiver: 9059179771)' : '',
-          paymentSubTab === 'UPI_APPS' ? 'Paid via Mobile UPI App (Receiver: 9059179771)' : '',
+          paymentSubTab === 'QR' ? 'Paid via Dynamic UPI QR (Receiver: 9059179771-3@ybl)' : '',
+          paymentSubTab === 'UPI_APPS' ? 'Paid via Mobile UPI App (Receiver: 9059179771-3@ybl)' : '',
           paymentSubTab === 'NETBANKING' ? `Paid via Net Banking (${selectedBank})` : '',
           paymentSubTab === 'COD' ? 'Cash on Delivery at Construction Site' : '',
           deliveryNotes || '',
@@ -332,17 +332,17 @@ export default function CustomerBookingModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-xl rounded-3xl bg-slate-900 border-2 border-slate-700/80 shadow-2xl overflow-hidden my-6">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
+      <div className="relative w-full max-w-xl rounded-t-3xl sm:rounded-3xl bg-slate-900 border-t-2 sm:border-2 border-slate-700/80 shadow-2xl overflow-hidden max-h-[94vh] sm:max-h-[90vh] flex flex-col my-0 sm:my-6">
         {/* Top Gradient Header */}
-        <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 p-5 text-slate-950 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 p-4 sm:p-5 text-slate-950 flex items-center justify-between shrink-0">
           <div>
             <span className="text-[10px] font-black uppercase tracking-widest bg-slate-950/20 px-2 py-0.5 rounded-full inline-block mb-1">
               {step === 1 && 'STEP 1 OF 3 • SITE DELIVERY'}
               {step === 2 && 'STEP 2 OF 3 • SECURE PAYMENT'}
               {step === 3 && 'STEP 3 OF 3 • BOOKING CONFIRMED'}
             </span>
-            <h2 className="text-xl sm:text-2xl font-black leading-tight">
+            <h2 className="text-lg sm:text-2xl font-black leading-tight">
               {step === 1 && (language === 'te' ? 'డెలివరీ & అన్‌లోడింగ్ వివరాలు' : 'Delivery & Distance Details')}
               {step === 2 && (language === 'te' ? 'చెల్లింపు & బుకింగ్' : 'Payment & Order Allocation')}
               {step === 3 && (language === 'te' ? 'ఆర్డర్ విజయవంతంగా పూర్తయింది!' : 'Allotment Confirmed!')}
@@ -352,7 +352,7 @@ export default function CustomerBookingModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-slate-950/20 hover:bg-slate-950/40 text-slate-950 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-950/20 hover:bg-slate-950/40 text-slate-950 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -360,7 +360,7 @@ export default function CustomerBookingModal({
 
         {/* ─── STEP 1: DELIVERY & DISTANCE DETAILS ─── */}
         {step === 1 && (
-          <form onSubmit={handleProceedToPayment} className="p-6 sm:p-8 space-y-4">
+          <form onSubmit={handleProceedToPayment} className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-4">
             {/* Selected Item Mini-Banner */}
             <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-950/60 border border-slate-800 text-xs">
               <div>
@@ -573,7 +573,7 @@ export default function CustomerBookingModal({
 
         {/* ─── STEP 2: PAYMENT PAGE ─── */}
         {step === 2 && (
-          <div className="p-6 sm:p-8 space-y-5">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-5">
             {/* Delivery Recap Badge */}
             <div className="flex items-start justify-between p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-xs">
               <div className="space-y-0.5">
@@ -701,7 +701,7 @@ export default function CustomerBookingModal({
                 </button>
               </div>
 
-              {/* TAB 1: UPI QR CODE (Scan to 9059179771) */}
+              {/* TAB 1: UPI QR CODE (Scan to 9059179771-3@ybl) */}
               {paymentSubTab === 'QR' && (
                 <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
                   <div className="flex flex-col sm:flex-row items-center gap-5 justify-between">
@@ -709,13 +709,13 @@ export default function CustomerBookingModal({
                     <div className="relative p-2.5 bg-white rounded-2xl shadow-xl shadow-amber-500/10 border-2 border-amber-500/40 shrink-0">
                       <img
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=6&data=${encodeURIComponent(
-                          `upi://pay?pa=9059179771@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR&tn=Precast%20Booking`
+                          `upi://pay?pa=9059179771-3@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR&tn=Precast%20Booking`
                         )}`}
-                        alt="UPI Payment QR Code for 9059179771"
+                        alt="UPI Payment QR Code for 9059179771-3@ybl"
                         className="w-36 h-36 object-contain"
                       />
                       <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-600 text-white shadow whitespace-nowrap">
-                        9059179771@ybl
+                        9059179771-3@ybl
                       </span>
                     </div>
 
@@ -734,13 +734,13 @@ export default function CustomerBookingModal({
 
                       <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
                         <div>
-                          <span className="text-[10px] text-slate-400 block">UPI Payee Number:</span>
-                          <span className="font-mono font-bold text-amber-400 text-xs">9059179771</span>
+                          <span className="text-[10px] text-slate-400 block">UPI Payee ID:</span>
+                          <span className="font-mono font-bold text-amber-400 text-xs">9059179771-3@ybl</span>
                         </div>
                         <button
                           type="button"
                           onClick={() => {
-                            navigator.clipboard.writeText('9059179771');
+                            navigator.clipboard.writeText('9059179771-3@ybl');
                             setCopiedUPI(true);
                             setTimeout(() => setCopiedUPI(false), 2000);
                           }}
@@ -767,7 +767,7 @@ export default function CustomerBookingModal({
                     {isProcessing ? (
                       <>
                         <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                        <span>Detecting Payment on 9059179771...</span>
+                        <span>Detecting Payment on 9059179771-3@ybl...</span>
                       </>
                     ) : (
                       <>
@@ -783,12 +783,12 @@ export default function CustomerBookingModal({
               {paymentSubTab === 'UPI_APPS' && (
                 <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
                   <p className="text-xs text-slate-300">
-                    Tap your preferred UPI app to initiate payment directly to <strong>9059179771</strong>:
+                    Tap your preferred UPI app to initiate payment directly to <strong>9059179771-3@ybl</strong>:
                   </p>
 
                   <div className="grid grid-cols-2 gap-2.5">
                     <a
-                      href={`upi://pay?pa=9059179771@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
+                      href={`upi://pay?pa=9059179771-3@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
                       className="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 flex items-center gap-2.5 transition-all text-xs font-bold text-white"
                     >
                       <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-black text-xs">
@@ -798,7 +798,7 @@ export default function CustomerBookingModal({
                     </a>
 
                     <a
-                      href={`upi://pay?pa=9059179771@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
+                      href={`upi://pay?pa=9059179771-3@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
                       className="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 flex items-center gap-2.5 transition-all text-xs font-bold text-white"
                     >
                       <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-xs">
@@ -808,7 +808,7 @@ export default function CustomerBookingModal({
                     </a>
 
                     <a
-                      href={`upi://pay?pa=9059179771@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
+                      href={`upi://pay?pa=9059179771-3@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
                       className="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 flex items-center gap-2.5 transition-all text-xs font-bold text-white"
                     >
                       <div className="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-black text-xs">
@@ -818,7 +818,7 @@ export default function CustomerBookingModal({
                     </a>
 
                     <a
-                      href={`upi://pay?pa=9059179771@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
+                      href={`upi://pay?pa=9059179771-3@ybl&pn=Prasad%20Cement%20Work&am=${(grandTotal / 100).toFixed(2)}&cu=INR`}
                       className="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 flex items-center gap-2.5 transition-all text-xs font-bold text-white"
                     >
                       <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-xs">
@@ -837,7 +837,7 @@ export default function CustomerBookingModal({
                     {isProcessing ? (
                       <>
                         <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                        <span>Verifying App Payment on 9059179771...</span>
+                        <span>Verifying App Payment on 9059179771-3@ybl...</span>
                       </>
                     ) : (
                       <>
@@ -959,7 +959,7 @@ export default function CustomerBookingModal({
 
         {/* ─── STEP 3: CELEBRATION & INVOICE DOWNLOAD ─── */}
         {step === 3 && (
-          <div className="p-6 sm:p-8 space-y-6 text-center animate-in zoom-in-95 duration-200">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 text-center animate-in zoom-in-95 duration-200">
             {/* Glowing Allotment Seal */}
             <div className="relative mx-auto w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-2xl shadow-emerald-500/40 animate-pulse">
               <CheckCircle2 className="w-12 h-12 text-slate-950" />

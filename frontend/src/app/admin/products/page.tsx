@@ -402,7 +402,7 @@ function AdminProductsContent() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-end md:self-center">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 self-start sm:self-end md:self-center pt-2 sm:pt-0">
                     <Link
                       href={`/products/${product.slug}`}
                       className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 flex items-center gap-1"
@@ -448,7 +448,7 @@ function AdminProductsContent() {
                     </h4>
 
                     <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs">
+                      <table className="w-full min-w-[550px] text-left text-xs">
                         <thead className="text-slate-400 border-b border-slate-800 text-[11px]">
                           <tr>
                             <th className="py-2 px-3">Size Variant Name</th>

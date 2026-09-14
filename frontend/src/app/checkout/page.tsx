@@ -163,7 +163,7 @@ export default function CheckoutPage() {
       </div>
 
       {!user && (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4">
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
             <div>
@@ -175,7 +175,7 @@ export default function CheckoutPage() {
           </div>
           <Link
             href="/login?redirect=/checkout"
-            className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 whitespace-nowrap"
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 whitespace-nowrap self-stretch sm:self-auto text-center"
           >
             Quick OTP Login
           </Link>
