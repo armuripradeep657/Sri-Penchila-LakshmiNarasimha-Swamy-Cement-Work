@@ -20,6 +20,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useStoreSettings } from '@/hooks/useStoreSettings';
 import { Globe } from 'lucide-react';
 
 import Logo from '@/components/shared/Logo';
@@ -30,6 +31,7 @@ export default function Header() {
   const { user, isAdmin, logout } = useAuth();
   const { cart } = useCart();
   const { language, setLanguage, t } = useLanguage();
+  const { phone: storePhone, cleanPhone } = useStoreSettings();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
@@ -363,7 +365,9 @@ export default function Header() {
 
           <div className="pt-2 border-t border-slate-800 text-xs text-slate-400 space-y-1">
             <p>Jagtial - Velgatoor Road, Opp. Sudha Hospital, Velagatoor (Mandal), Jagtial Dist - 505526</p>
-            <p className="text-amber-400 font-medium">Direct Phone: +91 99121 79771</p>
+            <p className="text-amber-400 font-medium">
+              Direct Phone: <a href={`tel:+91${cleanPhone}`} className="hover:underline">+91 {cleanPhone}</a>
+            </p>
           </div>
         </div>
       )}

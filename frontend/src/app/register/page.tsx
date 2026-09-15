@@ -21,6 +21,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import Logo from '@/components/shared/Logo';
+import GoogleAuthModal, { GoogleAccountData } from '@/components/auth/GoogleAuthModal';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -37,16 +38,19 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [error, setError] = useState('');
 
-  const handleGoogleSignUp = async () => {
+  const handleGoogleSignUp = () => {
+    setError('');
+    setShowGoogleModal(true);
+  };
+
+  const handleProcessGoogleAuth = async (accountData: GoogleAccountData) => {
     setError('');
     setIsGoogleLoading(true);
     try {
-      await loginWithGoogle({
-        name: 'Google Customer',
-        email: 'customer@gmail.com',
-      });
+      await loginWithGoogle(accountData);
       router.push('/');
     } catch (err: any) {
       setError(err.message || 'Google registration failed. Please try again.');
@@ -349,6 +353,14 @@ export default function RegisterPage() {
           <span>{language === 'te' ? 'మీ సమాచారం సురక్షితంగా ఉంటుంది' : 'Your data is securely encrypted'}</span>
         </div>
       </div>
+
+      {/* Real-Time Google Authentication Modal */}
+      <GoogleAuthModal
+        isOpen={showGoogleModal}
+        onClose={() => setShowGoogleModal(false)}
+        onSelectAccount={handleProcessGoogleAuth}
+        title="Sign up with Google"
+      />
     </div>
   );
 }

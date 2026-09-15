@@ -102,10 +102,14 @@ export default function AdminOrdersPage() {
   }, [statusFilter, search]);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
+    // Instant optimistic update
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId || o.orderNumber === orderId ? { ...o, status: newStatus as any } : o))
+    );
     setUpdatingId(orderId);
     try {
       const res = await api.updateOrderStatus(orderId, newStatus);
-      await loadOrders();
+      await loadOrders(true);
       if (res?.whatsappUrl) {
         const sendWA = confirm(`Order status updated to ${newStatus.replace(/_/g, ' ')}. Would you like to open WhatsApp to send this update to customer now?`);
         if (sendWA) {
@@ -114,6 +118,7 @@ export default function AdminOrdersPage() {
       }
     } catch (err: any) {
       alert(err.message || 'Failed to update order status');
+      await loadOrders(true);
     } finally {
       setUpdatingId(null);
     }

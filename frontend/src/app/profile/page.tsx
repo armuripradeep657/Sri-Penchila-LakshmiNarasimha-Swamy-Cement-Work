@@ -24,6 +24,8 @@ import {
   Copy,
   Check,
   Calendar,
+  Trash2,
+  X,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
@@ -47,6 +49,16 @@ export default function ProfilePage() {
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState<string | null>(null);
+
+  // Customer Directory Owner Actions (Remove customer & Change customer password)
+  const [changePwdCustomer, setChangePwdCustomer] = useState<any | null>(null);
+  const [custNewPassword, setCustNewPassword] = useState('');
+  const [custConfirmPassword, setCustConfirmPassword] = useState('');
+  const [showCustPassword, setShowCustPassword] = useState(false);
+  const [isUpdatingCustPwd, setIsUpdatingCustPwd] = useState(false);
+  const [custPwdModalError, setCustPwdModalError] = useState('');
+  const [isDeletingUserId, setIsDeletingUserId] = useState<string | null>(null);
+  const [directoryAlert, setDirectoryAlert] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Password Change state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -97,12 +109,104 @@ export default function ProfilePage() {
         phone,
         firmName: firmName || undefined,
       });
-      setSuccessMessage('Profile details updated successfully!');
+
+      // If owner, automatically sync changes across the entire website & invoices!
+      if (isAdmin) {
+        const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+        const formattedPhone = cleanPhone ? `+91${cleanPhone}` : '+919912179771';
+        const settingsToUpdate: Record<string, string> = {
+          store_email: email || 'armuriprasad@gmail.com',
+          store_phone: formattedPhone,
+        };
+        if (firmName) settingsToUpdate['store_name'] = firmName;
+
+        try {
+          await api.updateStoreSettings(settingsToUpdate);
+        } catch {}
+
+        if (typeof window !== 'undefined') {
+          try {
+            const currentSaved = JSON.parse(localStorage.getItem('pcp_store_settings') || '{}');
+            const merged = { ...currentSaved, ...settingsToUpdate };
+            localStorage.setItem('pcp_store_settings', JSON.stringify(merged));
+            window.dispatchEvent(new CustomEvent('pcp_settings_updated', { detail: merged }));
+          } catch {}
+        }
+      }
+
+      setSuccessMessage(
+        isAdmin
+          ? 'Owner profile & site-wide contact info updated successfully!'
+          : 'Profile details updated successfully!'
+      );
       setTimeout(() => setSuccessMessage(''), 4000);
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to update profile');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDeleteCustomer = async (cust: any) => {
+    if (cust.role === 'ADMIN' || cust.id === 'usr_admin' || cust.phone === '9912179771') {
+      alert('Cannot remove Owner/Administrator account.');
+      return;
+    }
+
+    const confirmed = confirm(
+      `Are you sure you want to remove customer account for "${cust.name || 'Customer'}" (+91 ${cust.phone})?\n\nThis will remove them from the Customer Directory.`
+    );
+    if (!confirmed) return;
+
+    setIsDeletingUserId(cust.id || cust.phone);
+    try {
+      await api.adminDeleteUser(cust.id || cust.phone);
+      setRegisteredUsers((prev) => prev.filter((u) => u.id !== cust.id && u.phone !== cust.phone));
+      setUsersCount((prev) => Math.max(0, prev - 1));
+      setDirectoryAlert({
+        type: 'success',
+        text: `Customer account for ${cust.name || cust.phone} removed successfully!`,
+      });
+      setTimeout(() => setDirectoryAlert(null), 5000);
+    } catch (err: any) {
+      setDirectoryAlert({
+        type: 'error',
+        text: err.message || 'Failed to remove customer account.',
+      });
+    } finally {
+      setIsDeletingUserId(null);
+    }
+  };
+
+  const handleCustomerPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCustPwdModalError('');
+
+    if (custNewPassword.length < 6) {
+      setCustPwdModalError('Password must be at least 6 characters');
+      return;
+    }
+
+    if (custNewPassword !== custConfirmPassword) {
+      setCustPwdModalError('Passwords do not match');
+      return;
+    }
+
+    setIsUpdatingCustPwd(true);
+    try {
+      await api.adminChangeUserPassword(changePwdCustomer.id || changePwdCustomer.phone, custNewPassword);
+      setDirectoryAlert({
+        type: 'success',
+        text: `New password updated successfully for ${changePwdCustomer.name || changePwdCustomer.phone}!`,
+      });
+      setChangePwdCustomer(null);
+      setCustNewPassword('');
+      setCustConfirmPassword('');
+      setTimeout(() => setDirectoryAlert(null), 5000);
+    } catch (err: any) {
+      setCustPwdModalError(err.message || 'Failed to update customer password.');
+    } finally {
+      setIsUpdatingCustPwd(false);
     }
   };
 
@@ -476,7 +580,26 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Search Box */}
+          {/* Search Box & Directory Alert */}
+          {directoryAlert && (
+            <div
+              className={`p-3.5 rounded-xl border text-xs font-semibold flex items-center justify-between animate-in fade-in duration-200 ${
+                directoryAlert.type === 'success'
+                  ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                  : 'bg-rose-500/15 border-rose-500/30 text-rose-300'
+              }`}
+            >
+              <span>{directoryAlert.text}</span>
+              <button
+                type="button"
+                onClick={() => setDirectoryAlert(null)}
+                className="text-slate-400 hover:text-white text-xs px-2 py-0.5"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
@@ -518,7 +641,8 @@ export default function ProfilePage() {
                       <th className="py-3 px-4">Mobile Number</th>
                       <th className="py-3 px-4">Email Address</th>
                       <th className="py-3 px-4">Village / Town</th>
-                      <th className="py-3 px-4 text-right">Role & Date</th>
+                      <th className="py-3 px-4">Role & Date</th>
+                      <th className="py-3 px-4 text-right">Owner Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60 bg-slate-950/40">
@@ -581,7 +705,7 @@ export default function ProfilePage() {
                               <span>{u.village || 'Velagatoor'}</span>
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-right">
+                          <td className="py-3 px-4">
                             <span
                               className={`inline-block px-2 py-0.5 rounded text-[10px] font-black uppercase ${
                                 u.role === 'ADMIN'
@@ -594,6 +718,36 @@ export default function ProfilePage() {
                             <p className="text-[10px] text-slate-500 mt-1">
                               {u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN') : 'Recent'}
                             </p>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setChangePwdCustomer(u);
+                                  setCustNewPassword('');
+                                  setCustConfirmPassword('');
+                                  setCustPwdModalError('');
+                                }}
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 flex items-center gap-1 transition-all"
+                                title="Set new password for this customer"
+                              >
+                                <KeyRound className="w-3 h-3" />
+                                <span>Password</span>
+                              </button>
+                              {u.role !== 'ADMIN' && u.phone !== '9912179771' && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteCustomer(u)}
+                                  disabled={isDeletingUserId === (u.id || u.phone)}
+                                  className="px-2 py-1 rounded-lg text-[10px] font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 flex items-center gap-1 transition-all disabled:opacity-50"
+                                  title="Remove customer from directory"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                  <span>{isDeletingUserId === (u.id || u.phone) ? '...' : 'Remove'}</span>
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -618,7 +772,7 @@ export default function ProfilePage() {
                   .map((u) => (
                     <div
                       key={u.id || u.phone}
-                      className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 text-xs"
+                      className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5 text-xs"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -667,11 +821,136 @@ export default function ProfilePage() {
                           <span className="font-mono text-slate-300 truncate block">{u.email || '—'}</span>
                         </div>
                       </div>
+
+                      {/* Owner Action Buttons on Mobile */}
+                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setChangePwdCustomer(u);
+                            setCustNewPassword('');
+                            setCustConfirmPassword('');
+                            setCustPwdModalError('');
+                          }}
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 flex items-center gap-1.5 transition-all"
+                        >
+                          <KeyRound className="w-3.5 h-3.5" />
+                          <span>Change Password</span>
+                        </button>
+                        {u.role !== 'ADMIN' && u.phone !== '9912179771' && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCustomer(u)}
+                            disabled={isDeletingUserId === (u.id || u.phone)}
+                            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 flex items-center gap-1.5 transition-all disabled:opacity-50"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>{isDeletingUserId === (u.id || u.phone) ? 'Removing...' : 'Remove'}</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ─── OWNER CHANGE CUSTOMER PASSWORD MODAL ───────────────────────── */}
+      {changePwdCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl glass-panel border border-slate-700 bg-slate-900 p-6 sm:p-7 shadow-2xl space-y-5">
+            <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-white">Reset Customer Password</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    For: <strong className="text-amber-400">{changePwdCustomer.name}</strong> (+91 {changePwdCustomer.phone})
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setChangePwdCustomer(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {custPwdModalError && (
+              <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold">
+                {custPwdModalError}
+              </div>
+            )}
+
+            <form onSubmit={handleCustomerPasswordSubmit} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block mb-1.5">
+                  New Password (min 6 chars)
+                </label>
+                <div className="relative">
+                  <input
+                    type={showCustPassword ? 'text' : 'password'}
+                    value={custNewPassword}
+                    onChange={(e) => setCustNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCustPassword(!showCustPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                  >
+                    {showCustPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block mb-1.5">
+                  Confirm New Password
+                </label>
+                <input
+                  type={showCustPassword ? 'text' : 'password'}
+                  value={custConfirmPassword}
+                  onChange={(e) => setCustConfirmPassword(e.target.value)}
+                  placeholder="Re-enter new password"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setChangePwdCustomer(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingCustPwd}
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 transition-all disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {isUpdatingCustPwd ? (
+                    <span>Saving...</span>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Save New Password</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

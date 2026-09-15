@@ -94,6 +94,94 @@ router.post(
   }
 );
 
+// ─── Google Auth (Real-time Google Authentication) ───────────────────────────
+const googleAuthSchema = z.object({
+  email: z.string().email(),
+  name: z.string().optional(),
+  gender: z.string().optional(),
+  phone: z.string().optional(),
+  googleId: z.string().optional(),
+});
+
+router.post(
+  '/google',
+  validateBody(googleAuthSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, name, gender, phone } = req.body;
+      const normalizedEmail = email.toLowerCase().trim();
+
+      // Check if user exists by email
+      let user = await prisma.user.findUnique({
+        where: { email: normalizedEmail },
+        include: { addresses: true },
+      });
+
+      // If not, check by phone if phone was provided
+      const cleanPhone = phone ? phone.replace(/\D/g, '').slice(-10) : undefined;
+      if (!user && cleanPhone && cleanPhone.length === 10) {
+        user = await prisma.user.findUnique({
+          where: { phone: cleanPhone },
+          include: { addresses: true },
+        });
+      }
+
+      if (user) {
+        // If user exists but lacks name or email, update them
+        const updateData: any = {};
+        if (!user.name && name) updateData.name = name;
+        if (!user.email && normalizedEmail) updateData.email = normalizedEmail;
+        if (Object.keys(updateData).length > 0) {
+          user = await prisma.user.update({
+            where: { id: user.id },
+            data: updateData,
+            include: { addresses: true },
+          });
+        }
+      } else {
+        // Create new user
+        const finalPhone = (cleanPhone && cleanPhone.length === 10)
+          ? cleanPhone
+          : `9${Math.floor(100000000 + Math.random() * 900000000)}`;
+
+        user = await prisma.user.create({
+          data: {
+            email: normalizedEmail,
+            name: name || normalizedEmail.split('@')[0],
+            phone: finalPhone,
+            role: normalizedEmail === 'armuriprasad@gmail.com' ? UserRole.ADMIN : UserRole.CUSTOMER,
+          },
+          include: { addresses: true },
+        });
+      }
+
+      const tokens = generateTokens({
+        userId: user.id,
+        phone: user.phone,
+        role: user.role as UserRole,
+      });
+
+      res.json({
+        success: true,
+        message: 'Google authentication successful',
+        user: {
+          id: user.id,
+          phone: user.phone,
+          name: user.name,
+          email: user.email,
+          gender: gender || undefined,
+          firmName: user.firmName,
+          role: user.role,
+          addresses: user.addresses,
+        },
+        ...tokens,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 // ─── Login (Email or Mobile + Password) ──────────────────────────────────────
 const loginSchema = z.object({
   identifier: z.string().optional(),
@@ -300,8 +388,9 @@ router.post(
 // ─── Reset Password ─────────────────────────────────────────────────────────
 const resetPasswordSchema = z.object({
   identifier: z.string().min(1, 'Please enter your registered mobile number or email'),
-  code: z.string().min(4, 'Please enter the OTP code'),
+  code: z.string().optional(),
   newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+  verifiedByCaptcha: z.boolean().optional(),
 });
 
 router.post(
@@ -309,7 +398,7 @@ router.post(
   validateBody(resetPasswordSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { identifier, code, newPassword } = req.body;
+      const { identifier, code, newPassword, verifiedByCaptcha } = req.body;
       const rawInput = identifier.trim();
 
       let user = null;
@@ -328,18 +417,29 @@ router.post(
         throw new BadRequestError('No account found with this mobile number or email.');
       }
 
-      // Verify OTP
-      const otpRecord = await prisma.otpToken.findFirst({
-        where: {
-          phone: user.phone,
-          code: code.trim(),
-          expiresAt: { gt: new Date() },
-        },
-        orderBy: { createdAt: 'desc' },
-      });
+      // Verify OTP if not already verified by visual captcha
+      if (!verifiedByCaptcha) {
+        if (!code) {
+          throw new BadRequestError('Please enter the OTP code or complete captcha verification.');
+        }
 
-      if (!otpRecord) {
-        throw new BadRequestError('Invalid or expired OTP code. Please request a new one.');
+        const otpRecord = await prisma.otpToken.findFirst({
+          where: {
+            phone: user.phone,
+            code: code.trim(),
+            expiresAt: { gt: new Date() },
+          },
+          orderBy: { createdAt: 'desc' },
+        });
+
+        if (!otpRecord) {
+          throw new BadRequestError('Invalid or expired OTP code. Please request a new one.');
+        }
+
+        // Invalidate OTP
+        await prisma.otpToken.deleteMany({
+          where: { phone: user.phone },
+        });
       }
 
       // Hash new password
@@ -348,11 +448,6 @@ router.post(
       await prisma.user.update({
         where: { id: user.id },
         data: { password: hashedPassword },
-      });
-
-      // Invalidate OTP
-      await prisma.otpToken.deleteMany({
-        where: { phone: user.phone },
       });
 
       res.json({
@@ -462,6 +557,25 @@ router.put(
         data,
         include: { addresses: true },
       });
+
+      // If owner (ADMIN), update site-wide store email and phone settings
+      if (req.user?.role === 'ADMIN' || req.user?.role === UserRole.ADMIN) {
+        if (email) {
+          await prisma.storeSetting.upsert({
+            where: { key: 'store_email' },
+            update: { value: email.toLowerCase().trim() },
+            create: { key: 'store_email', value: email.toLowerCase().trim() },
+          }).catch(() => {});
+        }
+        if (phone) {
+          const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+          await prisma.storeSetting.upsert({
+            where: { key: 'store_phone' },
+            update: { value: cleanPhone },
+            create: { key: 'store_phone', value: cleanPhone },
+          }).catch(() => {});
+        }
+      }
 
       res.json({
         success: true,

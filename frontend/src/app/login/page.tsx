@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
+import GoogleAuthModal, { GoogleAccountData } from '@/components/auth/GoogleAuthModal';
 
 function LoginContent() {
   const router = useRouter();
@@ -55,6 +56,7 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [socialNotification, setSocialNotification] = useState<string | null>(null);
   const [error, setError] = useState('');
 
@@ -68,34 +70,53 @@ function LoginContent() {
     if (!raw) {
       setError(
         language === 'te'
-          ? 'దయచేసి మొబైల్ నంబర్ లేదా ఇమెయిల్ నమోదు చేయండి'
-          : 'Please enter your email address or mobile number'
+          ? 'దయచేసి మీ మొబైల్ నంబర్ లేదా ఇమెయిల్ నమోదు చేయండి'
+          : 'Please enter your mobile number or email address'
       );
       return;
     }
 
-    if (password.length < 6) {
+    if (!raw.includes('@')) {
+      const cleanPhone = raw.replace(/\D/g, '').slice(-10);
+      if (cleanPhone.length !== 10) {
+        setError(
+          language === 'te'
+            ? 'దయచేసి సరైన 10-అంకెల మొబైల్ నంబర్ నమోదు చేయండి'
+            : 'Please enter a valid 10-digit mobile number'
+        );
+        return;
+      }
+    }
+
+    if (!password) {
       setError(
         language === 'te'
-          ? 'పాస్‌వర్డ్ కనీసం 6 అక్షరాలు ఉండాలి'
-          : 'Password must be at least 6 characters'
+          ? 'దయచేసి మీ పాస్‌వర్డ్ నమోదు చేయండి'
+          : 'Please enter your account password'
       );
       return;
     }
 
     setIsLoading(true);
     try {
-      const user = await login(raw, password);
-      if (user?.role === 'ADMIN' && redirectUrl === '/') {
-        router.push('/admin');
-      } else {
-        router.push(redirectUrl);
-      }
+      const loggedUser = await login(raw, password);
+      setSocialNotification(
+        language === 'te'
+          ? 'విజయవంతంగా లాగిన్ అయ్యారు!'
+          : `Welcome back, ${loggedUser.name || 'valued customer'}!`
+      );
+      setTimeout(() => {
+        if (loggedUser.role === 'ADMIN' && redirectUrl === '/') {
+          router.push('/admin');
+        } else {
+          router.push(redirectUrl);
+        }
+      }, 500);
     } catch (err: any) {
       setError(
         err.message ||
           (language === 'te'
-            ? 'లాగిన్ విఫలమైంది. వివరాలు తనిఖీ చేయండి.'
+            ? 'లాగిన్ విఫలమైంది. దయచేసి సరైన వివరాలు ఇవ్వండి.'
             : 'Login failed. Please check your credentials.')
       );
     } finally {
@@ -104,19 +125,22 @@ function LoginContent() {
   };
 
   // ─── Direct Google Login ───────────────────────────────────────────────────
-  const handleDirectGoogleLogin = async () => {
+  const handleDirectGoogleLogin = () => {
+    setError('');
+    setShowGoogleModal(true);
+  };
+
+  const handleProcessGoogleAuth = async (accountData: GoogleAccountData) => {
     setError('');
     setIsGoogleLoading(true);
     setSocialNotification(
-      language === 'te' ? 'గూగుల్ ఖాతాతో లాగిన్ అవుతున్నారు...' : 'Connecting to Google Account...'
+      language === 'te'
+        ? `${accountData.name} గూగుల్ ఖాతాతో లాగిన్ అవుతున్నారు...`
+        : `Connecting with Google account (${accountData.email})...`
     );
 
     try {
-      const user = await loginWithGoogle({
-        name: 'Google Verified User',
-        email: 'user.google@gmail.com',
-        phone: '9912179771',
-      });
+      const user = await loginWithGoogle(accountData);
 
       setSocialNotification(
         language === 'te'
@@ -485,6 +509,14 @@ function LoginContent() {
           </p>
         </div>
       </div>
+
+      {/* Real-Time Google Authentication Modal */}
+      <GoogleAuthModal
+        isOpen={showGoogleModal}
+        onClose={() => setShowGoogleModal(false)}
+        onSelectAccount={handleProcessGoogleAuth}
+        title="Sign in with Google"
+      />
     </div>
   );
 }

@@ -10,7 +10,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (identifier: string, password: string) => Promise<User>;
-  loginWithGoogle: (googleData?: { email?: string; name?: string; phone?: string }) => Promise<User>;
+  loginWithGoogle: (googleData?: { email?: string; name?: string; phone?: string; gender?: string }) => Promise<User>;
   register: (data: { phone: string; password: string; name: string; email?: string; firmName?: string; village?: string }) => Promise<User>;
   logout: () => void;
   isAdmin: boolean;
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     throw new Error('Authentication failed');
   };
 
-  const loginWithGoogle = async (googleData?: { email?: string; name?: string; phone?: string }): Promise<User> => {
+  const loginWithGoogle = async (googleData?: { email?: string; name?: string; phone?: string; gender?: string }): Promise<User> => {
     if (isSupabaseConfigured && supabase && !googleData?.email) {
       const { error } = await signInWithGoogleOAuth();
       if (!error) {
@@ -93,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name: googleData?.name || 'Google Customer',
       phone: googleData?.phone || '9912179771',
       email: googleData?.email || 'customer.google@gmail.com',
+      gender: googleData?.gender || 'Not specified',
       role: 'CUSTOMER',
     };
     const token = `tok_google_${Date.now()}`;

@@ -4,10 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import { Layers, MapPin, Phone, Mail, Clock, ShieldCheck, Truck, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useStoreSettings } from '@/hooks/useStoreSettings';
 import Logo from '@/components/shared/Logo';
 
 export default function Footer() {
   const { language, t } = useLanguage();
+  const { email: storeEmail, phone: storePhone, cleanPhone } = useStoreSettings();
 
   return (
     <footer className="border-t border-slate-800/80 bg-slate-950 text-slate-400">
@@ -169,17 +171,19 @@ export default function Footer() {
           <div className="flex items-center gap-2.5 text-xs">
             <Phone className="w-4 h-4 text-amber-400 shrink-0" />
             <div className="flex flex-col gap-0.5">
-              <a href="tel:+918919526315" className="hover:text-white transition-colors font-semibold text-amber-400">
-                +91 89195 26315 ({language === 'te' ? 'ప్రసాద్' : 'Prasad'})
+              <a href={`tel:+91${cleanPhone}`} className="hover:text-white transition-colors font-semibold text-amber-400">
+                +91 {cleanPhone} ({language === 'te' ? 'ప్రసాద్' : 'Yard Contract / Prasad'})
               </a>
-              <a href="tel:+919912179771" className="hover:text-white transition-colors text-slate-400">
-                +91 99121 79771
+              <a href="tel:+918919526315" className="hover:text-white transition-colors text-slate-400">
+                +91 89195 26315 (Support)
               </a>
             </div>
           </div>
           <div className="flex items-center gap-2.5 text-xs">
             <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>prasadcementproducts@gmail.com</span>
+            <a href={`mailto:${storeEmail}`} className="hover:text-white transition-colors text-slate-300">
+              {storeEmail || 'armuriprasad@gmail.com'}
+            </a>
           </div>
           <div className="flex items-center gap-2.5 text-xs">
             <Clock className="w-4 h-4 text-amber-400 shrink-0" />

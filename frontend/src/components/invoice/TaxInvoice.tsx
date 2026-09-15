@@ -15,6 +15,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import { formatPrice, formatDate } from '@/lib/utils';
+import { useStoreSettings } from '@/hooks/useStoreSettings';
 
 export interface InvoiceItem {
   name: string;
@@ -93,6 +94,7 @@ export default function TaxInvoice({
   onClose,
 }: TaxInvoiceProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
+  const { email: storeEmail, phone: storePhone } = useStoreSettings();
 
   const handlePrint = () => {
     window.print();
@@ -230,7 +232,7 @@ export default function TaxInvoice({
               Opp. Sudha Hospital, Jagtial - Velgatoor Road, Velagatoor, Dist. Jagtial, Telangana - 505526
             </p>
             <p className="text-[10px] text-slate-500">
-              Phone: +91 89195 26315 / +91 99121 79771 • Email: prasadcementproducts@gmail.com
+              Phone: {storePhone || '+91 99121 79771'} • Email: {storeEmail || 'armuriprasad@gmail.com'}
             </p>
             <p className="text-[10px] font-bold text-slate-700 mt-0.5">
               GSTIN: 36AABCP1924L1Z8 • State: 36 (Telangana)

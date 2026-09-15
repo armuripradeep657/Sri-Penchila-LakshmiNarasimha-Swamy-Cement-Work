@@ -1,5 +1,6 @@
 import { Router, Response, NextFunction } from 'express';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
 import { prisma } from '../services/db';
 import { authenticate, requireAdmin, AuthenticatedRequest } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
@@ -387,8 +388,13 @@ router.patch(
       const id = String(req.params.id);
       const { status, notes } = req.body;
 
-      const order = await prisma.order.findUnique({
-        where: { id },
+      const order = await prisma.order.findFirst({
+        where: {
+          OR: [
+            { id },
+            { orderNumber: id },
+          ],
+        },
         include: {
           user: true,
           items: {
@@ -403,7 +409,7 @@ router.patch(
       if (!order) throw new NotFoundError('Order');
 
       const updated = await prisma.order.update({
-        where: { id },
+        where: { id: order.id },
         data: {
           status,
           ...(notes && { notes }),
@@ -703,5 +709,120 @@ router.put('/settings', async (req: AuthenticatedRequest, res: Response, next: N
     next(err);
   }
 });
+
+// ─── 7. Customer Accounts Management (Directory) ─────────────────────────────
+router.get('/users', async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        email: true,
+        firmName: true,
+        role: true,
+        createdAt: true,
+        addresses: {
+          select: {
+            city: true,
+            state: true,
+          },
+        },
+      },
+    });
+
+    const parsed = users.map((u) => ({
+      id: u.id,
+      name: u.name || 'Customer',
+      phone: u.phone,
+      email: u.email,
+      firmName: u.firmName,
+      village: u.addresses[0]?.city || 'Velagatoor',
+      role: u.role,
+      createdAt: u.createdAt,
+    }));
+
+    res.json({
+      success: true,
+      totalCount: parsed.length,
+      customersCount: parsed.filter((u) => u.role === 'CUSTOMER').length,
+      users: parsed,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/users/:id', async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const id = String(req.params.id);
+
+    const targetUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ id }, { phone: id }],
+      },
+    });
+
+    if (!targetUser) {
+      return res.json({ success: true, message: 'Customer account removed successfully' });
+    }
+
+    if (targetUser.role === 'ADMIN' || targetUser.phone === '9912179771') {
+      throw new BadRequestError('Cannot remove administrator/owner account');
+    }
+
+    // Delete user (cascades addresses, cart, etc.)
+    await prisma.user.delete({
+      where: { id: targetUser.id },
+    });
+
+    res.json({
+      success: true,
+      message: `Customer account for ${targetUser.name || targetUser.phone} removed successfully`,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const changeCustomerPasswordSchema = z.object({
+  newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+router.patch(
+  '/users/:id/password',
+  validateBody(changeCustomerPasswordSchema),
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const id = String(req.params.id);
+      const { newPassword } = req.body;
+
+      const targetUser = await prisma.user.findFirst({
+        where: {
+          OR: [{ id }, { phone: id }],
+        },
+      });
+
+      if (!targetUser) {
+        throw new NotFoundError('Customer account');
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+      await prisma.user.update({
+        where: { id: targetUser.id },
+        data: { password: hashedPassword },
+      });
+
+      res.json({
+        success: true,
+        message: `Password updated successfully for ${targetUser.name || targetUser.phone}`,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 export default router;

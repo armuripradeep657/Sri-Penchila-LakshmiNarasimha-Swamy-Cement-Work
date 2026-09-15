@@ -23,6 +23,7 @@ export interface User {
   phone: string;
   name?: string | null;
   email?: string | null;
+  gender?: string | null;
   firmName?: string | null;
   role: UserRole;
   addresses?: Address[];
