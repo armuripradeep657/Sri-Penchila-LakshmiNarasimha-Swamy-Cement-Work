@@ -64,7 +64,7 @@ class ApiClient {
     });
   }
 
-  async loginWithGoogle(data?: { email?: string; name?: string; phone?: string; gender?: string }) {
+  async loginWithGoogle(data?: { email?: string; name?: string; phone?: string; gender?: string; avatarUrl?: string }) {
     return this.request<any>('/auth/google', {
       method: 'POST',
       body: JSON.stringify(data || {}),

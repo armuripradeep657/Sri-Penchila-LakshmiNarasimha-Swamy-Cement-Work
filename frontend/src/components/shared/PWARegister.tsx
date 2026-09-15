@@ -2,26 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import {
-  Download,
-  X,
-  Smartphone,
-  CheckCircle2,
-  Share,
-  Star,
-  ShieldCheck,
-  ExternalLink,
-  Sparkles,
-} from 'lucide-react';
+import { Download, X, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function PWARegister() {
   const { language } = useLanguage();
   const [installPrompt, setInstallPrompt] = useState<any>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
   const [installedSuccess, setInstalledSuccess] = useState(false);
 
   useEffect(() => {
@@ -33,207 +22,148 @@ export default function PWARegister() {
       (window.navigator as any).standalone === true;
     setIsStandalone(isStandaloneMode);
 
-    // Check iOS
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
-    setIsIOS(isIosDevice);
+    if (isStandaloneMode) return;
 
-    // Register Service Worker
+    // Register Service Worker in production
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker
         .register('/sw.js')
         .then(() => console.log('PWA Service Worker registered'))
-        .catch((err) => console.warn('SW registration notice:', err));
+        .catch((err) => console.warn('SW notice:', err));
     }
 
-    // Capture beforeinstallprompt
+    // Capture beforeinstallprompt event for 1-click native install
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e);
-      setIsInstallable(true);
+      // Auto-show prompt notification
+      setShowPopup(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
 
-    // Automatically show install popup after initial page load if not in standalone mode
-    if (!isStandaloneMode) {
-      const timer = setTimeout(() => {
-        const sessionDismissed = sessionStorage.getItem('pcp_install_popup_closed');
-        if (!sessionDismissed) {
-          setShowPopup(true);
-        }
-      }, 1400);
-
-      return () => {
-        clearTimeout(timer);
-        window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-      };
-    }
+    // Show install notification on visit if not previously dismissed in this session
+    const timer = setTimeout(() => {
+      const dismissed = sessionStorage.getItem('pcp_pwa_notification_dismissed');
+      if (!dismissed) {
+        setShowPopup(true);
+      }
+    }, 1200);
 
     return () => {
+      clearTimeout(timer);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
     };
   }, []);
 
-  const handleInstallClick = async () => {
+  const handleDirectInstall = async () => {
+    setIsInstalling(true);
+
     if (installPrompt) {
-      installPrompt.prompt();
-      const { outcome } = await installPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setInstalledSuccess(true);
-        setIsInstallable(false);
-        setTimeout(() => setShowPopup(false), 2000);
+      try {
+        // Trigger browser's native direct installation prompt without menu navigation
+        await installPrompt.prompt();
+        const choice = await installPrompt.userChoice;
+        if (choice.outcome === 'accepted') {
+          setInstalledSuccess(true);
+          setTimeout(() => setShowPopup(false), 2000);
+        }
+      } catch (err) {
+        console.warn('Install prompt error:', err);
+      } finally {
+        setInstallPrompt(null);
+        setIsInstalling(false);
       }
-      setInstallPrompt(null);
-    } else if (isIOS) {
-      alert(
-        language === 'te'
-          ? 'యాప్‌ను ఇన్‌స్టాల్ చేయడానికి: క్రింద ఉన్న "Share" బటన్ నొక్కి, "Add to Home Screen" ఎంచుకోండి.'
-          : 'To Install on iPhone/iPad: Tap the "Share" icon at the bottom of Safari, then choose "Add to Home Screen".'
-      );
     } else {
-      // Direct instructions for Chromium/Android if event already passed
-      alert(
-        language === 'te'
-          ? 'మీ బ్రౌజర్ మెనూ (3 చుక్కలు) నొక్కి "Install App" లేదా "Add to Home screen" ఎంచుకోండి.'
-          : 'Tap your browser menu (3 dots) and select "Install app" or "Add to Home screen".'
-      );
+      // For iOS Safari or browsers where beforeinstallprompt was already captured
+      const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+      if (isIOS) {
+        alert(
+          language === 'te'
+            ? 'యాప్ ఇన్‌స్టాల్ చేయడానికి: సఫారీ క్రింద "Share" ఐకాన్ నొక్కి, "Add to Home Screen" ఎంచుకోండి.'
+            : 'To install on iPhone/iPad: Tap the Share button at the bottom of Safari and select "Add to Home Screen".'
+        );
+      } else {
+        alert(
+          language === 'te'
+            ? 'మీ బ్రౌజర్ మెనూ ద్వారా "Install App" క్లిక్ చేయండి.'
+            : 'Click the install icon in your browser address bar or menu to install.'
+        );
+      }
+      setIsInstalling(false);
     }
   };
 
-  const handleClosePopup = () => {
+  const handleDismiss = () => {
     setShowPopup(false);
     try {
-      sessionStorage.setItem('pcp_install_popup_closed', 'true');
+      sessionStorage.setItem('pcp_pwa_notification_dismissed', 'true');
     } catch {}
   };
 
-  if (isStandalone) return null;
+  if (isStandalone || !showPopup) return null;
 
   return (
-    <>
-      {/* ─── Persistent Floating Re-open Button (bottom-right) ─── */}
-      {!showPopup && (
-        <button
-          onClick={() => setShowPopup(true)}
-          aria-label="Install App"
-          className="fixed bottom-6 right-4 sm:right-6 z-40 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-xl shadow-amber-500/25 border border-amber-400/40 flex items-center gap-2 transition-all hover:scale-105 cursor-pointer animate-in fade-in duration-300"
-        >
-          <Smartphone className="w-4 h-4 text-slate-950 shrink-0" />
-          <span className="hidden sm:inline">
-            {language === 'te' ? 'యాప్‌ను ఇన్‌స్టాల్ చేయండి' : 'Install App / Play Store'}
-          </span>
-          <span className="sm:hidden font-black">
-            {language === 'te' ? 'యాప్' : 'App'}
-          </span>
-          <span className="w-2 h-2 rounded-full bg-emerald-950 border border-emerald-400 animate-ping" />
-        </button>
-      )}
-
-      {/* ─── High-Conversion Install Popup Modal ─── */}
-      {showPopup && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-md p-4 flex items-center justify-center animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md rounded-3xl bg-slate-900 border border-amber-500/40 shadow-2xl shadow-black p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-200">
-            {/* Close Button */}
-            <button
-              onClick={handleClosePopup}
-              className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-              title="Close"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Header with App Icon */}
-            <div className="flex items-start gap-4">
-              <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-amber-500/60 bg-slate-950 shrink-0 shadow-lg shadow-amber-500/10">
-                <Image
-                  src="/icon-192.png"
-                  alt="Prasad Cement Products App Icon"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-
-              <div className="flex-1 min-w-0 pr-6">
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold text-emerald-400 mb-1">
-                  <ShieldCheck className="w-3 h-3" />
-                  <span>Verified Official App</span>
-                </div>
-                <h3 className="text-base font-extrabold text-white leading-snug truncate">
-                  Prasad Cement Products
-                </h3>
-                <p className="text-xs text-amber-400 font-semibold truncate">
-                  Sri Lakshmi Penchila Swamy Works
-                </p>
-                <div className="flex items-center gap-1.5 mt-1 text-[11px] text-slate-400">
-                  <div className="flex items-center text-amber-400">
-                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                    <span className="font-bold text-white ml-0.5">4.9</span>
-                  </div>
-                  <span>•</span>
-                  <span>Free (4.2 MB)</span>
-                  <span>•</span>
-                  <span className="text-emerald-400 font-semibold">Play Store Ready</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Feature Highlights */}
-            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-slate-200">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Instant 1-tap ordering & live delivery tracking</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-200">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Factory direct pricing on windows, ketikelu & bricks</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-200">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Works smoothly in low-connectivity rural yards</span>
-              </div>
-            </div>
-
-            {installedSuccess && (
-              <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold text-center flex items-center justify-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Application installed successfully!</span>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="space-y-2.5 pt-1">
-              <button
-                onClick={handleInstallClick}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>{language === 'te' ? 'ఇప్పుడే యాప్‌ను ఇన్‌స్టాల్ చేయండి' : 'Install App Now (1-Tap)'}</span>
-              </button>
-
-              <a
-                href="https://play.google.com/store/apps"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 flex items-center justify-center gap-2 transition-all"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M3.609 1.814L13.793 12 3.61 22.186c-.346-.35-.558-.87-.558-1.503V3.317c0-.633.212-1.153.557-1.503zm11.242 11.243l2.457 2.457-11.45 6.467 8.993-8.924zm0-2.114L5.858 2.02l11.45 6.466-2.457 2.457zm1.485 1.057l3.65-2.062c.983-.556.983-1.463 0-2.02l-3.65-2.062-2.115 2.115 2.115 2.029z" />
-                </svg>
-                <span>Google Play Store (Publish & Download)</span>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-              </a>
-
-              <button
-                onClick={handleClosePopup}
-                className="w-full py-2 text-center text-xs text-slate-400 hover:text-slate-200 font-medium transition-colors"
-              >
-                {language === 'te' ? 'వెబ్‌సైట్‌లో కొనసాగండి' : 'Continue on Website'}
-              </button>
-            </div>
-          </div>
+    <div className="fixed inset-x-0 bottom-4 sm:bottom-6 z-50 px-4 flex justify-center pointer-events-none animate-in slide-in-from-bottom-6 duration-300">
+      <div className="pointer-events-auto w-full max-w-lg rounded-3xl bg-slate-900/98 backdrop-blur-2xl border-2 border-amber-500/60 shadow-2xl shadow-black/90 p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4">
+        {/* App Icon */}
+        <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 border-amber-500 bg-slate-950 shrink-0 shadow-lg shadow-amber-500/20">
+          <Image
+            src="/icon-192.png"
+            alt="Prasad Cement Products App Icon"
+            fill
+            className="object-cover"
+          />
         </div>
-      )}
-    </>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0 text-center sm:text-left">
+          <div className="flex items-center justify-center sm:justify-start gap-1.5 mb-1">
+            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40">
+              <Zap className="w-3 h-3 text-amber-400" />
+              {language === 'te' ? 'నేరుగా ఇన్‌స్టాల్ చేయండి' : 'Direct 1-Click Install'}
+            </span>
+          </div>
+
+          <h4 className="text-sm sm:text-base font-extrabold text-white leading-tight truncate">
+            {language === 'te' ? 'ప్రసాద్ సిమెంట్ ప్రొడక్ట్స్ యాప్' : 'Prasad Cement Products App'}
+          </h4>
+          <p className="text-[11px] sm:text-xs text-slate-300 mt-0.5">
+            {language === 'te'
+              ? 'మొబైల్ & డెస్క్‌టాప్‌లో వేగవంతమైన ఆర్డరింగ్ & ప్రత్యక్ష ట్రాకింగ్'
+              : 'Install directly to Mobile & Desktop for instant ordering & live dispatch tracking'}
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
+          <button
+            onClick={handleDirectInstall}
+            disabled={isInstalling || installedSuccess}
+            className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-amber-500/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-75"
+          >
+            {installedSuccess ? (
+              <>
+                <CheckCircle2 className="w-4 h-4 text-slate-950" />
+                <span>Installed!</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                <span>{language === 'te' ? 'ఇన్‌స్టాల్ చేయండి' : 'Install App'}</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleDismiss}
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            title="Dismiss"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

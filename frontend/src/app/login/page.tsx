@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
-import GoogleAuthModal, { GoogleAccountData } from '@/components/auth/GoogleAuthModal';
+import { signInWithGoogleRealtime } from '@/lib/firebase';
 
 function LoginContent() {
   const router = useRouter();
@@ -56,7 +56,6 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [socialNotification, setSocialNotification] = useState<string | null>(null);
   const [error, setError] = useState('');
 
@@ -124,28 +123,35 @@ function LoginContent() {
     }
   };
 
-  // ─── Direct Google Login ───────────────────────────────────────────────────
-  const handleDirectGoogleLogin = () => {
-    setError('');
-    setShowGoogleModal(true);
-  };
-
-  const handleProcessGoogleAuth = async (accountData: GoogleAccountData) => {
+  // ─── Real-Time Firebase Google Authentication ───────────────────────────────
+  const handleDirectGoogleLogin = async () => {
     setError('');
     setIsGoogleLoading(true);
     setSocialNotification(
       language === 'te'
-        ? `${accountData.name} గూగుల్ ఖాతాతో లాగిన్ అవుతున్నారు...`
-        : `Connecting with Google account (${accountData.email})...`
+        ? 'గూగుల్ ఖాతాల విండో తెరవబడుతోంది...'
+        : 'Connecting to Google Authentication...'
     );
 
     try {
-      const user = await loginWithGoogle(accountData);
+      const googleUser = await signInWithGoogleRealtime();
+      setSocialNotification(
+        language === 'te'
+          ? `${googleUser.name} ఖాతాతో లాగిన్ అవుతున్నారు...`
+          : `Connecting as ${googleUser.name} (${googleUser.email})...`
+      );
+
+      const user = await loginWithGoogle({
+        email: googleUser.email,
+        name: googleUser.name,
+        phone: googleUser.phone,
+        avatarUrl: googleUser.photoURL,
+      });
 
       setSocialNotification(
         language === 'te'
           ? 'గూగుల్ ఖాతాతో విజయవంతంగా లాగిన్ అయ్యారు!'
-          : `Signed in as ${user.name} (${user.email})!`
+          : `Signed in successfully as ${user.name || user.email}!`
       );
 
       setTimeout(() => {
@@ -156,8 +162,12 @@ function LoginContent() {
         }
       }, 700);
     } catch (err: any) {
-      setError(err.message || 'Google Sign-In failed. Please try again.');
-      setSocialNotification(null);
+      if (err.message?.includes('cancelled') || err.message?.includes('closed')) {
+        setSocialNotification(null);
+      } else {
+        setError(err.message || 'Google authentication failed. Please try again.');
+        setSocialNotification(null);
+      }
     } finally {
       setIsGoogleLoading(false);
     }
@@ -509,14 +519,6 @@ function LoginContent() {
           </p>
         </div>
       </div>
-
-      {/* Real-Time Google Authentication Modal */}
-      <GoogleAuthModal
-        isOpen={showGoogleModal}
-        onClose={() => setShowGoogleModal(false)}
-        onSelectAccount={handleProcessGoogleAuth}
-        title="Sign in with Google"
-      />
     </div>
   );
 }

@@ -904,6 +904,45 @@ async function handleServerless(req: NextRequest, path: string[]) {
     });
   }
 
+  // Google Authentication (Real-time Firebase / OAuth sync)
+  if (route === 'auth/google' && method === 'POST') {
+    const body = await req.json();
+    const email = body.email ? body.email.toLowerCase().trim() : '';
+    const cleanPhone = body.phone ? body.phone.replace(/\D/g, '').slice(-10) : '';
+
+    let user = store.users.find(
+      (u) => (email && u.email?.toLowerCase() === email) || (cleanPhone && u.phone === cleanPhone)
+    );
+
+    const isOwner = email === 'armuriprasad@gmail.com' || cleanPhone === '9912179771';
+
+    if (user) {
+      if (body.name && !user.name) user.name = body.name;
+      if (body.avatarUrl) user.avatarUrl = body.avatarUrl;
+    } else {
+      user = {
+        id: isOwner ? 'usr_admin' : `usr_${Date.now()}`,
+        phone: cleanPhone || '9912179771',
+        email: email || 'customer.google@gmail.com',
+        name: body.name || (email ? email.split('@')[0] : 'Google User'),
+        role: isOwner ? 'ADMIN' : 'CUSTOMER',
+        avatarUrl: body.avatarUrl || null,
+        createdAt: new Date().toISOString(),
+        addresses: [],
+      };
+      store.users.unshift(user);
+    }
+
+    const token = `tok_${user.role === 'ADMIN' ? 'admin' : 'customer'}_${Date.now()}`;
+    return NextResponse.json({
+      success: true,
+      message: 'Google authentication successful',
+      accessToken: token,
+      refreshToken: `${token}_refresh`,
+      user,
+    });
+  }
+
   // Admin Users Directory (Owner Access)
   if (route === 'admin/users' && method === 'GET') {
     return NextResponse.json({

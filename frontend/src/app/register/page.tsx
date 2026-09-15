@@ -21,7 +21,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import Logo from '@/components/shared/Logo';
-import GoogleAuthModal, { GoogleAccountData } from '@/components/auth/GoogleAuthModal';
+import { signInWithGoogleRealtime } from '@/lib/firebase';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -38,22 +38,26 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [error, setError] = useState('');
 
-  const handleGoogleSignUp = () => {
-    setError('');
-    setShowGoogleModal(true);
-  };
-
-  const handleProcessGoogleAuth = async (accountData: GoogleAccountData) => {
+  const handleGoogleSignUp = async () => {
     setError('');
     setIsGoogleLoading(true);
     try {
-      await loginWithGoogle(accountData);
+      const googleUser = await signInWithGoogleRealtime();
+      await loginWithGoogle({
+        email: googleUser.email,
+        name: googleUser.name,
+        phone: googleUser.phone,
+        avatarUrl: googleUser.photoURL,
+      });
       router.push('/');
     } catch (err: any) {
-      setError(err.message || 'Google registration failed. Please try again.');
+      if (err.message?.includes('cancelled') || err.message?.includes('closed')) {
+        // user closed popup
+      } else {
+        setError(err.message || 'Google registration failed. Please try again.');
+      }
     } finally {
       setIsGoogleLoading(false);
     }
@@ -353,14 +357,6 @@ export default function RegisterPage() {
           <span>{language === 'te' ? 'మీ సమాచారం సురక్షితంగా ఉంటుంది' : 'Your data is securely encrypted'}</span>
         </div>
       </div>
-
-      {/* Real-Time Google Authentication Modal */}
-      <GoogleAuthModal
-        isOpen={showGoogleModal}
-        onClose={() => setShowGoogleModal(false)}
-        onSelectAccount={handleProcessGoogleAuth}
-        title="Sign up with Google"
-      />
     </div>
   );
 }
