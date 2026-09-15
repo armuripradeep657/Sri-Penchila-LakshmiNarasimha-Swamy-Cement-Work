@@ -519,6 +519,7 @@ router.get(
           phone: user.phone,
           name: user.name,
           email: user.email,
+          avatarUrl: user.avatarUrl,
           firmName: user.firmName,
           role: user.role,
           addresses: user.addresses,
@@ -536,6 +537,7 @@ const updateProfileSchema = z.object({
   email: z.string().email().optional().or(z.literal('')),
   firmName: z.string().optional(),
   phone: z.string().min(10).optional(),
+  avatarUrl: z.string().optional().nullable(),
 });
 
 router.put(
@@ -544,13 +546,14 @@ router.put(
   validateBody(updateProfileSchema),
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const { name, email, firmName, phone } = req.body;
+      const { name, email, firmName, phone, avatarUrl } = req.body;
       const data: any = {};
 
       if (name !== undefined) data.name = name;
       if (email !== undefined) data.email = email ? email.toLowerCase().trim() : null;
       if (firmName !== undefined) data.firmName = firmName;
       if (phone !== undefined) data.phone = phone.replace(/\D/g, '').slice(-10);
+      if (avatarUrl !== undefined) data.avatarUrl = avatarUrl;
 
       const updated = await prisma.user.update({
         where: { id: req.user!.userId },
@@ -585,6 +588,7 @@ router.put(
           phone: updated.phone,
           name: updated.name,
           email: updated.email,
+          avatarUrl: updated.avatarUrl,
           firmName: updated.firmName,
           role: updated.role,
           addresses: updated.addresses,

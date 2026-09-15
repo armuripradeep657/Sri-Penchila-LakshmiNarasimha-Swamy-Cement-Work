@@ -119,7 +119,7 @@ class ApiClient {
     return this.request<any>('/auth/me');
   }
 
-  async updateProfile(profileData: { name?: string; email?: string; firmName?: string; phone?: string }) {
+  async updateProfile(profileData: { name?: string; email?: string; firmName?: string; phone?: string; avatarUrl?: string | null }) {
     return this.request<any>('/auth/profile', {
       method: 'PUT',
       body: JSON.stringify(profileData),
@@ -503,6 +503,14 @@ class ApiClient {
           }
         } catch {}
       }
+
+      // Filter out deleted/legacy Rajesh account
+      users = users.filter((u: any) =>
+        u.email !== 'rajesh@gmail.com' &&
+        u.id !== 'usr_rajesh' &&
+        u.phone !== '8888888888' &&
+        !u.name?.toLowerCase().includes('rajesh')
+      );
       return {
         totalCount: users.length,
         customersCount: users.filter((u: any) => u.role === 'CUSTOMER').length,

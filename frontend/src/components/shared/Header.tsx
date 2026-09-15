@@ -159,10 +159,16 @@ export default function Header() {
                       : 'border-slate-700/60 text-slate-200 hover:bg-slate-800'
                   }`}
                 >
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${
+                  <div className={`w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center font-bold text-xs ${
                     isAdmin ? 'bg-amber-500 text-slate-950' : 'bg-amber-500/20 text-amber-400'
                   }`}>
-                    {isAdmin ? '👑' : (user.name ? user.name[0].toUpperCase() : 'U')}
+                    {user.avatarUrl ? (
+                      <img src={user.avatarUrl} alt={user.name || 'User'} className="w-full h-full object-cover" />
+                    ) : isAdmin ? (
+                      '👑'
+                    ) : (
+                      user.name ? user.name[0].toUpperCase() : 'U'
+                    )}
                   </div>
                   <span className="hidden sm:inline-block max-w-[110px] truncate text-xs font-semibold">
                     {user.name || user.phone}

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.prasadcementproducts.app",
+      "sha256_cert_fingerprints": [
+        "14:6D:E9:CD:07:4B:43:A1:0A:40:42:39:85:9A:59:4B:67:7B:5D:85:4E:87:0A:73:F1:C4:0A:4D:4A:44:A2:3C"
+      ]
+    }
+  }
+]

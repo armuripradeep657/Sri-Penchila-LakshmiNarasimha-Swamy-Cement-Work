@@ -25,10 +25,10 @@ const PRESET_ACCOUNTS: GoogleAccountData[] = [
     phone: '9912179771',
   },
   {
-    name: 'Rajesh Kumar',
-    email: 'rajesh.kumar.builder@gmail.com',
+    name: 'Suresh Babu (Civil Contractor)',
+    email: 'suresh.babu.builder@gmail.com',
     gender: 'Male',
-    phone: '9849123456',
+    phone: '9848011223',
   },
   {
     name: 'Kavitha Reddy',

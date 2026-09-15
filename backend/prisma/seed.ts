@@ -41,10 +41,10 @@ async function main() {
 
   const customer = await prisma.user.create({
     data: {
-      phone: '8888888888',
-      email: 'rajesh@gmail.com',
+      phone: '9848011223',
+      email: 'suresh.babu@gmail.com',
       password: customerPassword,
-      name: 'Rajesh Kumar',
+      name: 'Suresh Babu',
       role: UserRole.CUSTOMER,
       addresses: {
         create: [
@@ -401,8 +401,8 @@ async function main() {
   console.log(`✅ Prasad Cement Products database seeded successfully!`);
   console.log(`📦 ${productCount} Individual Products by Size`);
   console.log(`📐 ${variantCount} Variants with exact sizes and prices`);
-  console.log(`👤 Admin: 9912179771 / prasad@prasadcement.com (Password: prasad@123)`);
-  console.log(`👤 Customer: 8888888888 / rajesh@gmail.com (Password: rajesh@123)`);
+  console.log(`👤 Admin: 9912179771 / armuriprasad@gmail.com (Password: 905250)`);
+  console.log(`👤 Customer: 9848011223 / suresh.babu@gmail.com (Password: customer@123)`);
   console.log(`=================================================\n`);
 }
 

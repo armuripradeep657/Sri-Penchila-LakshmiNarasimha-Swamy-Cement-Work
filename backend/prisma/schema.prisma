@@ -19,6 +19,7 @@ model User {
   password  String?
   name      String?
   email     String?  @unique
+  avatarUrl String?
   firmName  String?
   role      String   @default("CUSTOMER") // CUSTOMER | ADMIN
   isActive  Boolean  @default(true)

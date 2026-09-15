@@ -322,13 +322,13 @@ const store = {
     },
     {
       id: 'usr_customer_1',
-      phone: '8888888888',
-      email: 'rajesh@gmail.com',
-      password: 'rajesh@123',
-      name: 'Rajesh Kumar',
+      phone: '9848011223',
+      email: 'suresh.babu@gmail.com',
+      password: 'customer@123',
+      name: 'Suresh Babu',
       village: 'Gopalpur',
       role: 'CUSTOMER',
-      firmName: 'Rajesh Infrastructure',
+      firmName: 'Babu Infrastructure',
       createdAt: '2026-03-01T10:30:00.000Z',
       addresses: [
         {
@@ -631,10 +631,10 @@ const store = {
       notes: '[CASH ON DELIVERY] Site verified with auto/crane entry clearance at Gopalpur.',
       createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
       user: {
-        id: 'usr_rajesh',
-        name: 'Rajesh Kumar',
-        phone: '8888888888',
-        email: 'rajesh@gmail.com',
+        id: 'usr_customer_1',
+        name: 'Suresh Babu',
+        phone: '9848011223',
+        email: 'suresh.babu@gmail.com',
       },
       deliveryAddress: {
         line1: 'Plot #8, Gopalpur Outskirts',
@@ -1030,6 +1030,7 @@ async function handleServerless(req: NextRequest, path: string[]) {
         }
       }
       if (body.firmName !== undefined) user.firmName = body.firmName;
+      if (body.avatarUrl !== undefined) user.avatarUrl = body.avatarUrl;
 
       return NextResponse.json({ success: true, user, message: 'Profile updated successfully' });
     }

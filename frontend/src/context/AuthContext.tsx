@@ -15,7 +15,7 @@ interface AuthContextType {
   logout: () => void;
   isAdmin: boolean;
   refreshUser: () => Promise<void>;
-  updateProfile: (profileData: { name?: string; email?: string; firmName?: string; phone?: string; village?: string }) => Promise<User>;
+  updateProfile: (profileData: { name?: string; email?: string; firmName?: string; phone?: string; village?: string; avatarUrl?: string | null }) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +27,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     const savedToken = localStorage.getItem('pcp_token');
+    const savedUser = localStorage.getItem('pcp_user');
+
+    // Permanently remove any legacy Rajesh account
+    if (savedUser && (savedUser.includes('rajesh@gmail.com') || savedUser.includes('8888888888') || savedUser.toLowerCase().includes('rajesh kumar'))) {
+      localStorage.removeItem('pcp_user');
+      localStorage.removeItem('pcp_token');
+      setUser(null);
+      setToken(null);
+      setIsLoading(false);
+      return;
+    }
+
     if (!savedToken) {
       setUser(null);
       setIsLoading(false);
@@ -128,6 +140,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email?: string;
     firmName?: string;
     phone?: string;
+    village?: string;
+    avatarUrl?: string | null;
   }): Promise<User> => {
     const res = await api.updateProfile(profileData);
     if (res?.user) {

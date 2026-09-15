@@ -26,6 +26,8 @@ import {
   Calendar,
   Trash2,
   X,
+  Camera,
+  Upload,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
@@ -38,6 +40,8 @@ export default function ProfilePage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [firmName, setFirmName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -81,6 +85,7 @@ export default function ProfilePage() {
       setEmail(user.email || '');
       setPhone(user.phone || '');
       setFirmName(user.firmName || '');
+      setAvatarUrl(user.avatarUrl || '');
     }
 
     if (isAdmin) {
@@ -108,6 +113,7 @@ export default function ProfilePage() {
         email: email || undefined,
         phone,
         firmName: firmName || undefined,
+        avatarUrl: avatarUrl || null,
       });
 
       // If owner, automatically sync changes across the entire website & invoices!
@@ -303,6 +309,97 @@ export default function ProfilePage() {
           <UserIcon className="w-4 h-4 text-amber-400" />
           <span>Personal & Business Information</span>
         </h3>
+
+        {/* ── Person Image / Avatar Section ── */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+          <div className="relative group">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-amber-500/50 bg-slate-900 flex items-center justify-center shadow-lg shadow-amber-500/10">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={name || 'Profile'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-slate-500">
+                  <UserIcon className="w-10 h-10 text-slate-400" />
+                  <span className="text-[10px] text-slate-400 mt-1 font-semibold">No Photo</span>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Camera Overlay */}
+            <label
+              htmlFor="avatar-upload-input"
+              className="absolute -bottom-1.5 -right-1.5 p-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md cursor-pointer transition-transform group-hover:scale-105"
+              title="Upload Person Image"
+            >
+              <Camera className="w-4 h-4" />
+            </label>
+            <input
+              id="avatar-upload-input"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (file.size > 5 * 1024 * 1024) {
+                  setErrorMessage('Image size should be less than 5MB');
+                  return;
+                }
+                setIsUploadingAvatar(true);
+                const reader = new FileReader();
+                reader.onload = () => {
+                  setAvatarUrl(reader.result as string);
+                  setIsUploadingAvatar(false);
+                };
+                reader.onerror = () => {
+                  setErrorMessage('Failed to load image');
+                  setIsUploadingAvatar(false);
+                };
+                reader.readAsDataURL(file);
+              }}
+            />
+          </div>
+
+          <div className="flex-1 text-center sm:text-left space-y-2">
+            <div>
+              <h4 className="text-sm font-bold text-white flex items-center justify-center sm:justify-start gap-1.5">
+                <span>Profile Photo / Person Image</span>
+                {isAdmin && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                    Owner
+                  </span>
+                )}
+              </h4>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Upload your picture from camera or device (JPG, PNG, WebP up to 5MB). Displays in top navigation header and invoice verification.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+              <label
+                htmlFor="avatar-upload-input"
+                className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 hover:text-amber-300 font-semibold text-xs border border-slate-700 flex items-center gap-1.5 cursor-pointer transition-all"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>{avatarUrl ? 'Change Photo' : 'Upload Person Photo'}</span>
+              </label>
+
+              {avatarUrl && (
+                <button
+                  type="button"
+                  onClick={() => setAvatarUrl('')}
+                  className="px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 font-semibold text-xs border border-rose-500/30 flex items-center gap-1 transition-all cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Remove</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           {/* Full Name */}

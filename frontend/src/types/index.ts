@@ -24,6 +24,7 @@ export interface User {
   name?: string | null;
   email?: string | null;
   gender?: string | null;
+  avatarUrl?: string | null;
   firmName?: string | null;
   role: UserRole;
   addresses?: Address[];

@@ -52,4 +52,5 @@ export interface AuthUser {
   phone: string;
   role: UserRole;
   name?: string | null;
+  avatarUrl?: string | null;
 }
