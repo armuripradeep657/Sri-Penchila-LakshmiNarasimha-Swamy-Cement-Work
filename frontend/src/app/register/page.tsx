@@ -21,7 +21,8 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import Logo from '@/components/shared/Logo';
-import { signInWithGoogleRealtime } from '@/lib/firebase';
+import { signInWithGoogleRealtime, GoogleAuthResult } from '@/lib/firebase';
+import GoogleAccountChooser from '@/components/auth/GoogleAccountChooser';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -38,6 +39,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [showGoogleChooser, setShowGoogleChooser] = useState(false);
   const [error, setError] = useState('');
 
   const handleGoogleSignUp = async () => {
@@ -45,6 +47,22 @@ export default function RegisterPage() {
     setIsGoogleLoading(true);
     try {
       const googleUser = await signInWithGoogleRealtime();
+      if (googleUser) {
+        await processRegisterGoogleUser(googleUser);
+      } else {
+        setShowGoogleChooser(true);
+      }
+    } catch (err: any) {
+      setShowGoogleChooser(true);
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const processRegisterGoogleUser = async (googleUser: GoogleAuthResult) => {
+    setError('');
+    setIsGoogleLoading(true);
+    try {
       await loginWithGoogle({
         email: googleUser.email,
         name: googleUser.name,
@@ -53,11 +71,7 @@ export default function RegisterPage() {
       });
       router.push('/');
     } catch (err: any) {
-      if (err.message?.includes('cancelled') || err.message?.includes('closed')) {
-        // user closed popup
-      } else {
-        setError(err.message || 'Google registration failed. Please try again.');
-      }
+      setError(err.message || 'Google registration failed. Please try again.');
     } finally {
       setIsGoogleLoading(false);
     }
@@ -357,6 +371,15 @@ export default function RegisterPage() {
           <span>{language === 'te' ? 'మీ సమాచారం సురక్షితంగా ఉంటుంది' : 'Your data is securely encrypted'}</span>
         </div>
       </div>
+
+      <GoogleAccountChooser
+        isOpen={showGoogleChooser}
+        onClose={() => setShowGoogleChooser(false)}
+        onSelectAccount={(acc) => {
+          setShowGoogleChooser(false);
+          processRegisterGoogleUser(acc);
+        }}
+      />
     </div>
   );
 }

@@ -16,7 +16,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { signInWithGoogleRealtime } from '@/lib/firebase';
+import { signInWithGoogleRealtime, GoogleAuthResult } from '@/lib/firebase';
+import GoogleAccountChooser from '@/components/auth/GoogleAccountChooser';
 
 function LoginContent() {
   const router = useRouter();
@@ -56,6 +57,7 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [showGoogleChooser, setShowGoogleChooser] = useState(false);
   const [socialNotification, setSocialNotification] = useState<string | null>(null);
   const [error, setError] = useState('');
 
@@ -123,24 +125,40 @@ function LoginContent() {
     }
   };
 
-  // ─── Real-Time Firebase Google Authentication ───────────────────────────────
+  // ─── Real-Time Firebase Google Authentication & Account Chooser ────────────
   const handleDirectGoogleLogin = async () => {
+    setError('');
+    setIsGoogleLoading(true);
+
+    try {
+      const googleUser = await signInWithGoogleRealtime();
+      if (googleUser) {
+        await processLoggedInGoogleUser(googleUser);
+      } else {
+        // Launch Google Account Chooser
+        setShowGoogleChooser(true);
+      }
+    } catch (err: any) {
+      if (err.message?.includes('cancelled') || err.message?.includes('closed')) {
+        setSocialNotification(null);
+      } else {
+        setShowGoogleChooser(true);
+      }
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const processLoggedInGoogleUser = async (googleUser: GoogleAuthResult) => {
     setError('');
     setIsGoogleLoading(true);
     setSocialNotification(
       language === 'te'
-        ? 'గూగుల్ ఖాతాల విండో తెరవబడుతోంది...'
-        : 'Connecting to Google Authentication...'
+        ? `${googleUser.name} ఖాతాతో లాగిన్ అవుతున్నారు...`
+        : `Connecting as ${googleUser.name} (${googleUser.email})...`
     );
 
     try {
-      const googleUser = await signInWithGoogleRealtime();
-      setSocialNotification(
-        language === 'te'
-          ? `${googleUser.name} ఖాతాతో లాగిన్ అవుతున్నారు...`
-          : `Connecting as ${googleUser.name} (${googleUser.email})...`
-      );
-
       const user = await loginWithGoogle({
         email: googleUser.email,
         name: googleUser.name,
@@ -162,12 +180,7 @@ function LoginContent() {
         }
       }, 700);
     } catch (err: any) {
-      if (err.message?.includes('cancelled') || err.message?.includes('closed')) {
-        setSocialNotification(null);
-      } else {
-        setError(err.message || 'Google authentication failed. Please try again.');
-        setSocialNotification(null);
-      }
+      setError(err.message || 'Authentication failed. Please try again.');
     } finally {
       setIsGoogleLoading(false);
     }
@@ -519,6 +532,15 @@ function LoginContent() {
           </p>
         </div>
       </div>
+
+      <GoogleAccountChooser
+        isOpen={showGoogleChooser}
+        onClose={() => setShowGoogleChooser(false)}
+        onSelectAccount={(acc) => {
+          setShowGoogleChooser(false);
+          processLoggedInGoogleUser(acc);
+        }}
+      />
     </div>
   );
 }

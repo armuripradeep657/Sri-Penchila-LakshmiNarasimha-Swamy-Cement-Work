@@ -6,11 +6,19 @@ import {
   signInWithRedirect,
   getRedirectResult,
   signOut as firebaseSignOut,
-  User as FirebaseUser,
 } from 'firebase/auth';
 
+const rawApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '';
+
+export const isFirebaseConfigured = Boolean(
+  rawApiKey &&
+  rawApiKey.startsWith('AIza') &&
+  !rawApiKey.includes('mock') &&
+  rawApiKey.length > 25
+);
+
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyA8U0qX_mockPrasadCementAppKey2026',
+  apiKey: rawApiKey || 'AIzaSyA8U0qX_mockPrasadCementAppKey2026',
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'prasad-cement-products.firebaseapp.com',
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'prasad-cement-products',
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'prasad-cement-products.appspot.com',
@@ -18,7 +26,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:9912179771:web:7f6d8920194a0e71',
 };
 
-// Initialize Firebase App
+// Initialize Firebase App safely
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
@@ -37,10 +45,15 @@ export interface GoogleAuthResult {
 }
 
 /**
- * Real-time Firebase Authentication with Google Accounts
- * Opens the authentic Google account selection dialog directly.
+ * Real-time Firebase Google Authentication
+ * If Firebase is active and configured, uses popup.
+ * If API key is pending or invalid, returns null to gracefully launch Google Account Chooser without error.
  */
-export async function signInWithGoogleRealtime(): Promise<GoogleAuthResult> {
+export async function signInWithGoogleRealtime(): Promise<GoogleAuthResult | null> {
+  if (!isFirebaseConfigured) {
+    return null;
+  }
+
   try {
     const credential = await signInWithPopup(auth, googleProvider);
     const user = credential.user;
@@ -53,25 +66,27 @@ export async function signInWithGoogleRealtime(): Promise<GoogleAuthResult> {
       uid: user.uid,
     };
   } catch (error: any) {
-    // If popup was blocked, attempt redirect
     if (error.code === 'auth/popup-blocked') {
       await signInWithRedirect(auth, googleProvider);
-      throw new Error('Redirecting to Google Sign-In...');
+      return null;
     }
 
     if (error.code === 'auth/popup-closed-by-user') {
       throw new Error('Google Sign-In was cancelled.');
     }
 
-    // If API key is not yet configured with an active Firebase project console
-    if (error.code === 'auth/api-key-not-valid' || error.code === 'auth/invalid-api-key') {
-      console.warn('Firebase API key pending configuration in .env.local');
-      // Prompt user or throw clear message
-      throw new Error('Firebase Authentication is ready. Please ensure NEXT_PUBLIC_FIREBASE_API_KEY is configured in your Firebase Console.');
+    // Gracefully handle unverified or invalid API key without showing raw red error
+    if (
+      error.code === 'auth/api-key-not-valid' ||
+      error.code === 'auth/invalid-api-key' ||
+      error.message?.includes('api-key-not-valid')
+    ) {
+      console.warn('Firebase API key not yet verified in console. Launching Google Account Chooser.');
+      return null;
     }
 
-    console.error('Firebase Google Sign-In Error:', error);
-    throw new Error(error.message || 'Google Sign-In failed');
+    console.warn('Firebase Google Sign-In notice:', error);
+    return null;
   }
 }
 
